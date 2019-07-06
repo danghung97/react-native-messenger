@@ -1,0 +1,5 @@
+Requirement. Th? t? uu tiên gi?m d?n t? trên xu?ng.
+1) T?o server và push lên ( dâu dó t ko pik)
+2) dang nh?p b?ng facebook+google.
+3) sign up ( có xác th?c b?ng tin nh?n càng t?t ) + hi?n th? dã dang ký thành công
+4) sign in.
