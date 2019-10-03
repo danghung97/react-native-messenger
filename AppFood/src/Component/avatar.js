@@ -6,6 +6,8 @@ import{
     Text,
     TouchableOpacity
 } from 'react-native'
+import Icons from 'react-native-vector-icons/AntDesign'
+import BottomSheetDialog from './popUpPicker'
 import ImagePicker from 'react-native-image-crop-picker'
 
 export default class Avatar extends Component{
@@ -13,9 +15,22 @@ export default class Avatar extends Component{
         super(props);
         this.state={
             path: '',
+            isVisible: false,
         }
     }
     openPicker=()=>{
+        this.setState({
+            isVisible: true
+        })
+    }
+
+    handleCloseModal = () => {
+        this.setState({
+            isVisible: false
+        })
+    }
+
+    openImage = () => {
         ImagePicker.openPicker({
             width: 300,
             height: 300,
@@ -25,28 +40,39 @@ export default class Avatar extends Component{
             this.setState({path: image.path})
         })
     }
+
     render(){
-        const { path } = this.state;
+        const { path, isVisible } = this.state;
         let uri= !path ? require('../Image/avatar.jpg') : {uri: path};
         return(
-            <View>
+            <View style={styles.container}>
                 <View style={styles.avatar} >
                     <Image style={styles.avatar} source={uri} />
                 </View>
-                <TouchableOpacity onPress={()=>this.openPicker()}>
-                    <Text> picker image </Text>
+                <TouchableOpacity onPress={()=>this.openPicker()} style={styles.camera}>
+                    <Icons name="camerao" size={30}/>
                 </TouchableOpacity>
+                <BottomSheetDialog 
+                    isVisible={isVisible} 
+                    closeModal={this.handleCloseModal}
+                    openImage={this.openImage}/>
             </View>
         )
     }
 }
 
 const styles=StyleSheet.create({
+    container:{
+        flexDirection: "row"
+    },
     avatar:{
         width: 120,
         height: 120,
         borderRadius: 75,
         borderWidth: 1,
         borderColor: 'black'
+    },
+    camera: {
+        justifyContent: "flex-end"
     }
 })
