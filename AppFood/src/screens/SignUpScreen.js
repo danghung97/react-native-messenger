@@ -5,18 +5,47 @@ import {
   ImageBackground,
   StyleSheet,
   TextInput,
-  TouchableHighlight,
+  TouchableOpacity,
   TouchableWithoutFeedback,
   Keyboard,
 } from "react-native";
+import axios from 'axios';
 
 export default class SignUp extends Component {
+  constructor(props){
+    super(props);
+    this.state={
+      email: "",
+      password: "",
+      repeat_password: "",
+    }
+  }
+  requestSignUp=()=>{
+    const { email, password, repeat_password } = this.state
+    if(email.trim() === '') alert("you should fill you email")
+    if(password !== repeat_password) {
+      alert("your repeat password wrong")
+      return
+    }
+    axios.post(`http://localhost:8000/api/user/new`, {
+      email: this.state.email,
+      password: this.state.password
+    },
+    {
+      headers: {
+        Accept: 'application/x-www-form-urlencoded',
+        'Content-Type': 'application/json',
+      },
+    })
+    .then(res=>alert(res))
+    .catch(err=>console.warn(err));
+  }
   render() {
     return (
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <ImageBackground
           style={styles.container}
-          source={require("../image/background.png")}
+          source={require("../Image/background.png")}
         >
           <View style={{ width: "90%" }}>
             <Text style={styles.title}>SIGN UP</Text>
@@ -25,24 +54,33 @@ export default class SignUp extends Component {
                 style={styles.input}
                 placeholder="Email or username"
                 placeholderTextColor="#F9A825"
+                onChangeText={text=>this.setState({email: text})}
               />
               <TextInput
                 secureTextEntry
                 style={[styles.input]}
                 placeholder="password"
                 placeholderTextColor="#F9A825"
+                onChangeText={text=>this.setState({password: text})}
               />
-              <TouchableHighlight style={styles.buttonsignup}>
+              <TextInput
+                secureTextEntry
+                style={[styles.input]}
+                placeholder="repeat password"
+                placeholderTextColor="#F9A825"
+                onChangeText={text=>this.setState({repeat_password: text})}
+              />
+              <TouchableOpacity style={styles.buttonsignup} onPress={()=>this.requestSignUp()}>
                 <Text style={styles.textsignup}>SIGN UP</Text>
-              </TouchableHighlight>
-              <TouchableHighlight
+              </TouchableOpacity>
+              <TouchableOpacity
                 style={[styles.buttonsignup, { marginBottom: 25 }]}
                 onPress={() => {
                   this.props.navigation.navigate('loginScreen');
                 }}
               >
                 <Text style={styles.textsignup}>LOGIN</Text>
-              </TouchableHighlight>
+              </TouchableOpacity>
             </View>
           </View>
         </ImageBackground>
@@ -56,7 +94,8 @@ const styles = StyleSheet.create({
     width: "100%",
     height: "100%",
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
+    backgroundColor: 'skyblue'
   },
   title: {
     marginTop: 100,
@@ -64,7 +103,7 @@ const styles = StyleSheet.create({
     fontStyle: "normal",
     fontWeight: "100",
     fontSize: 20,
-    lineHeight: 16,
+    lineHeight: 22,
     color: '#F9A825',
     textAlign: 'center'
   },

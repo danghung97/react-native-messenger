@@ -16,7 +16,7 @@ export default class Login extends Component {
     return (
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <ImageBackground
-          source={require('../image/background.png')}
+          source={require('../Image/background.png')}
           style={styles.container}
         >
           <View style={{ width: "90%", alignSelf: "center", marginBottom: 30 }}>
@@ -55,7 +55,7 @@ export default class Login extends Component {
                 placeholderTextColor="#F9A825"
               />
 
-              <TouchableHighlight style={styles.buttonsignin}>
+              <TouchableHighlight style={styles.buttonsignin} onPress={()=>this.props.navigation.navigate("bottomScreen")}>
                 <Text style={styles.textsignin}>SIGN IN</Text>
               </TouchableHighlight>
               <View style={styles.group}>
