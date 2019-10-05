@@ -9,7 +9,10 @@ require (
 	github.com/gorilla/mux v1.7.3 // indirect
 	github.com/jinzhu/gorm v1.9.11
 	github.com/joho/godotenv v1.3.0
+	github.com/kr/fs v0.1.0 // indirect
+	github.com/kr/pretty v0.1.0 // indirect
 	github.com/leodido/go-urn v1.1.0 // indirect
+	github.com/tools/godep v0.0.0-20180126220526-ce0bfadeb516 // indirect
 	golang.org/x/crypto v0.0.0-20191002192127-34f69633bfdc
 	gopkg.in/go-playground/validator.v9 v9.30.0
 )

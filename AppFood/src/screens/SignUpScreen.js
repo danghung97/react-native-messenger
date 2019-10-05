@@ -27,7 +27,7 @@ export default class SignUp extends Component {
       alert("your repeat password wrong")
       return
     }
-    axios.post(`http://localhost:8000/api/user/new`, {
+    axios.post(`https://serverappfood.herokuapp.com/api/user/new`, {
       email: this.state.email,
       password: this.state.password
     },
@@ -37,7 +37,12 @@ export default class SignUp extends Component {
         'Content-Type': 'application/json',
       },
     })
-    .then(res=>alert(res))
+    .then(res=>{
+      // if(res.status){
+      //   alert("account has been created")
+      // }
+      alert(res.message)
+    })
     .catch(err=>console.warn(err));
   }
   render() {

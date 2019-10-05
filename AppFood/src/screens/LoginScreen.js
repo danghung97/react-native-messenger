@@ -10,8 +10,36 @@ import {
   Keyboard
 } from 'react-native';
 import Entypo from "react-native-vector-icons/Entypo";
+import axios from 'axios';
 
 export default class Login extends Component {
+  constructor(props){
+    super(props);
+    this.state={
+      email: '',
+      password: '',
+    }
+  }
+  // SendRequestLogin = ()=>{
+  //   axios.post(`https://serverappfood.herokuapp.com/api/user/login`, {
+  //       email: this.state.email,
+  //       password: this.state.password
+  //     },
+  //     {
+  //       headers: {
+  //         Accept: 'application/json',
+  //         'Content-Type': 'application/json',
+  //       },
+  //   })
+  //   .then(res => {
+  //     if(res.status){
+  //       this.props.navigation.navigate("HomeScreen")
+  //     }
+  //     else{
+  //       alert(res.message)
+  //     }
+  //   })
+  // }
   render() {
     return (
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -47,12 +75,14 @@ export default class Login extends Component {
                 style={styles.input}
                 placeholder="Email or username"
                 placeholderTextColor="#F9A825"
+                onChangeText={text=>this.setState({email: text})}
               />
               <TextInput
                 secureTextEntry
                 style={styles.input}
                 placeholder="password"
                 placeholderTextColor="#F9A825"
+                onChangeText={text=>this.setState({password: text})}
               />
 
               <TouchableHighlight style={styles.buttonsignin} onPress={()=>this.props.navigation.navigate("bottomScreen")}>

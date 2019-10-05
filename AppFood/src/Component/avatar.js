@@ -6,9 +6,9 @@ import{
     Text,
     TouchableOpacity
 } from 'react-native'
-import Icons from 'react-native-vector-icons/AntDesign'
-import BottomSheetDialog from './popUpPicker'
-import ImagePicker from 'react-native-image-crop-picker'
+import Icons from 'react-native-vector-icons/AntDesign';
+import BottomSheetDialog from './popUpPicker';
+import ImagePicker from 'react-native-image-crop-picker';
 
 export default class Avatar extends Component{
     constructor(props){
@@ -31,13 +31,24 @@ export default class Avatar extends Component{
     }
 
     openImage = () => {
-        ImagePicker.openPicker({
-            width: 300,
+        ImagePicker.openCamera({
+            width: 350,
             height: 300,
             cropping: true,
             mediaType: 'photo'
         }).then(image=>{
-            this.setState({path: image.path})
+            this.setState({path: image.path, isVisible: false})
+        })
+    }
+
+    pickerImage = () => {
+        ImagePicker.openPicker({
+            width: 350,
+            height: 300,
+            cropping: true,
+            mediaType: 'photo'
+        }).then(image=>{
+            this.setState({path: image.path, isVisible: false})
         })
     }
 
@@ -46,16 +57,19 @@ export default class Avatar extends Component{
         let uri= !path ? require('../Image/avatar.jpg') : {uri: path};
         return(
             <View style={styles.container}>
-                <View style={styles.avatar} >
+                <TouchableOpacity style={styles.avatar} onPress={()=>this.props.navigation.navigate("ImageZoomScreen", {
+                    uri: uri
+                })}>
                     <Image style={styles.avatar} source={uri} />
-                </View>
+                </TouchableOpacity>
                 <TouchableOpacity onPress={()=>this.openPicker()} style={styles.camera}>
                     <Icons name="camerao" size={30}/>
                 </TouchableOpacity>
                 <BottomSheetDialog 
                     isVisible={isVisible} 
                     closeModal={this.handleCloseModal}
-                    openImage={this.openImage}/>
+                    openImage={this.openImage}
+                    pickerImage={this.pickerImage}/>
             </View>
         )
     }

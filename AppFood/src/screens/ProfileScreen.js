@@ -9,10 +9,10 @@ import Avatar from '../Component/avatar'
 export default class ProfileScreen extends Component{
     render(){
         return(
-            <ScrollView style={{width: '100%'}}>
+            <ScrollView style={{width: '100%' }}>
                 <View style={styles.part1} />
                 <View style={styles.avatar}>
-                    <Avatar />
+                    <Avatar navigation={this.props.navigation}/>
                 </View>
             </ScrollView>
         )
@@ -21,7 +21,7 @@ export default class ProfileScreen extends Component{
 
 const styles = StyleSheet.create({
     part1:{
-        height: 250,
+        height: 220,
         backgroundColor: 'skyblue',
         width: '100%',
     },

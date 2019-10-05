@@ -23,7 +23,7 @@ export default class BottomSheetDialog extends Component{
 
                     </TouchableOpacity>
 
-                    <TouchableOpacity style={style.rectangle}>
+                    <TouchableOpacity style={style.rectangle} onPress={() => this.props.pickerImage()}>
                         <Icons name="user" size={ICON_SIZE} />
                     </TouchableOpacity>
                 </View>
