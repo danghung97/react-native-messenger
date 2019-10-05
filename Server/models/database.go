@@ -23,7 +23,8 @@ func init(){
 	dbUri := fmt.Sprintf("host=%s user=%s dbname=%s sslmode=disable password=%s", dbHost, username, dbName, password)
 	fmt.Println(dbUri)
 
-	db, err := gorm.Open("postgres", dbUri)
+	var err error
+	db, err = gorm.Open("postgres", dbUri)
 	if err != nil {
 		fmt.Print(err)
 	}
