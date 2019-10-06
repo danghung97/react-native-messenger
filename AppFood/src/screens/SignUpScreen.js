@@ -10,6 +10,7 @@ import {
   Keyboard,
 } from "react-native";
 import axios from 'axios';
+import Modal from 'react-native-modal';
 
 export default class SignUp extends Component {
   constructor(props){
@@ -18,17 +19,48 @@ export default class SignUp extends Component {
       email: "",
       password: "",
       repeat_password: "",
+      numberphone: "",
+      address: "",
+      isVisible: false,
+      code: "",
     }
   }
-  requestSignUp=()=>{
+  requestSendEmail=()=>{
     const { email, password, repeat_password } = this.state
-    if(email.trim() === '') alert("you should fill you email")
+    if(email.trim() === '') {
+      alert("you should fill your email")
+      return
+    }
+    if(password.trim() === ''){
+      alert("you should fill your password")
+      return
+    }
     if(password !== repeat_password) {
       alert("your repeat password wrong")
       return
     }
+    axios.post(`https://serverappfood.herokuapp.com/api/user/sendemail`, {
+      email: this.state.email,
+    },
+    {
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+    })
+    .then(res=>{
+      console.log("1", res.data)
+      if(res.data.status){
+        this.setState({isVisible: true})
+      }
+    })
+    .catch(err=>console.warn(err));
+  }
+
+  requestSignUp=()=>{
     axios.post(`https://serverappfood.herokuapp.com/api/user/new`, {
       email: this.state.email,
+      code: this.state.code,
       password: this.state.password
     },
     {
@@ -38,58 +70,102 @@ export default class SignUp extends Component {
       },
     })
     .then(res=>{
-      // if(res.status){
-      //   alert("account has been created")
-      // }
-      alert(JSON.stringify(res.data.message))
+      console.log(res.data)
+      if(res.data.status){
+        this.props.navigation.navigate("bottomScreen")
+      }
     })
     .catch(err=>console.warn(err));
   }
+
+  closeModal=()=>{
+    this.setState({isVisible: false, code: ""})
+  }
   render() {
     return (
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <ImageBackground
-          style={styles.container}
-          source={require("../Image/background.png")}
-        >
-          <View style={{ width: "90%" }}>
-            <Text style={styles.title}>SIGN UP</Text>
-            <View style={styles.block}>
+      <View>
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <ImageBackground
+            style={styles.container}
+            source={require("../Image/background.png")}
+          >
+            <View style={{ width: "90%" }}>
+              <Text style={styles.title}>SIGN UP</Text>
+              <View style={styles.block}>
+                <TextInput
+                  value={this.state.email}
+                  style={styles.input}
+                  placeholder="Email or username"
+                  placeholderTextColor="#F9A825"
+                  onChangeText={text=>this.setState({email: text})}
+                />
+                <TextInput
+                  value={this.state.password}
+                  secureTextEntry
+                  style={[styles.input]}
+                  placeholder="password"
+                  placeholderTextColor="#F9A825"
+                  onChangeText={text=>this.setState({password: text})}
+                />
+                <TextInput
+                  value={this.state.repeat_password}
+                  secureTextEntry
+                  style={[styles.input]}
+                  placeholder="repeat password"
+                  placeholderTextColor="#F9A825"
+                  onChangeText={text=>this.setState({repeat_password: text})}
+                />
+                <TextInput
+                  value={this.state.numberphone}
+                  style={styles.input}
+                  placeholder="Your number phone"
+                  placeholderTextColor="#F9A825"
+                  onChangeText={text=>this.setState({numberphone: text})}
+                />
+                <TextInput
+                  value={this.state.address}
+                  style={styles.input}
+                  placeholder="Your address"
+                  placeholderTextColor="#F9A825"
+                  onChangeText={text=>this.setState({address: text})}
+                />
+                <TouchableOpacity style={styles.buttonsignup} onPress={()=>this.requestSendEmail()}>
+                  <Text style={styles.textsignup}>SIGN UP</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.buttonsignup, { marginBottom: 25 }]}
+                  onPress={() => {
+                    this.props.navigation.navigate('loginScreen');
+                  }}
+                >
+                  <Text style={styles.textsignup}>LOGIN</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </ImageBackground>
+        </TouchableWithoutFeedback>
+        <Modal 
+          isVisible={this.state.isVisible}
+          onBackdropPress={ () => this.closeModal()}
+          onBackButtonPress={() => this.closeModal()}
+          onSwipeComplete={() => this.closeModal()}
+          style={styles.Modal}
+          swipeDirection={["left","right","down"]}>
+            <View style={{paddingHorizontal: 10, alignSelf: 'center', backgroundColor: 'white'}}>
+              <Text style={styles.text}>fill your code you received from your email</Text>
               <TextInput
+                value={this.state.code}
                 style={styles.input}
-                placeholder="Email or username"
+                placeholder="Your code"
                 placeholderTextColor="#F9A825"
-                onChangeText={text=>this.setState({email: text})}
+                onChangeText={text=>this.setState({code: text})}
               />
-              <TextInput
-                secureTextEntry
-                style={[styles.input]}
-                placeholder="password"
-                placeholderTextColor="#F9A825"
-                onChangeText={text=>this.setState({password: text})}
-              />
-              <TextInput
-                secureTextEntry
-                style={[styles.input]}
-                placeholder="repeat password"
-                placeholderTextColor="#F9A825"
-                onChangeText={text=>this.setState({repeat_password: text})}
-              />
-              <TouchableOpacity style={styles.buttonsignup} onPress={()=>this.requestSignUp()}>
-                <Text style={styles.textsignup}>SIGN UP</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.buttonsignup, { marginBottom: 25 }]}
-                onPress={() => {
-                  this.props.navigation.navigate('loginScreen');
-                }}
-              >
-                <Text style={styles.textsignup}>LOGIN</Text>
+              <TouchableOpacity style={styles.button} onPress={()=>this.requestSignUp()}>
+                <Text>SEND</Text>
               </TouchableOpacity>
             </View>
-          </View>
-        </ImageBackground>
-      </TouchableWithoutFeedback>
+        </Modal>
+      </View>
     );
   }
 }
@@ -146,4 +222,21 @@ const styles = StyleSheet.create({
     lineHeight: 16,
     color: "#F9A825",
   },
+  Modal:{
+    margin: 0,
+    justifyContent: 'center'
+  },
+  text:{
+    fontSize: 10,
+    lineHeight: 12,
+    fontWeight: '500',
+    marginTop: 15
+  },
+  button:{
+    width: 30,
+    height: 15,
+    backgroundColor: 'skyblue',
+    marginTop: 15,
+    marginBottom: 15
+  }
 });
