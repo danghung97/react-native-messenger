@@ -15,15 +15,16 @@ func main(){
 
 	router.HandleFunc("/api/user/new", controllers.CreateAccount).Methods("POST")
 	router.HandleFunc("/api/user/login", controllers.Authenticate).Methods("POST")
+	router.HandleFunc("/api/user/code", controllers.SendEmail).Methods("POST")
 
 	router.Use(app.JwtAuthentication)
 
 	port:= os.Getenv("PORT")
-	if port == "" {
-		port = ":8000"
-	}
+	//if port == "" { // just for localhost
+	//	port = ":8000"
+	//}
 
-	err := http.ListenAndServe(port, router)
+	err := http.ListenAndServe(":"+ port, router)
 	if err!=nil {
 		fmt.Print(err)
 	}

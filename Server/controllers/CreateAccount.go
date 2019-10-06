@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"Server/help"
 	"Server/models"
 	"Server/utils"
 	"encoding/json"
@@ -12,6 +13,11 @@ var CreateAccount = func(w http.ResponseWriter, r *http.Request){
 	err := json.NewDecoder(r.Body).Decode(account)
 	if err!=nil{
 		utils.Respond(w, utils.Message(false, "Invalid request"))
+		return
+	}
+	check, message := account.Verify(r)
+	if !check {
+		utils.Respond(w, utils.Message(false, message))
 		return
 	}
 
@@ -29,5 +35,23 @@ var Authenticate = func(w http.ResponseWriter, r *http.Request){
 	}
 
 	resp := models.Login(account.Email, account.Password)
+	utils.Respond(w, resp)
+}
+
+var SendEmail = func(w http.ResponseWriter, r *http.Request){
+	account := &models.FakeAccount{}
+	err := json.NewDecoder(r.Body).Decode(account)
+	if err!=nil{
+		utils.Respond(w, utils.Message(false, "Invalid request"))
+		return
+	}
+
+	randomString := help.GenerateString(6)
+	check , message:= email(account.Email, randomString)
+	if !check {
+		utils.Respond(w, utils.Message(false, message))
+		return
+	}
+	resp := account.CreateFakeAccount()
 	utils.Respond(w, resp)
 }

@@ -41,7 +41,7 @@ export default class SignUp extends Component {
       // if(res.status){
       //   alert("account has been created")
       // }
-      alert(res.message)
+      alert(JSON.stringify(res.data.message))
     })
     .catch(err=>console.warn(err));
   }

@@ -20,26 +20,30 @@ export default class Login extends Component {
       password: '',
     }
   }
-  // SendRequestLogin = ()=>{
-  //   axios.post(`https://serverappfood.herokuapp.com/api/user/login`, {
-  //       email: this.state.email,
-  //       password: this.state.password
-  //     },
-  //     {
-  //       headers: {
-  //         Accept: 'application/json',
-  //         'Content-Type': 'application/json',
-  //       },
-  //   })
-  //   .then(res => {
-  //     if(res.status){
-  //       this.props.navigation.navigate("HomeScreen")
-  //     }
-  //     else{
-  //       alert(res.message)
-  //     }
-  //   })
-  // }
+  SendRequestLogin = ()=>{
+    axios.post(`https://serverappfood.herokuapp.com/api/user/login`, {
+        email: this.state.email,
+        password: this.state.password
+      },
+      {
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+          
+        },
+    })
+    .then(res => {
+      // alert(JSON.stringify(res.data.message))
+      if(res.data.status){
+        this.props.navigation.navigate("HomeScreen")
+      }
+      else{
+        alert(res.data.message)
+      }
+    }).catch(err => {
+      alert(JSON.stringify(err))
+    })
+  }
   render() {
     return (
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -85,7 +89,7 @@ export default class Login extends Component {
                 onChangeText={text=>this.setState({password: text})}
               />
 
-              <TouchableHighlight style={styles.buttonsignin} onPress={()=>this.props.navigation.navigate("bottomScreen")}>
+              <TouchableHighlight style={styles.buttonsignin} onPress={()=>this.SendRequestLogin()}>
                 <Text style={styles.textsignin}>SIGN IN</Text>
               </TouchableHighlight>
               <View style={styles.group}>

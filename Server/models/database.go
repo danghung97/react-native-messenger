@@ -3,17 +3,16 @@ package models
 import (
 	"fmt"
 	"github.com/jinzhu/gorm"
-	"github.com/joho/godotenv"
 	"os"
 )
 
 var db *gorm.DB
 
 func init(){
-	e := godotenv.Load()
-	if e!=nil{
-		fmt.Print(e)
-	}
+	//e := godotenv.Load()
+	//if e!=nil{
+	//	fmt.Print(e)
+	//}
 
 	username := os.Getenv("db_user")
 	password := os.Getenv("db_pass")
@@ -29,7 +28,7 @@ func init(){
 		fmt.Print(err)
 	}
 
-	db.Debug().AutoMigrate(&Account{})
+	db.Debug().AutoMigrate(&Account{}, &FakeAccount{})
 }
 
 func GetDB() *gorm.DB{
