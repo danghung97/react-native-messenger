@@ -15,7 +15,8 @@ var CreateAccount = func(w http.ResponseWriter, r *http.Request){
 		utils.Respond(w, utils.Message(false, "Invalid request"))
 		return
 	}
-	check, message := account.Verify(r)
+
+	check, message := account.Verify(account.Code)
 	if !check {
 		utils.Respond(w, utils.Message(false, message))
 		return

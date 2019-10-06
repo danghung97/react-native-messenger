@@ -1,10 +1,11 @@
 package main
-import(
+
+import (
+	"Server/app"
+	"Server/controllers"
 	"fmt"
 	"github.com/gorilla/mux"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
-	"Server/app"
-	"Server/controllers"
 	"net/http"
 	"os"
 )
@@ -20,9 +21,9 @@ func main(){
 	router.Use(app.JwtAuthentication)
 
 	port:= os.Getenv("PORT")
-	//if port == "" { // just for localhost
-	//	port = ":8000"
-	//}
+	if port == "" { // just for localhost
+		port = "8000"
+	}
 
 	err := http.ListenAndServe(":"+ port, router)
 	if err!=nil {
