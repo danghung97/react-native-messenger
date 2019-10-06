@@ -17,10 +17,6 @@ type Token struct{
 	jwt.StandardClaims
 }
 
-type Code struct{
-	code string `json:"code"`
-}
-
 type Account struct{
 	gorm.Model
 	Email string `json:"email" validate:"email"`
@@ -31,7 +27,7 @@ type Account struct{
 type FakeAccount struct{
 	gorm.Model
 	Email string `json:"email" validate:"email"`
-	Code Code
+	Code string
 }
 
 var validate *validator.Validate
@@ -44,7 +40,7 @@ func validateFunc(account *FakeAccount) error{
 	return nil
 }
 
-func (account *FakeAccount) CreateFakeAccount() (map[string] interface{}){
+func (account *FakeAccount) CreateFakeAccount(code string) (map[string] interface{}){
 	temp := &FakeAccount{}
 	var err error
 	err = GetDB().Table("accounts").Where("email = ?", account.Email).First(temp).Error
@@ -66,6 +62,7 @@ func (account *FakeAccount) CreateFakeAccount() (map[string] interface{}){
 	if err!=nil {
 		return u.Message(false, err.Error())
 	}
+	account.Code = code
 	GetDB().Create(account)
 	resp := u.Message(true, "check your email to take your code")
 	//resp["fake account"] = account

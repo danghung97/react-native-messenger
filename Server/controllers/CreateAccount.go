@@ -52,6 +52,6 @@ var SendEmail = func(w http.ResponseWriter, r *http.Request){
 		utils.Respond(w, utils.Message(false, message))
 		return
 	}
-	resp := account.CreateFakeAccount()
+	resp := account.CreateFakeAccount(randomString)
 	utils.Respond(w, resp)
 }

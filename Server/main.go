@@ -15,7 +15,7 @@ func main(){
 
 	router.HandleFunc("/api/user/new", controllers.CreateAccount).Methods("POST")
 	router.HandleFunc("/api/user/login", controllers.Authenticate).Methods("POST")
-	router.HandleFunc("/api/user/code", controllers.SendEmail).Methods("POST")
+	router.HandleFunc("/api/user/sendemail", controllers.SendEmail).Methods("POST")
 
 	router.Use(app.JwtAuthentication)
 
