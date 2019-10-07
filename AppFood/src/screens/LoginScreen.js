@@ -5,9 +5,10 @@ import {
   ImageBackground,
   StyleSheet,
   TextInput,
-  TouchableHighlight,
+  TouchableOpacity,
   TouchableWithoutFeedback,
-  Keyboard
+  Keyboard,
+  AsyncStorage,
 } from 'react-native';
 import Entypo from "react-native-vector-icons/Entypo";
 import axios from 'axios';
@@ -16,6 +17,18 @@ import instance from '../axios/AxiosInstance'
 
 export default class Login extends Component {
   constructor(props){
+      AsyncStorage.getItem("email+password+token", (error, result) => {
+      if (error) {
+        // callback(null);
+        return
+      } else {
+        if(result){
+          props.navigation.navigate("HomeScreen")
+        }
+        // callback(result);
+      }
+    });
+      // callback(null);
     super(props);
     this.state={
       email: '',
@@ -28,15 +41,16 @@ export default class Login extends Component {
         password: this.state.password
     })
     .then(res => {
-    	if(res.data.status){
-    		this.props.navigation.navigate("HomeScreen")
-    	}
-      	else{
-        	alert(res.data.message)
-    	}
+      // alert(JSON.stringify(res.data.message))
+      if(res.data.status){
+        AsyncStorage.setItem("email+password+token", `${this.state.email}+${this.state.password}+${res.data.account.token}`);
+        this.props.navigation.navigate("HomeScreen")
+      }
+      else{
+        alert(res.data.message)
+      }
     }).catch(err => {
-    	console.log(JSON.stringify(err))
-      	alert(JSON.stringify(err.message))
+      alert("errrrrr" + JSON.stringify(err))
     })
   }
   
@@ -50,9 +64,9 @@ export default class Login extends Component {
           <View style={{ width: "90%", alignSelf: "center", marginBottom: 30 }}>
             <Text style={styles.textconnect}>Connect with</Text>
             <View style={styles.button}>
-              <TouchableHighlight style={{ flex: 1 }}>
+              <TouchableOpacity style={{ flex: 1 }}>
                 <Text style={[styles.fbgg, { marginLeft: 10 }]}>facebook</Text>
-              </TouchableHighlight>
+              </TouchableOpacity>
               <Entypo
                 name="facebook-with-circle"
                 style={styles.iconFacebook}
@@ -60,9 +74,9 @@ export default class Login extends Component {
               />
             </View>
             <View style={styles.button}>
-              <TouchableHighlight style={{ flex: 1 }}>
+              <TouchableOpacity style={{ flex: 1 }}>
                 <Text style={[styles.fbgg, { marginLeft: 10 }]}>google</Text>
-              </TouchableHighlight>
+              </TouchableOpacity>
               <Entypo
                 name="google--with-circle"
                 style={[styles.iconFacebook, { color: "#DC4E41" }]}
@@ -72,12 +86,14 @@ export default class Login extends Component {
             <Text style={[styles.textconnect, { marginTop: 24 }]}>Or</Text>
             <View style={styles.block}>
               <TextInput
+                value={this.state.email}
                 style={styles.input}
                 placeholder="Email or username"
                 placeholderTextColor="#F9A825"
                 onChangeText={text=>this.setState({email: text})}
               />
               <TextInput
+                value={this.state.password}
                 secureTextEntry
                 style={styles.input}
                 placeholder="password"
@@ -85,22 +101,20 @@ export default class Login extends Component {
                 onChangeText={text=>this.setState({password: text})}
               />
 
-              <TouchableHighlight style={styles.buttonsignin} onPress={()=>this.SendRequestLogin()}>
+              <TouchableOpacity style={styles.buttonsignin} onPress={()=>this.SendRequestLogin()}>
                 <Text style={styles.textsignin}>SIGN IN</Text>
-              </TouchableHighlight>
+              </TouchableOpacity>
               <View style={styles.group}>
-                <TouchableHighlight
+                <TouchableOpacity
                   onPress={() => this.props.navigation.navigate("signUpScreen")}
                 >
                   <Text style={styles.textconnect}>Create Account</Text>
-                </TouchableHighlight>
-                <TouchableHighlight
-                  onPress={() => {
-                    alert("hello");
-                  }}
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => this.props.navigation.navigate("ForgetPWScreen")}
                 >
                   <Text style={styles.textconnect}>Forget password</Text>
-                </TouchableHighlight>
+                </TouchableOpacity>
               </View>
             </View>
           </View>

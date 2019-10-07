@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   TouchableWithoutFeedback,
   Keyboard,
+  AsyncStorage
 } from "react-native";
 import axios from 'axios';
 import Modal from 'react-native-modal';
@@ -72,6 +73,7 @@ export default class SignUp extends Component {
     .then(res=>{
       console.log(res.data)
       if(res.data.status){
+        AsyncStorage.setItem("email+password+token", `${this.state.email}+${this.state.password}+${res.data.account.token}`);
         this.props.navigation.navigate("bottomScreen")
       }
     })
@@ -155,7 +157,7 @@ export default class SignUp extends Component {
               <Text style={styles.text}>fill your code you received from your email</Text>
               <TextInput
                 value={this.state.code}
-                style={styles.input}
+                style={[styles.input, {alignSelf: 'center'}]}
                 placeholder="Your code"
                 placeholderTextColor="#F9A825"
                 onChangeText={text=>this.setState({code: text})}
@@ -233,10 +235,13 @@ const styles = StyleSheet.create({
     marginTop: 15
   },
   button:{
-    width: 30,
-    height: 15,
+    width: 60,
+    height: 20,
     backgroundColor: 'skyblue',
     marginTop: 15,
+    justifyContent: 'center',
+    alignItems: 'center',
+    alignSelf: 'center',
     marginBottom: 15
   }
 });
