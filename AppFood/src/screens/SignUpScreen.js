@@ -155,7 +155,7 @@ export default class SignUp extends Component {
               <Text style={styles.text}>fill your code you received from your email</Text>
               <TextInput
                 value={this.state.code}
-                style={styles.input}
+                style={[styles.input, {alignSelf: 'center'}]}
                 placeholder="Your code"
                 placeholderTextColor="#F9A825"
                 onChangeText={text=>this.setState({code: text})}
@@ -233,10 +233,13 @@ const styles = StyleSheet.create({
     marginTop: 15
   },
   button:{
-    width: 30,
-    height: 15,
+    width: 60,
+    height: 20,
     backgroundColor: 'skyblue',
     marginTop: 15,
+    justifyContent: 'center',
+    alignItems: 'center',
+    alignSelf: 'center',
     marginBottom: 15
   }
 });
