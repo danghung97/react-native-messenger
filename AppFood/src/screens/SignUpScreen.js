@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   TouchableWithoutFeedback,
   Keyboard,
+  AsyncStorage
 } from "react-native";
 import axios from 'axios';
 import Modal from 'react-native-modal';
@@ -72,6 +73,7 @@ export default class SignUp extends Component {
     .then(res=>{
       console.log(res.data)
       if(res.data.status){
+        AsyncStorage.setItem("email+password+token", `${this.state.email}+${this.state.password}+${res.data.account.token}`);
         this.props.navigation.navigate("bottomScreen")
       }
     })

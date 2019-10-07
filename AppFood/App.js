@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { View } from 'react-native';
 import Login from './src/screens/LoginScreen';
 import SignUp from "./src/screens/SignUpScreen";
+import ForgetPW from "./src/screens/ForgetPWScreen";
 import Home from './src/screens/HomeScreen';
 import Profile from './src/screens/ProfileScreen'
 import { createAppContainer } from 'react-navigation';
@@ -26,10 +27,11 @@ const DrawerNavigator = createDrawerNavigator(
 
 const stackNavigator = createStackNavigator(
   {
-    signUpScreen: SignUp,
     loginScreen: Login,
+    signUpScreen: SignUp,
+    ForgetPWScreen: ForgetPW,
     bottomScreen: BottomNavigator,
-    // drawer: DrawerNavigator,
+    drawer: DrawerNavigator,
     ImageZoomScreen: ImageZoom,
   },
   { headerMode: 'none', navigationOptions: { headerVisible: false } }
