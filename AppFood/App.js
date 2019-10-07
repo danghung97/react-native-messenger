@@ -26,8 +26,8 @@ const DrawerNavigator = createDrawerNavigator(
 
 const stackNavigator = createStackNavigator(
   {
-    // signUpScreen: SignUp,
-    // loginScreen: Login,
+    signUpScreen: SignUp,
+    loginScreen: Login,
     bottomScreen: BottomNavigator,
     // drawer: DrawerNavigator,
     ImageZoomScreen: ImageZoom,

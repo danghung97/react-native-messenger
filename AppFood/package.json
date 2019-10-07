@@ -4,7 +4,10 @@
   "private": true,
   "scripts": {
     "android": "react-native run-android",
-    "ios": "react-native run-ios",
+    "android-dev": "SET ENVFILE = .env.dev && react-native run-android",
+    "android-staging": "set ENVFILE = .env.staging && react-native run-android",
+    "build-android-prod": "export ENVFILE=.env.prod && cd android && ./gradlew assembleRelease && cd ..",
+    "ios": "react-native run-ios",  
     "start": "react-native start",
     "test": "jest",
     "lint": "eslint ."
@@ -13,6 +16,7 @@
     "axios": "^0.19.0",
     "react": "16.9.0",
     "react-native": "0.61.2",
+    "react-native-config": "^0.11.7",
     "react-native-gesture-handler": "^1.4.1",
     "react-native-image-crop-picker": "^0.25.2",
     "react-native-image-zoom-viewer": "^2.2.26",

@@ -11,6 +11,8 @@ import {
 } from 'react-native';
 import Entypo from "react-native-vector-icons/Entypo";
 import axios from 'axios';
+import { LOG_IN } from '../axios/Url'
+import instance from '../axios/AxiosInstance'
 
 export default class Login extends Component {
   constructor(props){
@@ -21,29 +23,23 @@ export default class Login extends Component {
     }
   }
   SendRequestLogin = ()=>{
-    axios.post(`https://serverappfood.herokuapp.com/api/user/login`, {
+    instance.post("api/user/login", {
         email: this.state.email,
         password: this.state.password
-      },
-      {
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-          
-        },
     })
     .then(res => {
-      // alert(JSON.stringify(res.data.message))
-      if(res.data.status){
-        this.props.navigation.navigate("HomeScreen")
-      }
-      else{
-        alert(res.data.message)
-      }
+    	if(res.data.status){
+    		this.props.navigation.navigate("HomeScreen")
+    	}
+      	else{
+        	alert(res.data.message)
+    	}
     }).catch(err => {
-      alert(JSON.stringify(err))
+    	console.log(JSON.stringify(err))
+      	alert(JSON.stringify(err.message))
     })
   }
+  
   render() {
     return (
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
