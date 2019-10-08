@@ -50,7 +50,6 @@ export default class SignUp extends Component {
       },
     })
     .then(res=>{
-      console.log("1", res.data)
       if(res.data.status){
         this.setState({isVisible: true})
       }

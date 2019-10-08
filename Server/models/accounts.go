@@ -15,16 +15,27 @@ type Token struct{
 	UserId uint
 	jwt.StandardClaims
 }
-//
-//type Code struct{
-//}
 
 type Account struct{
 	gorm.Model
 	Email string `json:"email" validate:"email"`
 	Password string `json:"password" validate:"gt=6"`
+	//Name string
+	//Phone int
+	//Address string
+	//avatar string
 	Token string `json:"token";sql:"-"`
 	Code string `json:"code"`
+	//friends []Friend
+}
+
+type Friend struct {
+	gorm.Model
+	Email string
+	//Name string
+	//Phone int
+	//Address string
+	//avatar string
 }
 
 type FakeAccount struct{
@@ -43,7 +54,7 @@ func validateFunc(account *FakeAccount) error{
 	return nil
 }
 
-func (account *FakeAccount) CreateFakeAccount(code string) (map[string] interface{}){
+func (account *FakeAccount) CreateFakeAccount(code string) map[string] interface{} {
 	temp := &FakeAccount{}
 	var err error
 	err = GetDB().Table("accounts").Where("email = ?", account.Email).First(temp).Error
@@ -75,21 +86,8 @@ func (account *FakeAccount) CreateFakeAccount(code string) (map[string] interfac
 }
 
 
-func (account *Account) Create() (map[string] interface{}){
-	//temp := &Account{}
-	//var err error
-	//err = GetDB().Table("accounts").Where("email = ?", account.Email).First(temp).Error
-	//if err != nil && err != gorm.ErrRecordNotFound {
-	//	return u.Message(false, "Connection error. Please retry")
-	//}
-	//if temp.Email != "" {
-	//	return u.Message(false, "Email address already in use by another user.")
-	//}
-	//validate = validator.New()
-	//err = validateFunc(account)
-	//if err!=nil {
-	//	return u.Message(false, err.Error())
-	//}
+func (account *Account) Create() map[string] interface{} {
+
 
 	hashedPassword, _:= bcrypt.GenerateFromPassword([]byte(account.Password), bcrypt.DefaultCost)
 	account.Password = string(hashedPassword)
@@ -111,13 +109,14 @@ func (account *Account) Create() (map[string] interface{}){
 	return reponse
 }
 
-func Login(email, password string) (map[string]interface{}){
+
+func Login(email, password string) map[string]interface{} {
 	account := &Account{}
 	var err error
 	err = GetDB().Table("accounts").Where("email = ?", email).First(account).Error
 	if err!=nil{
 		if err == gorm.ErrRecordNotFound{
-			return u.Message(false, "Email addres not found")
+			return u.Message(false, "Email address not found")
 		}
 		return u.Message(false, "Connection error. Please retry")
 	}
@@ -137,6 +136,10 @@ func Login(email, password string) (map[string]interface{}){
 	return resp
 }
 
+//func (account *Account) refreshToken() map[string] interface{} {
+//
+//}
+
 func (account *Account) Verify(code string) (bool, string){
 
 	temp := &FakeAccount{}
@@ -145,9 +148,7 @@ func (account *Account) Verify(code string) (bool, string){
 	if err != nil && err != gorm.ErrRecordNotFound {
 		return false, err.Error()
 	}
-	if temp.Email == ""{
-		return false, "don't find your email"
-	}
+
 	if code == temp.Code {
 		return true, "verify successfully!"
 	}

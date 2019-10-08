@@ -55,7 +55,7 @@ export default class Login extends Component {
         alert(res.data.message)
       }
     }).catch(err => {
-      alert("errrrrr" + JSON.stringify(err))
+      alert("error" + JSON.stringify(err))
     })
   }
   render() {

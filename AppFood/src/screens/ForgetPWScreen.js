@@ -20,6 +20,10 @@ export default class ForgetPW extends Component{
             repeatNew_pw: '',
         }
     }
+
+    requestSendEmail=()=>{
+        
+    }
     render(){
         return(
         <View>
@@ -91,7 +95,7 @@ export default class ForgetPW extends Component{
                 placeholderTextColor="#F9A825"
                 onChangeText={text=>this.setState({code: text})}
               />
-              <TouchableOpacity style={styles.button} onPress={()=>this.requestSignUp()}>
+              <TouchableOpacity style={styles.button} onPress={()=>this.requestSendEmail()}>
                 <Text>SEND</Text>
               </TouchableOpacity>
             </View>
