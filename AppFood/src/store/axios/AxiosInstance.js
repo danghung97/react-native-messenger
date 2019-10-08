@@ -1,13 +1,12 @@
 import Axios from 'axios'
 import Config from 'react-native-config'
 
-const axios = Axios.create({
+const isntance = Axios.create({
     baseURL: Config.SERVER_URL,
     timeout: 20000,
 })
 
-axios.interceptors.request.use(function(config) {
-    console.log(JSON.stringify(config))
+isntance.interceptors.request.use(function(config) {
     //token when has save to local
     return config   
 }, function (error) {
@@ -16,4 +15,4 @@ axios.interceptors.request.use(function(config) {
     return Promise.reject(error);
 })
 
-export default axios
+export default isntance

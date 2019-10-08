@@ -7,7 +7,7 @@
     "android-dev": "SET ENVFILE = .env.dev && react-native run-android",
     "android-staging": "set ENVFILE = .env.staging && react-native run-android",
     "build-android-prod": "export ENVFILE=.env.prod && cd android && ./gradlew assembleRelease && cd ..",
-    "ios": "react-native run-ios",  
+    "ios": "react-native run-ios",
     "start": "react-native start",
     "test": "jest",
     "lint": "eslint ."
@@ -26,7 +26,10 @@
     "react-navigation": "^4.0.10",
     "react-navigation-drawer": "^2.2.2",
     "react-navigation-stack": "^1.9.3",
-    "react-navigation-tabs": "^2.5.5"
+    "react-navigation-tabs": "^2.5.5",
+    "react-redux": "^7.1.1",
+    "redux": "^4.0.4",
+    "redux-saga": "^1.1.1"
   },
   "devDependencies": {
     "@babel/core": "^7.6.2",
