@@ -20,9 +20,9 @@ type Account struct{
 	gorm.Model
 	Email string `json:"email" validate:"email"`
 	Password string `json:"password" validate:"gt=6"`
-	//Name string
-	//Phone int
-	//Address string
+	Name string `json:"name"`
+	Phone int `json:"phone"`
+	Address string `json:"address"`
 	//avatar string
 	Token string `json:"token";sql:"-"`
 	Code string `json:"code"`

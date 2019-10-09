@@ -22,6 +22,7 @@ export default class SignUp extends Component {
       repeat_password: "",
       numberphone: "",
       address: "",
+      name: "",
     }
   }
   requestSendEmail=()=>{
@@ -59,7 +60,8 @@ export default class SignUp extends Component {
     axios.post(`https://serverappfood.herokuapp.com/api/user/new`, {
       email: this.state.email,
       code,
-      password: this.state.password
+      password: this.state.password,
+      name: this.state.name,
     },
     {
       headers: {
