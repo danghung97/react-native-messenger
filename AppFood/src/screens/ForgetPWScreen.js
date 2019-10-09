@@ -9,7 +9,8 @@ import{
     TouchableOpacity,
     TextInput
 } from 'react-native';
-import Icons from 'react-native-vector-icons/AntDesign';
+// import Icons from 'react-native-vector-icons/AntDesign';
+import Modal from '../Component/SignUp/modal';
 
 export default class ForgetPW extends Component{
     constructor(props){
@@ -22,7 +23,26 @@ export default class ForgetPW extends Component{
     }
 
     requestSendEmail=()=>{
-        
+        //check email password roi moi gui request
+        //
+        axios.post(`https://serverappfood.herokuapp.com/api/user/sendemail`, {
+        email: this.state.email,
+        },
+        {
+        headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+        },
+        })
+        .then(res=>{
+        if(res.data.status){
+            this.setState({isVisible: true})
+        }
+        })
+        .catch(err=>console.warn(err));
+    }
+    requestRfPW=(code)=>{
+
     }
     render(){
         return(
@@ -58,7 +78,7 @@ export default class ForgetPW extends Component{
                         onChangeText={text=>this.setState({password: text})}
                         />
 
-                        <TouchableOpacity style={styles.buttonsignin} onPress={()=>this.SendrequestEmail()}>
+                        <TouchableOpacity style={styles.buttonsignin} onPress={()=>this.requestSendEmail()}>
                             <Text style={styles.textsignin}>SEND</Text>
                         </TouchableOpacity>
                         <View style={styles.group}>
@@ -79,27 +99,10 @@ export default class ForgetPW extends Component{
                 </View>
             </ImageBackground>
         </TouchableWithoutFeedback>
-        <Modal 
-          isVisible={this.state.isVisible}
-          onBackdropPress={ () => this.closeModal()}
-          onBackButtonPress={() => this.closeModal()}
-          onSwipeComplete={() => this.closeModal()}
-          style={styles.Modal}
-          swipeDirection={["left","right","down"]}>
-            <View style={{paddingHorizontal: 10, alignSelf: 'center', backgroundColor: 'white'}}>
-              <Text style={styles.text}>fill your code you received from your email</Text>
-              <TextInput
-                value={this.state.code}
-                style={[styles.input, {alignSelf: 'center'}]}
-                placeholder="Your code"
-                placeholderTextColor="#F9A825"
-                onChangeText={text=>this.setState({code: text})}
-              />
-              <TouchableOpacity style={styles.button} onPress={()=>this.requestSendEmail()}>
-                <Text>SEND</Text>
-              </TouchableOpacity>
-            </View>
-        </Modal>
+        <Modal
+            ref="Modal"
+            request={this.requestRfPW}
+        />
         </View>
         )
     }

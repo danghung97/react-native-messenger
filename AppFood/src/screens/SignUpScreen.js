@@ -11,7 +11,7 @@ import {
   AsyncStorage
 } from "react-native";
 import axios from 'axios';
-import Modal from 'react-native-modal';
+import Modal from '../Component/SignUp/modal';
 
 export default class SignUp extends Component {
   constructor(props){
@@ -22,8 +22,6 @@ export default class SignUp extends Component {
       repeat_password: "",
       numberphone: "",
       address: "",
-      isVisible: false,
-      code: "",
     }
   }
   requestSendEmail=()=>{
@@ -51,16 +49,16 @@ export default class SignUp extends Component {
     })
     .then(res=>{
       if(res.data.status){
-        this.setState({isVisible: true})
+        this.refs['Modal'].show()
       }
     })
     .catch(err=>console.warn(err));
   }
 
-  requestSignUp=()=>{
+  requestSignUp=(code)=>{
     axios.post(`https://serverappfood.herokuapp.com/api/user/new`, {
       email: this.state.email,
-      code: this.state.code,
+      code,
       password: this.state.password
     },
     {
@@ -70,8 +68,8 @@ export default class SignUp extends Component {
       },
     })
     .then(res=>{
-      console.log(res.data)
       if(res.data.status){
+        this.refs['Modal'].closeModal()
         AsyncStorage.setItem("email+password+token", `${this.state.email}+${this.state.password}+${res.data.account.token}`);
         this.props.navigation.navigate("bottomScreen")
       }
@@ -145,27 +143,10 @@ export default class SignUp extends Component {
             </View>
           </ImageBackground>
         </TouchableWithoutFeedback>
-        <Modal 
-          isVisible={this.state.isVisible}
-          onBackdropPress={ () => this.closeModal()}
-          onBackButtonPress={() => this.closeModal()}
-          onSwipeComplete={() => this.closeModal()}
-          style={styles.Modal}
-          swipeDirection={["left","right","down"]}>
-            <View style={{paddingHorizontal: 10, alignSelf: 'center', backgroundColor: 'white'}}>
-              <Text style={styles.text}>fill your code you received from your email</Text>
-              <TextInput
-                value={this.state.code}
-                style={[styles.input, {alignSelf: 'center'}]}
-                placeholder="Your code"
-                placeholderTextColor="#F9A825"
-                onChangeText={text=>this.setState({code: text})}
-              />
-              <TouchableOpacity style={styles.button} onPress={()=>this.requestSignUp()}>
-                <Text>SEND</Text>
-              </TouchableOpacity>
-            </View>
-        </Modal>
+        <Modal
+          ref="Modal"
+          request={this.requestSignUp}
+        />
       </View>
     );
   }
@@ -223,24 +204,5 @@ const styles = StyleSheet.create({
     lineHeight: 16,
     color: "#F9A825",
   },
-  Modal:{
-    margin: 0,
-    justifyContent: 'center'
-  },
-  text:{
-    fontSize: 10,
-    lineHeight: 12,
-    fontWeight: '500',
-    marginTop: 15
-  },
-  button:{
-    width: 60,
-    height: 20,
-    backgroundColor: 'skyblue',
-    marginTop: 15,
-    justifyContent: 'center',
-    alignItems: 'center',
-    alignSelf: 'center',
-    marginBottom: 15
-  }
+  
 });

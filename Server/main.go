@@ -3,15 +3,21 @@ package main
 import (
 	"Server/app"
 	"Server/controllers"
-	"fmt"
+	socketio "github.com/googollee/go-socket.io"
 	"github.com/gorilla/mux"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
+	"log"
 	"net/http"
 	"os"
 )
 
 
 func main(){
+	server, err := socketio.NewServer(nil)
+	if err!=nil{
+		log.Fatal(err)
+	}
+	
 	router := mux.NewRouter()
 
 	router.HandleFunc("/api/user/new", controllers.CreateAccount).Methods("POST")
@@ -26,8 +32,13 @@ func main(){
 		port = "8000"
 	}
 
-	err := http.ListenAndServe(":"+ port, router)
+	go server.Serve()
+	defer server.Close()
+	http.Handle("/socket.io/", server)
+	http.Handle("/", http.FileServer(http.Dir("../AppFood/index.js")))
+
+	err = http.ListenAndServe(":"+ port, router)
 	if err!=nil {
-		fmt.Print(err)
+		log.Fatal(err)
 	}
 }

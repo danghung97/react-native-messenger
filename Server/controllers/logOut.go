@@ -17,6 +17,7 @@ var Logout = func(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	models.RefreshToken("sss")
 	utils.Respond(w, utils.Message(false, fmt.Sprintf("r: %s", account)))
 
 	//resp := account.refreshToken()
