@@ -193,16 +193,19 @@ const styles = StyleSheet.create({
 	},
 });
 
-const mapStateToProp = ( state ) => {
-
+const mapStateToProp =  state => {
+	alert(JSON.stringify(state.user))
+	return {
+		user: state.user
+	}
 }
 
-const mapDispatchToProp ={
+const mapDispatchToProp = {
 	login: login,
 }
 
 
 export default connect(
-	null,
+	mapStateToProp,
 	mapDispatchToProp
 )(Login)

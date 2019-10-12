@@ -3,7 +3,8 @@ import { USER_LOGIN, LOGIN_SUCESS} from '../actions/UseAction'
 const initial = {
     isSucces: "",
     isLoadding: false,
-    error: ""
+    error: "",
+    user: null
 }
 
 const reducer = (state = initial, action) => {
