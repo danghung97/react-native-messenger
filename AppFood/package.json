@@ -13,6 +13,7 @@
     "lint": "eslint ."
   },
   "dependencies": {
+    "aws-sdk": "^2.545.0",
     "axios": "^0.19.0",
     "react": "16.9.0",
     "react-native": "0.61.2",
@@ -29,7 +30,9 @@
     "react-navigation-tabs": "^2.5.5",
     "react-redux": "^7.1.1",
     "redux": "^4.0.4",
-    "redux-saga": "^1.1.1"
+    "redux-saga": "^1.1.1",
+    "socket.io-client": "^2.3.0",
+    "uuid": "^3.3.3"
   },
   "devDependencies": {
     "@babel/core": "^7.6.2",

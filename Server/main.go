@@ -3,20 +3,27 @@ package main
 import (
 	"Server/app"
 	"Server/controllers"
-	"fmt"
+	socketio "github.com/googollee/go-socket.io"
 	"github.com/gorilla/mux"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
+	"log"
 	"net/http"
 	"os"
 )
 
 
 func main(){
+	server, err := socketio.NewServer(nil)
+	if err!=nil{
+		log.Fatal(err)
+	}
+	
 	router := mux.NewRouter()
 
 	router.HandleFunc("/api/user/new", controllers.CreateAccount).Methods("POST")
 	router.HandleFunc("/api/user/login", controllers.Authenticate).Methods("POST")
-	router.HandleFunc("/api/user/sendemail", controllers.SendEmail).Methods("POST")
+	router.HandleFunc("/api/user/sendmail", controllers.SendEmail).Methods("POST")
+	router.HandleFunc("/api/user/logout", controllers.Logout).Methods("POST")
 
 	router.Use(app.JwtAuthentication)
 
@@ -25,8 +32,13 @@ func main(){
 		port = "8000"
 	}
 
-	err := http.ListenAndServe(":"+ port, router)
+	go server.Serve()
+	defer server.Close()
+	http.Handle("/socket.io/", server)
+	http.Handle("/", http.FileServer(http.Dir("../AppFood/index.js")))
+
+	err = http.ListenAndServe(":"+ port, router)
 	if err!=nil {
-		fmt.Print(err)
+		log.Fatal(err)
 	}
 }
