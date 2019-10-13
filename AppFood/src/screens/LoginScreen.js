@@ -9,10 +9,12 @@ import {
 	TouchableWithoutFeedback,
 	Keyboard,
 	AsyncStorage,
+	ActivityIndicator,
 } from 'react-native';
 import Entypo from "react-native-vector-icons/Entypo";
 import { connect } from 'react-redux'
 import { login } from '../store/actions/UseAction';
+import LoadingModal from '../Component/loading';
 
 class Login extends Component {
 	constructor(props){
@@ -30,11 +32,22 @@ class Login extends Component {
 			// callback(null);
 		super(props);
 		this.state={
-			email: '1511335@hcmut.edu.vn',
-			password: 'hungproA4',
+			email: '',
+			password: '',
 		}
+
 	}
 
+	shouldComponentUpdate(nextProps){
+		if(nextProps.user.isSucces) {
+			this.refs['loading'].hideModal()
+			this.props.navigation.navigate("bottomScreen")
+			return false;
+		}else{
+			if(nextProps.user.isLoadding) this.refs['loading'].showModal()
+			return true;
+		}
+	}
 	SendRequestLogin = ()=>{
 		this.props.login({
 			email: this.state.email,
@@ -44,6 +57,7 @@ class Login extends Component {
 	
 	render() {
 		return (
+			<View>
 			<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
 				<ImageBackground
 					source={require('../Image/background.png')}
@@ -87,7 +101,7 @@ class Login extends Component {
 								placeholder="password"
 								placeholderTextColor="#F9A825"
 								onChangeText={text=>this.setState({password: text})}
-							/>
+							/>	
 
 							<TouchableOpacity style={styles.buttonsignin} onPress={()=>this.SendRequestLogin()}>
 								<Text style={styles.textsignin}>SIGN IN</Text>
@@ -108,6 +122,8 @@ class Login extends Component {
 					</View>
 				</ImageBackground>
 			</TouchableWithoutFeedback>
+			<LoadingModal ref="loading" />
+			</View>
 		);
 	}
 }
@@ -160,8 +176,8 @@ const styles = StyleSheet.create({
 	input: {
 		height: 44,
 		width: "90%",
-		backgroundColor: "#404040",
-		borderRadius: 10,
+		backgroundColor: "#fff",
+		borderRadius: 8,
 		justifyContent: 'center',
 		alignItems: 'center',
 		marginTop: 25,
@@ -195,7 +211,8 @@ const styles = StyleSheet.create({
 
 const mapStateToProp =  state => {
 	return {
-		user: state.user
+		user: state.user,
+		loading: state.isLoadding,
 	}
 }
 

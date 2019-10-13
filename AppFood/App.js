@@ -30,9 +30,9 @@ const DrawerNavigator = createDrawerNavigator(
 
 const stackNavigator = createStackNavigator(
   {
-    // loginScreen: Login,
-    // signUpScreen: SignUp,
-    // ForgetPWScreen: ForgetPW,
+    loginScreen: Login,
+    signUpScreen: SignUp,
+    ForgetPWScreen: ForgetPW,
     bottomScreen: BottomNavigator,
     chatScreen: Chat,
     drawer: DrawerNavigator,

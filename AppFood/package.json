@@ -3,7 +3,6 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "fix-memory-limit": "cross-env LIMIT=8196 increase-memory-limit",
     "android": "react-native run-android",
     "android-dev": "SET ENVFILE = .env.dev && react-native run-android",
     "android-staging": "set ENVFILE = .env.staging && react-native run-android",
@@ -14,9 +13,7 @@
     "lint": "eslint ."
   },
   "dependencies": {
-    "aws-sdk": "^2.546.0",
     "axios": "^0.19.0",
-    "cross-env": "^6.0.3",
     "path": "^0.12.7",
     "react": "16.9.0",
     "react-native": "0.61.2",
