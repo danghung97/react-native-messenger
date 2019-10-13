@@ -12,7 +12,6 @@ import Avatar from '../Component/avatar'
 
 
 export default class ProfileScreen extends Component{
-
     
     render(){
         return(

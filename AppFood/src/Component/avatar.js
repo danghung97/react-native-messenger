@@ -42,22 +42,19 @@ export default class Avatar extends Component{
             const data = new FormData();
             data.append('file',{
                 type: image.mime,
-                uri: "../Image/background.png" 
+                uri: image.path,
+                name: "testing.jpg"
             })
-
-            fetch(`https://serverappfood.herokuapp.com/api/user/uploading`, {
+            console.log(JSON.stringify(data))
+            Axios(`https://serverappfood.herokuapp.com/api/user/uploading`, {
                 method: "POST",
-                body: data,
+                data,
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                },
             }).then(res=>{
                 console.log('res', res)
-                // if()
-            }).catch(err=>console.log('err', err))
-            // let XHR = new XMLHttpRequest();
-            // XHR.open('POST', 'https://serverappfood.herokuapp.com/api/user/uploading');
-            // XHR.setRequestHeader('content-type', 'multipart/form-data')
-            // let data = new FormData();
-            // data.append("file", image)
-            // XHR.send(data).then(res=>console.log('res', res)).catch(err=>console.log("err", err))
+            }).catch(err=>console.log('err', JSON.stringify(err)))
         })
     }
 
@@ -69,28 +66,17 @@ export default class Avatar extends Component{
             mediaType: 'photo'
         }).then(image=>{
             this.setState({isVisible: false})
-            // let XHR = new XMLHttpRequest();
-            // XHR.open('POST', 'https://serverappfood.herokuapp.com/api/user/uploading');
-            // XHR.setRequestHeader('content-type', 'multipart/form-data')
-            // let data = new FormData();
-            // data.append("file", image)
-            // XHR.send(data).then(res=>console.log('res', res)).catch(err=>console.log("err", err))
-
             const data = new FormData();
             data.append('file', {type: 'image/jpg', uri: image.path, name: 'test.jpg'})
 
-            fetch(`https://serverappfood.herokuapp.com/api/user/uploading`,{
+            Axios(`https://serverappfood.herokuapp.com/api/user/uploading`,{
                 method: "POST",
-                // headers: {
-                //     'Accept': 'application/json',
-                //     'Content-Type': 'multipart/form-data boundary=----WebKitFormBoundaryyrV7KO0BoCBuDbTL',
-                
-                //     // 'Authorization': 'Token SOMETOKEN',
-                //   },
-                Body: data,
+                data,
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                  },
             }).then(res=>{
                 console.log('res', res)
-                // if()
             }).catch(err=>console.log('err', err))
         })
     }
