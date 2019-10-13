@@ -5,6 +5,9 @@
   "scripts": {
     "fix-memory-limit": "cross-env LIMIT=8196 increase-memory-limit",
     "android": "react-native run-android",
+    "android-dev": "SET ENVFILE = .env.dev && react-native run-android",
+    "android-staging": "set ENVFILE = .env.staging && react-native run-android",
+    "build-android-prod": "export ENVFILE=.env.prod && cd android && ./gradlew assembleRelease && cd ..",
     "ios": "react-native run-ios",
     "start": "react-native start",
     "test": "jest",
@@ -17,7 +20,7 @@
     "path": "^0.12.7",
     "react": "16.9.0",
     "react-native": "0.61.2",
-    "react-native-aws3": "0.0.9",
+    "react-native-config": "^0.11.7",
     "react-native-gesture-handler": "^1.4.1",
     "react-native-image-crop-picker": "^0.25.2",
     "react-native-image-zoom-viewer": "^2.2.26",
@@ -28,6 +31,9 @@
     "react-navigation-drawer": "^2.2.2",
     "react-navigation-stack": "^1.9.3",
     "react-navigation-tabs": "^2.5.5",
+    "react-redux": "^7.1.1",
+    "redux": "^4.0.4",
+    "redux-saga": "^1.1.1",
     "socket.io-client": "^2.3.0",
     "url": "^0.11.0",
     "uuid": "^3.3.3"
