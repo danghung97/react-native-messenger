@@ -36,27 +36,9 @@ class Login extends Component {
 	}
 
 	SendRequestLogin = ()=>{
-		axios.post(`https://serverappfood.herokuapp.com/api/user/login`, {
+		this.props.login({
 			email: this.state.email,
 			password: this.state.password
-		  },
-		  {
-			headers: {
-			  Accept: 'application/json',
-			  'Content-Type': 'application/json',
-			},
-		})
-		.then(res => {
-		  // alert(JSON.stringify(res.data.message))
-		  if(res.data.status){
-			AsyncStorage.setItem("email+password+token", `${this.state.email}+${this.state.password}+${res.data.account.token}`);
-			this.props.navigation.navigate("HomeScreen")
-		  }
-		  else{
-			alert(res.data.message)
-		  }
-		}).catch(err => {
-		  alert("error" + JSON.stringify(err))
 		})
 	}
 	
@@ -212,7 +194,6 @@ const styles = StyleSheet.create({
 });
 
 const mapStateToProp =  state => {
-	alert(JSON.stringify(state.user))
 	return {
 		user: state.user
 	}
