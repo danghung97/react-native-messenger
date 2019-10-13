@@ -3,7 +3,10 @@ module Server
 go 1.12
 
 require (
+	github.com/aws/aws-sdk-go v1.25.9
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
+	github.com/gin-gonic/gin v1.4.0 // indirect
+	github.com/globalsign/mgo v0.0.0-20181015135952-eeefdecb41b8
 	github.com/go-playground/locales v0.12.1 // indirect
 	github.com/go-playground/universal-translator v0.16.0 // indirect
 	github.com/googollee/go-socket.io v1.4.2 // indirect

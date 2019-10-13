@@ -42,7 +42,6 @@ export default class Login extends Component {
         headers: {
           Accept: 'application/json',
           'Content-Type': 'application/json',
-          
         },
     })
     .then(res => {
@@ -136,7 +135,7 @@ const styles = StyleSheet.create({
   },
   textconnect: {
     alignSelf: 'center',
-    fontFamily: "Roboto",
+    fontFamily: "Roboto", 
     fontStyle: 'normal',
     fontSize: 16,
     lineHeight: 19,

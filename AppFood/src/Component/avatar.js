@@ -4,12 +4,13 @@ import{
     StyleSheet,
     Image,
     Text,
-    TouchableOpacity
+    TouchableOpacity,
+    Platform
 } from 'react-native'
 import Icons from 'react-native-vector-icons/AntDesign';
 import BottomSheetDialog from './popUpPicker';
 import ImagePicker from 'react-native-image-crop-picker';
-
+import Axios from 'axios';
 export default class Avatar extends Component{
     constructor(props){
         super(props);
@@ -37,7 +38,26 @@ export default class Avatar extends Component{
             cropping: true,
             mediaType: 'photo'
         }).then(image=>{
-            this.setState({path: image.path, isVisible: false})
+            this.setState({ isVisible: false})
+            const data = new FormData();
+            data.append('file',{
+                type: image.mime,
+                uri: "../Image/background.png" 
+            })
+
+            fetch(`https://serverappfood.herokuapp.com/api/user/uploading`, {
+                method: "POST",
+                body: data,
+            }).then(res=>{
+                console.log('res', res)
+                // if()
+            }).catch(err=>console.log('err', err))
+            // let XHR = new XMLHttpRequest();
+            // XHR.open('POST', 'https://serverappfood.herokuapp.com/api/user/uploading');
+            // XHR.setRequestHeader('content-type', 'multipart/form-data')
+            // let data = new FormData();
+            // data.append("file", image)
+            // XHR.send(data).then(res=>console.log('res', res)).catch(err=>console.log("err", err))
         })
     }
 
@@ -48,7 +68,30 @@ export default class Avatar extends Component{
             cropping: true,
             mediaType: 'photo'
         }).then(image=>{
-            this.setState({path: image.path, isVisible: false})
+            this.setState({isVisible: false})
+            // let XHR = new XMLHttpRequest();
+            // XHR.open('POST', 'https://serverappfood.herokuapp.com/api/user/uploading');
+            // XHR.setRequestHeader('content-type', 'multipart/form-data')
+            // let data = new FormData();
+            // data.append("file", image)
+            // XHR.send(data).then(res=>console.log('res', res)).catch(err=>console.log("err", err))
+
+            const data = new FormData();
+            data.append('file', {type: 'image/jpg', uri: image.path, name: 'test.jpg'})
+
+            fetch(`https://serverappfood.herokuapp.com/api/user/uploading`,{
+                method: "POST",
+                // headers: {
+                //     'Accept': 'application/json',
+                //     'Content-Type': 'multipart/form-data boundary=----WebKitFormBoundaryyrV7KO0BoCBuDbTL',
+                
+                //     // 'Authorization': 'Token SOMETOKEN',
+                //   },
+                Body: data,
+            }).then(res=>{
+                console.log('res', res)
+                // if()
+            }).catch(err=>console.log('err', err))
         })
     }
 
@@ -65,7 +108,7 @@ export default class Avatar extends Component{
                 <TouchableOpacity onPress={()=>this.openPicker()} style={styles.camera}>
                     <Icons name="camerao" size={30}/>
                 </TouchableOpacity>
-                <BottomSheetDialog 
+                <BottomSheetDialog
                     isVisible={isVisible} 
                     closeModal={this.handleCloseModal}
                     openImage={this.openImage}
