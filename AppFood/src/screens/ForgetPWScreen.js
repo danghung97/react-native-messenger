@@ -125,8 +125,8 @@ const styles = StyleSheet.create({
     input: {
         height: 44,
         width: '90%',
-        backgroundColor: '#404040',
-        borderRadius: 10,
+        backgroundColor: '#fff',
+        borderRadius: 8,
         justifyContent: "center",
         alignItems: "center",
         marginTop: 25

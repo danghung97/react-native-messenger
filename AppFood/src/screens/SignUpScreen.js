@@ -117,6 +117,14 @@ export default class SignUp extends Component {
                   onChangeText={text=>this.setState({repeat_password: text})}
                 />
                 <TextInput
+                  value={this.state.name}
+                  secureTextEntry
+                  style={[styles.input]}
+                  placeholder="password"
+                  placeholderTextColor="#F9A825"
+                  onChangeText={text=>this.setState({name: text})}
+                />
+                <TextInput
                   value={this.state.numberphone}
                   style={styles.input}
                   placeholder="Your number phone"
@@ -163,7 +171,6 @@ const styles = StyleSheet.create({
     backgroundColor: 'skyblue'
   },
   title: {
-    marginTop: 100,
     fontFamily: "Roboto",
     fontStyle: "normal",
     fontWeight: "100",
@@ -182,8 +189,8 @@ const styles = StyleSheet.create({
   input: {
     height: 44,
     width: '90%',
-    backgroundColor: '#404040',
-    borderRadius: 10,
+    backgroundColor: '#fff',
+    borderRadius: 8,
     justifyContent: "center",
     alignItems: "center",
     marginTop: 25

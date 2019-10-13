@@ -1,8 +1,9 @@
 import Axios from 'axios'
 import Config from 'react-native-config'
+const URL = "https://serverappfood.herokuapp.com/"
 
 const isntance = Axios.create({
-    baseURL: Config.SERVER_URL,
+    baseURL: URL,
     timeout: 20000,
 })
 
