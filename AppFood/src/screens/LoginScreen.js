@@ -9,22 +9,23 @@ import {
 	TouchableWithoutFeedback,
 	Keyboard,
 	AsyncStorage,
-	ActivityIndicator,
 } from 'react-native';
 import Entypo from "react-native-vector-icons/Entypo";
 import { connect } from 'react-redux'
 import { login } from '../store/actions/UseAction';
 import LoadingModal from '../Component/loading';
+import Unstated from '../store/Unstated';
 
 class Login extends Component {
 	constructor(props){
-			AsyncStorage.getItem("email+password+token", (error, result) => {
+		AsyncStorage.getItem("account", (error, result) => {
 			if (error) {
 				// callback(null);
 				return
 			} else {
 				if(result){
 					props.navigation.navigate("HomeScreen")
+					Unstated.setAccount('account', JSON.parse(result));
 				}
 				// callback(result);
 			}
@@ -45,6 +46,7 @@ class Login extends Component {
 			return false;
 		}else{
 			if(nextProps.user.isLoadding) this.refs['loading'].showModal()
+			if(nextProps.user.error) alert(nextProps.user.error)
 			return true;
 		}
 	}

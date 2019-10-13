@@ -6,37 +6,48 @@ import{
     Text
 } from 'react-native';
 import Avatar from '../Component/avatar'
-
-//Access key ID: AKIAQETU5M465K5VIRLW
-//Secret access key: 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 
-
+import Unstated from '../store/Unstated';
 
 export default class ProfileScreen extends Component{
-
+    constructor(props){
+        super(props);
+        this.account = Unstated.state.account;
+    }
     
     render(){
+        console.warn('1', this.account)
+        const {email, name, address, phone, avatarUri} = this.account
         return(
             <ScrollView style={{width: '100%', display: "flex"}}>
                 <View style={styles.part1} />
                 <View style={styles.avatar}>
-                    <Avatar navigation={this.props.navigation}/>
+                    <Avatar uri={avatarUri} navigation={this.props.navigation}/>
                 </View>
                 <View style={styles.containerInput}>
-                    <Text style={styles.input}>
-
-                    </Text>
-                    <Text style={styles.input}>
-
-                    </Text>
-                    <Text style={styles.input}>
-
-                    </Text>
-                    <Text style={styles.input}>
-
-                    </Text>
-                    <Text style={styles.input}>
-
-                    </Text>
+                    <View style={styles.rectangle}>
+                        <Text style={styles.Text}>Name: </Text>
+                        {!!name && <Text style={styles.Text}>
+                            {name}
+                        </Text>}
+                    </View>
+                    <View style={styles.rectangle}>
+                        <Text style={styles.Text}>Address: </Text>
+                        {!!address && <Text style={styles.Text}>
+                            {address}
+                        </Text>}
+                    </View>
+                    <View style={styles.rectangle}>
+                        <Text style={styles.Text}>Number phone: </Text>
+                        {!!phone && <Text style={styles.Text}>
+                        {phone}
+                        </Text>}
+                    </View>
+                    <View style={styles.rectangle}>
+                        <Text style={styles.Text}>Email: </Text>
+                        {!!email && <Text style={styles.Text}>
+                        {email}
+                        </Text>}
+                    </View>
                 </View>
             </ScrollView>
         )
@@ -56,18 +67,19 @@ const styles = StyleSheet.create({
     },
     containerInput:{
         width: '100%',
-        alignItems:"center",
+        marginLeft: 40,
         marginTop: 60,
         paddingTop: 25
     },
-    input: {
+    rectangle: {
+        marginTop: 20,
+        flexDirection: 'row'
+    },
+    Text: {
         height: 44,
-        width: "90%",
-        borderRadius: 20,
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginBottom: 25,
         borderColor: 'black',
-        borderWidth: 2
+        fontSize: 16,
+        lineHeight: 18,
+        fontWeight: '500'
     }
 })

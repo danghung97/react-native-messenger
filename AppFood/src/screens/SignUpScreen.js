@@ -72,7 +72,6 @@ export default class SignUp extends Component {
     .then(res=>{
       if(res.data.status){
         this.refs['Modal'].closeModal()
-        AsyncStorage.setItem("email+password+token", `${this.state.email}+${this.state.password}+${res.data.account.token}`);
         this.props.navigation.navigate("bottomScreen")
       }
     })

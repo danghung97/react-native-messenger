@@ -10,12 +10,10 @@ import{
 import Icons from 'react-native-vector-icons/AntDesign';
 import BottomSheetDialog from './popUpPicker';
 import ImagePicker from 'react-native-image-crop-picker';
-import Axios from 'axios';
 export default class Avatar extends Component{
     constructor(props){
         super(props);
         this.state={
-            path: '',
             isVisible: false,
         }
     }
@@ -52,12 +50,7 @@ export default class Avatar extends Component{
                 console.log('res', res)
                 // if()
             }).catch(err=>console.log('err', err))
-            // let XHR = new XMLHttpRequest();
-            // XHR.open('POST', 'https://serverappfood.herokuapp.com/api/user/uploading');
-            // XHR.setRequestHeader('content-type', 'multipart/form-data')
-            // let data = new FormData();
-            // data.append("file", image)
-            // XHR.send(data).then(res=>console.log('res', res)).catch(err=>console.log("err", err))
+            
         })
     }
 
@@ -69,13 +62,7 @@ export default class Avatar extends Component{
             mediaType: 'photo'
         }).then(image=>{
             this.setState({isVisible: false})
-            // let XHR = new XMLHttpRequest();
-            // XHR.open('POST', 'https://serverappfood.herokuapp.com/api/user/uploading');
-            // XHR.setRequestHeader('content-type', 'multipart/form-data')
-            // let data = new FormData();
-            // data.append("file", image)
-            // XHR.send(data).then(res=>console.log('res', res)).catch(err=>console.log("err", err))
-
+            
             const data = new FormData();
             data.append('file', {type: 'image/jpg', uri: image.path, name: 'test.jpg'})
 
@@ -96,8 +83,8 @@ export default class Avatar extends Component{
     }
 
     render(){
-        const { path, isVisible } = this.state;
-        let uri= !path ? require('../Image/avatar.jpg') : {uri: path};
+        const { isVisible } = this.state;
+        let uri= !this.props.uri ? require('../Image/avatar.jpg') : {uri: this.props.uri};
         return(
             <View style={styles.container}>
                 <TouchableOpacity style={styles.avatar} onPress={()=>this.props.navigation.navigate("ImageZoomScreen", {
