@@ -15,7 +15,6 @@ export default class ProfileScreen extends Component{
     }
     
     render(){
-        console.warn('1', this.account)
         const {email, name, address, phone, avatarUri} = this.account
         return(
             <ScrollView style={{width: '100%', display: "flex"}}>
