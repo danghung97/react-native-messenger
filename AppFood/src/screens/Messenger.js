@@ -19,7 +19,7 @@ export default class Mess extends Component {
     }
 
     sendRequestLoadRoom=()=>{
-        axios.post('https://serverappfood.herokuapp.com/api/room',{
+        axios.post('https://serverappfood.herokuapp.com/api/loadroom',{
             // 
         })
         this.props.navigation.navigate("chatScreen")

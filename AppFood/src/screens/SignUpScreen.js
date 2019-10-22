@@ -10,10 +10,13 @@ import {
   Keyboard,
   AsyncStorage
 } from "react-native";
+import { connect } from 'react-redux'
+import { signup } from '../store/actions/UseAction';
 import axios from 'axios';
 import Modal from '../Component/SignUp/modal';
+import LoadingModal from '../Component/loading';
 
-export default class SignUp extends Component {
+class SignUp extends Component {
   constructor(props){
     super(props);
     this.state={
@@ -50,37 +53,43 @@ export default class SignUp extends Component {
     })
     .then(res=>{
       if(res.data.status){
-        this.refs['Modal'].show()
+        this.refs['Modal'].showModal()
+      }else{
+        alert(res.data.message)
       }
     })
     .catch(err=>console.warn(err));
   }
 
   requestSignUp=(code)=>{
-    axios.post(`https://serverappfood.herokuapp.com/api/user/new`, {
+    this.props.signup({
       email: this.state.email,
       code,
       password: this.state.password,
       name: this.state.name,
-    },
-    {
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
     })
-    .then(res=>{
-      if(res.data.status){
-        this.refs['Modal'].closeModal()
-        this.props.navigation.navigate("bottomScreen")
-      }
-    })
-    .catch(err=>console.warn(err));
+      // if(res.data.status){
+      //   this.refs['Modal'].closeModal()
+      //   this.props.navigation.navigate("bottomScreen")
+      // }
   }
 
-  closeModal=()=>{
-    this.setState({isVisible: false, code: ""})
+  shouldComponentUpdate(nextProps){
+    if(nextProps.user.isSucces) {
+      this.refs['loading'].hideModal()
+      this.refs['Modal'].hideModal()
+			this.props.navigation.navigate("bottomScreen")
+			return false;
+		}else{
+			if(nextProps.user.isLoadding) this.refs['loading'].showModal()
+			if(nextProps.user.error) {
+        this.refs['loading'].hideModal()
+				this.refs['Modal'].showError(nextProps.user.error)        
+			}
+			return true;
+		}
   }
+
   render() {
     return (
       <View>
@@ -156,6 +165,7 @@ export default class SignUp extends Component {
           ref="Modal"
           request={this.requestSignUp}
         />
+        <LoadingModal ref="loading" />
       </View>
     );
   }
@@ -214,3 +224,18 @@ const styles = StyleSheet.create({
   },
   
 });
+
+const mapStateToProp =  state => {
+	return {
+		user: state.user,
+	}
+}
+
+const mapDispatchToProp = {
+	signup: signup,
+}
+
+export default connect(
+	mapStateToProp,
+	mapDispatchToProp
+)(SignUp)

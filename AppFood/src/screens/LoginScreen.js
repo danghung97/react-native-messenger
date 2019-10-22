@@ -217,7 +217,6 @@ const styles = StyleSheet.create({
 const mapStateToProp =  state => {
 	return {
 		user: state.user,
-		loading: state.isLoadding,
 	}
 }
 

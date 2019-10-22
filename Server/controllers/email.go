@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"mime/quotedprintable"
 	"net/smtp"
+	"os"
 	"strings"
 )
 
@@ -80,7 +81,7 @@ func (sender *Sender) WritePlainEmail(dest []string, subject, bodyMessage string
 }
 
 func email(receivers string, code string) (bool, string){
-	sender := NewSender("danghungdao1997@gmail.com", "danghungdao")
+	sender := NewSender(os.Getenv("email"), os.Getenv("pwemail"))
 
 	Receiver := []string{receivers}
 
