@@ -6,7 +6,6 @@ import{
     AsyncStorage
 } from 'react-native';
 import Icons from 'react-native-vector-icons/AntDesign';
-import axios from 'axios';
 
 export default class HomeScreen extends Component{
     
@@ -20,8 +19,8 @@ export default class HomeScreen extends Component{
             // })
             // .then(res=>console.log(res.data))
             // .catch(err=>alert(err))
+            AsyncStorage.removeItem("account");
             this.props.navigation.navigate("loginScreen");
-            AsyncStorage.removeItem("email+password+token");
         }
         return(
             <View>

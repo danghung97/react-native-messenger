@@ -5,6 +5,7 @@ import (
 	"Server/models"
 	"Server/utils"
 	"encoding/json"
+	"fmt"
 	"net/http"
 )
 
@@ -54,5 +55,19 @@ var SendEmail = func(w http.ResponseWriter, r *http.Request){
 		return
 	}
 	resp := account.CreateFakeAccount(randomString)
+	utils.Respond(w, resp)
+}
+
+var TakeInfoAccount = func(w http.ResponseWriter, r *http.Request){
+	user := r.Context().Value("user")
+	account := &models.Account{}
+	err := models.GetDB().Table("accounts").Where("id = ?", user).First(account).Error
+	if err!=nil{
+		utils.Respond(w, utils.Message(false, fmt.Sprintf("error: %s", err)))
+		return
+	}
+	resp := utils.Message(true, "take info successfully")
+	account.Password=""
+	resp["account"] = account
 	utils.Respond(w, resp)
 }

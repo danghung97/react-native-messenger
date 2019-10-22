@@ -22,7 +22,7 @@ const store = createStore(
 sagaMiddleware.run(rootSaga)
 
 const app = () => (
-<Provider store={store}>
+    <Provider store={store}>
         <App/>
     </Provider>
 )

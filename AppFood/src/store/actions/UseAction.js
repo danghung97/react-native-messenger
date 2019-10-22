@@ -16,3 +16,10 @@ export const loginFail = (message) => {
         message
     }
 }
+
+export const sendEmail = (email) => {
+    return {
+        type: SEND_MAIL,
+        email
+    }
+}

@@ -10,7 +10,6 @@ class Unstated extends Container {
 
     setAccount(key, value){
         if(key === 'account'){
-            console.warn('aaa', value)
             this.setState({account: value})
         }
     }

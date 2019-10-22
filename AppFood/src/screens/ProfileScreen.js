@@ -3,24 +3,41 @@ import{
     View,
     ScrollView,
     StyleSheet,
-    Text
+    Text,
+    RefreshControl,
 } from 'react-native';
 import Avatar from '../Component/avatar'
 import Unstated from '../store/Unstated';
+import axios from 'axios';
 
 export default class ProfileScreen extends Component{
     constructor(props){
         super(props);
         this.account = Unstated.state.account;
+        this.state={
+            refreshing: false
+        }
     }
-    
+    onRefresh = () => {
+        this.setState({refreshing: true})
+        // axios.get("https://serverappfood.herokuapp.com/api/user/login",{
+        //     headers:{
+        //         Accept: 'application/json'
+        //     }
+        // }).then(res=>console.log(res))
+    }
     render(){
-        const {email, name, address, phone, avatarUri} = this.account
+        const {refreshing} = this.state
+        
+        const {email, name, address, phone} = this.account
         return(
-            <ScrollView style={{width: '100%', display: "flex"}}>
+            <ScrollView refreshControl={
+                <RefreshControl refreshing={refreshing} onRefresh={()=>this.onRefresh()} />
+              }
+            style={{width: '100%', display: "flex"}}>
                 <View style={styles.part1} />
                 <View style={styles.avatar}>
-                    <Avatar uri={avatarUri} navigation={this.props.navigation}/>
+                    <Avatar uri={this.account.Avatar} navigation={this.props.navigation}/>
                 </View>
                 <View style={styles.containerInput}>
                     <View style={styles.rectangle}>

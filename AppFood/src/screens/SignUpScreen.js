@@ -39,7 +39,7 @@ export default class SignUp extends Component {
       alert("your repeat password wrong")
       return
     }
-    axios.post(`https://serverappfood.herokuapp.com/api/user/sendemail`, {
+    axios.post(`https://serverappfood.herokuapp.com/api/user/sendmail`, {
       email: this.state.email,
     },
     {
@@ -119,7 +119,7 @@ export default class SignUp extends Component {
                   value={this.state.name}
                   secureTextEntry
                   style={[styles.input]}
-                  placeholder="password"
+                  placeholder="name"
                   placeholderTextColor="#F9A825"
                   onChangeText={text=>this.setState({name: text})}
                 />

@@ -10,11 +10,14 @@ import{
 import Icons from 'react-native-vector-icons/AntDesign';
 import BottomSheetDialog from './popUpPicker';
 import ImagePicker from 'react-native-image-crop-picker';
+import Axios from 'axios'
+import Unstated from '../store/Unstated'
 export default class Avatar extends Component{
     constructor(props){
         super(props);
         this.state={
             isVisible: false,
+            link: null,
         }
     }
     openPicker=()=>{
@@ -38,20 +41,22 @@ export default class Avatar extends Component{
         }).then(image=>{
             this.setState({ isVisible: false})
             const data = new FormData();
+            let name = "image.png"
+            if(image.mime === "image/jpeg") name = "image.jpg"
             data.append('file',{
                 type: image.mime,
                 uri: image.path,
-                name: "testing.jpg"
+                name,
             })
-            console.log(JSON.stringify(data))
             Axios(`https://serverappfood.herokuapp.com/api/user/uploading`, {
                 method: "POST",
                 data,
                 headers: {
-                    'Content-Type': 'multipart/form-data'
+                    'Content-Type': 'multipart/form-data',
+                    'Authorization': `Bearer ${Unstated.state.account.token}`
                 },
             }).then(res=>{
-                console.log('res', res)
+                this.setState({link: res.data.link})
             }).catch(err=>console.log('err', JSON.stringify(err)))
         })
     }
@@ -65,23 +70,26 @@ export default class Avatar extends Component{
         }).then(image=>{
             this.setState({isVisible: false})
             const data = new FormData();
-            data.append('file', {type: 'image/jpg', uri: image.path, name: 'test.jpg'})
+            let name = "image.png"
+            if(image.mime === "image/jpeg") name = "image.jpg"
+            data.append('file', {type: 'image/jpg', uri: image.path, name:"image.jpg"})
 
             Axios(`https://serverappfood.herokuapp.com/api/user/uploading`,{
                 method: "POST",
                 data,
                 headers: {
                     'Content-Type': 'multipart/form-data',
+                    'Authorization': `Bearer ${Unstated.state.account.token}`
                   },
             }).then(res=>{
-                console.log('res', res)
+                this.setState({link: res.data.link})
             }).catch(err=>console.log('err', err))
         })
     }
 
     render(){
-        const { isVisible } = this.state;
-        let uri= !this.props.uri ? require('../Image/avatar.jpg') : {uri: this.props.uri};
+        const { isVisible, link } = this.state;
+        let uri = !!link || !this.props.uri ? require('../Image/avatar.jpg') : {uri: this.props.uri};
         return(
             <View style={styles.container}>
                 <TouchableOpacity style={styles.avatar} onPress={()=>this.props.navigation.navigate("ImageZoomScreen", {

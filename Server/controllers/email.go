@@ -91,7 +91,7 @@ func email(receivers string, code string) (bool, string){
 	<head>
 	<meta http-equiv="content-type" content="text/html"; charset=ISO-8859-1">
 	</head>
-	<body>testtttttttttttttt<br>
+	<body>AF<br>
 	hello guy, your code is %s <br>
 	<div class="moz-signature"><i><br>
 	<br>

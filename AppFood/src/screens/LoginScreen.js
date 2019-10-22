@@ -46,7 +46,10 @@ class Login extends Component {
 			return false;
 		}else{
 			if(nextProps.user.isLoadding) this.refs['loading'].showModal()
-			if(nextProps.user.error) alert(nextProps.user.error)
+			if(nextProps.user.error) {
+				this.refs['loading'].hideModal()
+				alert(nextProps.user.error)
+			}
 			return true;
 		}
 	}

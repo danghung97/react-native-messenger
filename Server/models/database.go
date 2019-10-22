@@ -4,16 +4,17 @@ import (
 	"fmt"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
+	"github.com/joho/godotenv"
 	"os"
 )
 
 var db *gorm.DB
 
 func init(){
-	//e := godotenv.Load()
-	//if e!=nil{
-	//	fmt.Print(e)
-	//}
+	e := godotenv.Load()
+	if e!=nil{
+		fmt.Print(e)
+	}
 
 	username := os.Getenv("db_user")
 	password := os.Getenv("db_pass")
@@ -29,7 +30,7 @@ func init(){
 		fmt.Print(err)
 	}
 
-	db.Debug().AutoMigrate(&Account{}, &FakeAccount{})
+	db.Debug().AutoMigrate(&Account{}, &FakeAccount{}, &Messages{}, &Rooms{})
 }
 
 func GetDB() *gorm.DB{

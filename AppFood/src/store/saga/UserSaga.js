@@ -22,6 +22,26 @@ function* login(action){
     }
 }
 
+function* sendMail(action){
+    const response = yield instance.post(
+        "api/user/sendemail",
+        action.email
+    ).then(res => res.data) // TODO: catch error
+
+    // console.log("aejfj")
+    if(response.status){
+        yield put({
+            type: LOGIN_SUCESS,
+            data: response.account
+        })
+    }else {
+        yield put({
+            type: LOGIN_FAIL,
+            message: response.message
+        })
+    }
+}
+
 function* loginWatcher(){
     yield takeLatest('USER_LOGIN', login)
 }

@@ -15,36 +15,28 @@ export default class Mess extends Component {
         super(props);
         this.state={
             name: '',
-            listFriends: [{},{}]
         }
     }
 
-    RequestFindName = (email) =>{
-        axios.post(``, {
-            email: email
-        },
-        {
-            headers: {
-              Accept: 'application/json',
-              'Content-Type': 'application/json',
-            },
+    sendRequestLoadRoom=()=>{
+        axios.post('https://serverappfood.herokuapp.com/api/room',{
+            // 
         })
-        .then(res => {})
-        .catch(err => console.warn(err))
+        this.props.navigation.navigate("chatScreen")
     }
 
     render(){
         return (
          <View style={styles.container}>
              <View style={styles.header}>
-                <TouchableOpacity style={styles.avatar} onPress={()=>this.props.navigation.navigate("chatScreen")}>
+                <TouchableOpacity style={styles.avatar} onPress={()=> this.props.navigation.navigate("chatScreen")}>
                     <Image style={styles.avatar} source={require('../Image/avatar.jpg')} />
                 </TouchableOpacity>
                 <Text style={styles.name}>DANG HUNG</Text>
              </View>
              <View style={styles.Divider} />
              <View style={styles.mess}>
-                 <View style={styles.search}>
+                 {/* <View style={styles.search}>
                     <Icons name="search1" size={20}/>
                     <View style={styles.wrapper}>
                         <TextInput
@@ -65,7 +57,7 @@ export default class Mess extends Component {
                             )
                         })}
                     </View>
-                 </View>
+                 </View> */}
              </View>
          </View>   
         )

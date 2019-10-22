@@ -26,6 +26,7 @@ type Account struct{
 	//avatar string
 	Token string `json:"token";sql:"-"`
 	Code string `json:"code"`
+	Avatar string
 	//friends []Friend
 }
 
@@ -88,7 +89,6 @@ func (account *FakeAccount) CreateFakeAccount(code string) map[string] interface
 
 func (account *Account) Create() map[string] interface{} {
 
-
 	hashedPassword, _:= bcrypt.GenerateFromPassword([]byte(account.Password), bcrypt.DefaultCost)
 	account.Password = string(hashedPassword)
 
@@ -135,10 +135,6 @@ func Login(email, password string) map[string]interface{} {
 	resp["account"] = account
 	return resp
 }
-
-//func (account *Account) refreshToken() map[string] interface{} {
-//
-//}
 
 func (account *Account) Verify(code string) (bool, string){
 
