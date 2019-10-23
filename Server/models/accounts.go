@@ -8,6 +8,8 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"gopkg.in/go-playground/validator.v9"
 	"os"
+	"time"
+	
 	//"Server/help"
 )
 
@@ -97,8 +99,21 @@ func (account *Account) Create() map[string] interface{} {
 	if account.ID<0{
 		return u.Message(false, "Failed to create account, connection error.")
 	}
-
-	tk:= &Token{UserId: account.ID}
+	
+	expirationTime := time.Now().Add(60 * time.Minute)
+	
+	tk := &Token{
+		UserId: account.ID,
+		StandardClaims: jwt.StandardClaims{
+			//Audience:  "",
+			ExpiresAt: expirationTime.Unix(),
+			//Id:        "",
+			//IssuedAt:  0,
+			//Issuer:    "",
+			//NotBefore: 0,
+			//Subject:   "",
+		},
+	}
 	token := jwt.NewWithClaims(jwt.GetSigningMethod("HS256"), tk)
 	tokenString, _ := token.SignedString([]byte(os.Getenv("token_password")))
 	account.Token = tokenString
@@ -125,8 +140,22 @@ func Login(email, password string) map[string]interface{} {
 	if err!=nil && err==bcrypt.ErrMismatchedHashAndPassword{ //Password does not match!
 		return u.Message(false, "Invalid login credentials. Please try again")
 	}
+	
+	expirationTime := time.Now().Add(60 * time.Minute)
+	
 	account.Password = ""
-	tk := &Token{UserId: account.ID}
+	tk := &Token{
+		UserId: account.ID,
+		StandardClaims: jwt.StandardClaims{
+			//Audience:  "",
+			ExpiresAt: expirationTime.Unix(),
+			//Id:        "",
+			//IssuedAt:  0,
+			//Issuer:    "",
+			//NotBefore: 0,
+			//Subject:   "",
+		},
+	}
 	token := jwt.NewWithClaims(jwt.GetSigningMethod("HS256"), tk)
 	tokenString, _ := token.SignedString([]byte(os.Getenv("token_password")))
 	account.Token = tokenString
