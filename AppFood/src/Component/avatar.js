@@ -89,7 +89,8 @@ export default class Avatar extends Component{
 
     render(){
         const { isVisible, link } = this.state;
-        let uri = !!link || !this.props.uri ? require('../Image/avatar.jpg') : {uri: this.props.uri};
+        let uri = !this.props.uri ? require('../Image/avatar.jpg') : {uri: this.props.uri};
+        if(!!link) uri = {uri: link}
         return(
             <View style={styles.container}>
                 <TouchableOpacity style={styles.avatar} onPress={()=>this.props.navigation.navigate("ImageZoomScreen", {

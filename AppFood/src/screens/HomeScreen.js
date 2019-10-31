@@ -6,8 +6,10 @@ import{
     AsyncStorage
 } from 'react-native';
 import Icons from 'react-native-vector-icons/AntDesign';
+import { connect } from 'react-redux'
+import { reset } from '../store/actions/UseAction';
 
-export default class HomeScreen extends Component{
+class HomeScreen extends Component{
     
     render(){
         this.LogOut=()=>{
@@ -20,6 +22,7 @@ export default class HomeScreen extends Component{
             // .then(res=>console.log(res.data))
             // .catch(err=>alert(err))
             AsyncStorage.removeItem("account");
+            this.props.reset();
             this.props.navigation.navigate("loginScreen");
         }
         return(
@@ -31,3 +34,19 @@ export default class HomeScreen extends Component{
         )
     }
 }
+
+const mapStateToProp =  state => {
+	return {
+		user: state.user,
+	}
+}
+
+const mapDispatchToProp = {
+	reset: reset,
+}
+
+
+export default connect(
+	mapStateToProp,
+	mapDispatchToProp
+)(HomeScreen)

@@ -37,7 +37,7 @@ export default class ProfileScreen extends Component{
             style={{width: '100%', display: "flex"}}>
                 <View style={styles.part1} />
                 <View style={styles.avatar}>
-                    <Avatar uri={this.account.Avatar} navigation={this.props.navigation}/>
+                    <Avatar uri={this.account.avatar} navigation={this.props.navigation}/>
                 </View>
                 <View style={styles.containerInput}>
                     <View style={styles.rectangle}>

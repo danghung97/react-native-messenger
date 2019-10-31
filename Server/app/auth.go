@@ -15,7 +15,7 @@ var JwtAuthentication = func(next http.Handler) http.Handler {
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
-		notAuth := []string{"/api/user/new", "/api/user/login", "/api/user/sendmail"} //List of endpoints that doesn't require auth
+		notAuth := []string{"/api/user/new", "/api/user/login", "/api/user/sendmail", "/ws"} //List of endpoints that doesn't require auth
 		requestPath := r.URL.Path //current request path
 
 		//check if request does not need authentication, serve the request if it doesn't need it
@@ -58,30 +58,45 @@ var JwtAuthentication = func(next http.Handler) http.Handler {
 			response = u.Message(false, "Malformed authentication token")
 			if err == jwt.ErrSignatureInvalid {
 				w.WriteHeader(http.StatusUnauthorized)
+			}else {
+				w.WriteHeader(http.StatusBadRequest)
 			}
-			w.WriteHeader(http.StatusBadRequest)
 			w.Header().Add("Content-Type", "application/json")
 			u.Respond(w, response)
 			return
 		}
 
-		if !token.Valid { //Token is invalid, maybe not signed on this server
-			response = u.Message(false, "Token is not valid.")
+		if models.CheckRefreshToken(tk.Id) {
+			if !token.Valid { //Token is invalid, maybe not signed on this server
+				models.DeleteRefreshToken(tk.Id)
+				response = u.Message(false, "Token is not valid.")
+				w.WriteHeader(http.StatusUnauthorized)
+				w.Header().Add("Content-Type", "application/json")
+				u.Respond(w, response)
+				return
+			}
+			
+			//Everything went well, proceed with the request and set the caller to the user retrieved from the parsed token
+			//fmt.Sprintf("User %", tk.UserId) //Useful for monitoring
+			
+			if r.URL.Path == "/api/user/logout" {
+				ctx := context.WithValue(r.Context(), "token", tokenPart)
+				r = r.WithContext(ctx)
+				next.ServeHTTP(w, r)
+				return
+			}
+			ctx := context.WithValue(r.Context(), "user", tk.UserId)
+			r = r.WithContext(ctx)
+			next.ServeHTTP(w, r) //proceed in the middleware chain!
+		} else {
 			w.WriteHeader(http.StatusUnauthorized)
 			w.Header().Add("Content-Type", "application/json")
-			u.Respond(w, response)
-			return
+			u.Respond(w, u.Message(false, "Refresh token has been revoked!"))
 		}
-
-		//Everything went well, proceed with the request and set the caller to the user retrieved from the parsed token
-		//fmt.Sprintf("User %", tk.UserId) //Useful for monitoring
-		ctx := context.WithValue(r.Context(), "user", tk.UserId)
-		r = r.WithContext(ctx)
-		next.ServeHTTP(w, r) //proceed in the middleware chain!
-	});
+	})
 }
 
-var Refresh = func(w http.ResponseWriter, r *http.Response){
+var Refresh = func(w http.ResponseWriter, r *http.Request){
 	response := make(map[string] interface{})
 	tokenHeader := r.Header.Get("Authorization")
 	
@@ -113,42 +128,51 @@ var Refresh = func(w http.ResponseWriter, r *http.Response){
 		response = u.Message(false, "Malformed authentication token")
 		if err == jwt.ErrSignatureInvalid {
 			w.WriteHeader(http.StatusUnauthorized)
+		}else {
+			w.WriteHeader(http.StatusBadRequest)
 		}
-		w.WriteHeader(http.StatusBadRequest)
 		w.Header().Add("Content-Type", "application/json")
 		u.Respond(w, response)
 		return
 	}
 	
-	if !token.Valid { //Token is invalid, maybe not signed on this server
-		response = u.Message(false, "Token is not valid.")
+	if models.CheckRefreshToken(tk.Id) {
+		
+		if !token.Valid { //Token is invalid, maybe not signed on this server
+			response = u.Message(false, "Token is not valid.")
+			w.WriteHeader(http.StatusUnauthorized)
+			w.Header().Add("Content-Type", "application/json")
+			u.Respond(w, response)
+			return
+		}
+		
+		if time.Unix(tk.ExpiresAt, 0).Sub(time.Now()) > 5*time.Minute {
+			response = u.Message(false, "token is still valid")
+			w.WriteHeader(http.StatusBadRequest)
+			w.Header().Add("Content-Type", "application/json")
+			u.Respond(w, response)
+			return
+		}
+		
+		expirationTime := time.Now().Add(60 * time.Minute)
+		tk.ExpiresAt = expirationTime.Unix()
+		tk.Id = token.Claims.(*models.Token).StandardClaims.Id
+		tkn := jwt.NewWithClaims(jwt.GetSigningMethod("HS256"), tk)
+		tokenString, err := tkn.SignedString([]byte(os.Getenv("token_password")))
+		if err != nil {
+			response = u.Message(false, "server error")
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Header().Add("Content-Type", "application/json")
+			u.Respond(w, response)
+			return
+		}
+		
+		response = u.Message(true, "token has been refreshed")
+		response["token"] = tokenString
+		u.Respond(w, response)
+	} else {
 		w.WriteHeader(http.StatusUnauthorized)
 		w.Header().Add("Content-Type", "application/json")
-		u.Respond(w, response)
-		return
+		u.Respond(w, u.Message(false, "Refresh token has been revoked!"))
 	}
-	
-	if time.Unix(tk.ExpiresAt, 0).Sub(time.Now()) > 5*time.Minute {
-		response = u.Message(false, "token is still valid")
-		w.WriteHeader(http.StatusBadRequest)
-		w.Header().Add("Content-Type", "application/json")
-		u.Respond(w, response)
-		return
-	}
-	
-	expirationTime := time.Now().Add(60 * time.Minute)
-	tk.ExpiresAt = expirationTime.Unix()
-	tkn := jwt.NewWithClaims(jwt.GetSigningMethod("HS256"), tk)
-	tokenString, err := tkn.SignedString([]byte(os.Getenv("token_password")))
-	if err!=nil {
-		response = u.Message(false, "server error")
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Header().Add("Content-Type", "application/json")
-		u.Respond(w, response)
-		return
-	}
-	
-	response = u.Message(true, "token has been refreshed")
-	response["token"] = tokenString
-	u.Respond(w, response)
 }

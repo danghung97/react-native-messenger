@@ -32,11 +32,8 @@ class Login extends Component {
 		});
 			// callback(null);
 		super(props);
-		this.state={
-			email: '',
-			password: '',
-		}
-
+		this.email = "";
+		this.password = "";
 	}
 
 	shouldComponentUpdate(nextProps){
@@ -55,8 +52,8 @@ class Login extends Component {
 	}
 	SendRequestLogin = ()=>{
 		this.props.login({
-			email: this.state.email,
-			password: this.state.password
+			email: this.email,
+			password: this.password
 		})
 	}
 	
@@ -93,19 +90,19 @@ class Login extends Component {
 						<Text style={[styles.textconnect, { marginTop: 24 }]}>Or</Text>
 						<View style={styles.block}>
 							<TextInput
-								value={this.state.email}
+								// value={this.email}
 								style={styles.input}
 								placeholder="Email or username"
 								placeholderTextColor="#F9A825"
-								onChangeText={text=>this.setState({email: text})}
+								onChangeText={text=>{this.email = text}}
 							/>
 							<TextInput
-								value={this.state.password}
+								// value={this.password}
 								secureTextEntry
 								style={styles.input}
 								placeholder="password"
 								placeholderTextColor="#F9A825"
-								onChangeText={text=>this.setState({password: text})}
+								onChangeText={text=>{this.password = text}}
 							/>	
 
 							<TouchableOpacity style={styles.buttonsignin} onPress={()=>this.SendRequestLogin()}>

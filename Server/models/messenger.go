@@ -1,18 +1,18 @@
 package models
 
 import (
+	"Server/utils"
+	"encoding/json"
 	"github.com/jinzhu/gorm"
+	"log"
+	"net/http"
+	"time"
 )
-
-//var upgrader = websocket.Upgrader{
-//	ReadBufferSize: 1024,
-//	WriteBufferSize: 1024,
-//}
 
 type Messages struct {
 	gorm.Model
-	ReceiverID uint    `json:"received"`
 	RoomID     uint	`json:"rid"`
+	UserID  uint `json:"uid"` // author's message
 	Message    string `json:"message"`
 }
 
@@ -22,6 +22,8 @@ type Rooms struct {
 	UserId1 uint
 	UserId2 uint
 }
+
+const messagesPerPage = 15
 
 func GetRoomId(author, receive interface{}) (uint, error){
 	room := &Rooms{}
@@ -45,12 +47,70 @@ func GetRoomId(author, receive interface{}) (uint, error){
 	return 0, nil
 }
 
+func GetMessageForUser( rid, Offset uint) []Messages {
+	rows, err := GetDB().Table("messages").Order("created_at DESC").Where("room_id = ?", rid).Limit(messagesPerPage).Offset((Offset - 1)*messagesPerPage).Rows()
+	if err != nil {
+	
+	}
+	defer rows.Close()
+	messages := make([]Messages, 0)
+	
+	var (
+		id uint
+		created_at time.Time
+		updated_at time.Time
+		deleted_at *time.Time
+		//receiver_id int
+		room_id uint
+		user_id uint
+		message string
+	)
+	
+	for rows.Next(){
+		err := rows.Scan(&id, &created_at, &updated_at, &deleted_at, &room_id, &message, &user_id)
+		if err != nil {
+			log.Fatal(err)
+		}
+		msg := Messages{RoomID: room_id, UserID: user_id, Message: message}
+		msg.CreatedAt = created_at
+		msg.ID =  id
+		messages = append(messages, msg)
+	}
+	//for i, j := 0, len(messages)-1; i<j; i, j = i+1, j-1 { //reverse array
+	//	messages[i], messages[j] = messages[j], messages[i]
+	//}
+	err = rows.Err()
+	if err != nil {
+		log.Fatal(err)
+	}
+	return messages
+}
 
-
-//type Server struct {
-//	connectedUsers map[int] *Account
-//	Messages []*Messages `json: messages`
-//	addUser chan *Account
-//
-//}
-
+var FindUser = func(w http.ResponseWriter, r *http.Request) {
+	account := &Account{}
+	err := json.NewDecoder(r.Body).Decode(account)
+	if err != nil {
+		utils.Respond(w, utils.Message(false, "Invalid request"))
+		return
+	}
+	
+	account2 := &Account{}
+	err = GetDB().Table("accounts").Where("email = ?", account.Email).First(account2).Error
+	if err!=nil{
+		if err == gorm.ErrRecordNotFound{
+			utils.Respond(w, utils.Message(false, "Email address not found"))
+			return
+		}
+		utils.Respond(w, utils.Message(false, "Connection error. Please retry"))
+		return
+	}
+	
+	//auth.ListFriends = append(auth.ListFriends, fr)
+	//GetDB().Model(&auth).Update("list_friends", auth.ListFriends)
+	resp := utils.Message(true, "found user")
+	account2.Password = ""
+	account2.Token = ""
+	account2. Code = ""
+	resp["user"] = account2
+	utils.Respond(w, resp)
+}

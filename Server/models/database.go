@@ -1,6 +1,7 @@
 package models
 
 import (
+	"Server/help"
 	"fmt"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
@@ -8,6 +9,8 @@ import (
 )
 
 var db *gorm.DB
+
+var refreshTokens map[string]string
 
 func init(){
 	//e := godotenv.Load()
@@ -30,8 +33,39 @@ func init(){
 	}
 
 	db.Debug().AutoMigrate(&Account{}, &FakeAccount{}, &Messages{}, &Rooms{})
+	db.DropTable("friends")
+	//err = db.Model(&Messages{}).DropColumn("body").Error
+	//if err != nil {
+	//	// Do whatever you want to do!
+	//	log.Print("ERROR: We expect the receiver_id column to be drop-able")
+	//}
 }
 
 func GetDB() *gorm.DB{
 	return db
+}
+
+func InitDBToken() {
+	refreshTokens = make(map[string]string)
+}
+
+func StoreRefreshToken() (jti string) {
+	jti = help.GenerateString(32)
+	
+	for refreshTokens[jti] != ""{	// check to make sure our jti is unique
+		jti = help.GenerateString(32)
+		return jti
+	}
+	
+	refreshTokens[jti] = "valid"
+	
+	return jti
+}
+
+func DeleteRefreshToken(jti string) {
+	delete(refreshTokens, jti)
+}
+
+func CheckRefreshToken(jti string) bool{
+	return refreshTokens[jti] != ""
 }

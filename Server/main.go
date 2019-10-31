@@ -3,6 +3,8 @@ package main
 import (
 	"Server/app"
 	"Server/controllers"
+	"Server/models"
+	
 	//socketio "github.com/googollee/go-socket.io"
 	"github.com/gorilla/mux"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
@@ -14,10 +16,10 @@ import (
 
 func main(){
 	
-
+	models.InitDBToken()
 	router := mux.NewRouter()
-	server := controllers.NewServer()
-	go server.Listen()
+	hub := controllers.NewHub()
+	go hub.Run()
 	
 	router.HandleFunc("/api/user/new", controllers.CreateAccount).Methods("POST")
 	router.HandleFunc("/api/user/login", controllers.Authenticate).Methods("POST")
@@ -26,8 +28,12 @@ func main(){
 	router.HandleFunc("/api/user/uploading", controllers.Uploads).Methods("POST")
 	router.HandleFunc("/api/user/taken", controllers.TakeInfoAccount).Methods("GET")
 	router.HandleFunc("/api/loadroom", controllers.LoadRoom).Methods("POST")
-	router.HandleFunc("/chat", server.HandleChat)
-
+	router.HandleFunc("/api/user/refresh", app.Refresh).Methods("POST")
+	router.HandleFunc("/api/user/find", models.FindUser).Methods("POST")
+	router.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request){
+		controllers.ServeWs(hub, w, r)
+	})
+	
 	router.Use(app.JwtAuthentication)
 
 	port:= os.Getenv("PORT")

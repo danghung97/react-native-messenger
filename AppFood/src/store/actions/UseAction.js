@@ -5,6 +5,7 @@ export const SIGN_UP = "SIGN_UP"
 export const SIGN_UP_SUCCESS = "SIGN_UP_SUCCESS"
 export const SIGN_UP_FAIL = "SIGN_UP_FAIL"
 export const LOAD_ROOM = "LOAD_ROOM"
+export const REFRESH = "REFRESH"
 
 
 export const login = (data) => {
@@ -39,5 +40,11 @@ export const loadroom = (received) => {
     return {
         type: LOAD_ROOM,
         received
+    }
+}
+
+export const reset = () => {
+    return {
+        type: REFRESH,
     }
 }
