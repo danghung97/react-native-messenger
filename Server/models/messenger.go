@@ -13,6 +13,7 @@ type Messages struct {
 	gorm.Model
 	RoomID     uint	`json:"rid"`
 	UserID  uint `json:"uid"` // author's message
+	TypeMessage string `gorm:"default:'text'"json:"type_message"`
 	Message    string `json:"message"`
 }
 
@@ -64,14 +65,15 @@ func GetMessageForUser( rid, Offset uint) []Messages {
 		room_id uint
 		user_id uint
 		message string
+		type_message string
 	)
 	
 	for rows.Next(){
-		err := rows.Scan(&id, &created_at, &updated_at, &deleted_at, &room_id, &message, &user_id)
+		err := rows.Scan(&id, &created_at, &updated_at, &deleted_at, &room_id, &message, &user_id, &type_message)
 		if err != nil {
 			log.Fatal(err)
 		}
-		msg := Messages{RoomID: room_id, UserID: user_id, Message: message}
+		msg := Messages{RoomID: room_id, UserID: user_id, Message: message, TypeMessage: type_message}
 		msg.CreatedAt = created_at
 		msg.ID =  id
 		messages = append(messages, msg)

@@ -9,6 +9,9 @@ import com.facebook.react.ReactPackage;
 import com.facebook.soloader.SoLoader;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
+import com.facebook.react.ReactApplication; //<- Dòng này
+import io.invertase.firebase.messaging.RNFirebaseMessagingPackage;//<- Dòng này
+import io.invertase.firebase.notifications.RNFirebaseNotificationsPackage;//<- Dòng này
 
 public class MainApplication extends Application implements ReactApplication {
 
@@ -25,6 +28,8 @@ public class MainApplication extends Application implements ReactApplication {
           List<ReactPackage> packages = new PackageList(this).getPackages();
           // Packages that cannot be autolinked yet can be added manually here, for example:
           // packages.add(new MyReactNativePackage());
+          packages.add(new RNFirebaseMessagingPackage());//<- Dòng này
+          packages.add(new RNFirebaseNotificationsPackage());//<- Dòng này
           return packages;
         }
 

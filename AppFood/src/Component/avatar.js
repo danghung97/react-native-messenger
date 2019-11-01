@@ -56,8 +56,15 @@ export default class Avatar extends Component{
                     'Authorization': `Bearer ${Unstated.state.account.token}`
                 },
             }).then(res=>{
-                this.setState({link: res.data.link})
+                if(res.data.status){
+                    this.setState({link: res.data.link})
+                }else{
+                    alert(res.data.message)
+                }
             }).catch(err=>console.log('err', JSON.stringify(err)))
+        }).catch(err => {
+            this.setState({ isVisible: false})
+            alert('open image error: ' + err)
         })
     }
 
@@ -72,7 +79,7 @@ export default class Avatar extends Component{
             const data = new FormData();
             let name = "image.png"
             if(image.mime === "image/jpeg") name = "image.jpg"
-            data.append('file', {type: 'image/jpg', uri: image.path, name:"image.jpg"})
+            data.append('file', {type: image.mime, uri: image.path, name})
 
             Axios(`https://serverappfood.herokuapp.com/api/user/uploading`,{
                 method: "POST",
@@ -82,8 +89,15 @@ export default class Avatar extends Component{
                     'Authorization': `Bearer ${Unstated.state.account.token}`
                   },
             }).then(res=>{
-                this.setState({link: res.data.link})
+                if(res.data.status){
+                    this.setState({link: res.data.link})
+                }else{
+                    alert(res.data.message)
+                }
             }).catch(err=>console.log('err', err))
+        }).catch(err => {
+            this.setState({ isVisible: false})
+            alert('picker image error: ' + err)
         })
     }
 

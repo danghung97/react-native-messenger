@@ -5,17 +5,18 @@ import {
     Text,
     StyleSheet,
     TouchableOpacity,
-    TouchableWithoutFeedback,
-    Keyboard,
     Image,
-    KeyboardAvoidingView,
     FlatList,
     Dimensions
 } from 'react-native';
 // import SocketIOClient from 'socket.io-client';
 import Icons from 'react-native-vector-icons/Feather';
+import Icons1 from 'react-native-vector-icons/AntDesign';
 import _ from 'lodash';
 import Unstated from '../store/Unstated'
+import ImagePicker from 'react-native-image-crop-picker';
+import Axios from 'axios'
+
 export default class Chat extends Component {
     constructor(props){
         super(props);
@@ -24,7 +25,6 @@ export default class Chat extends Component {
             msg: "",
             connect: '',
         }
-        this.maxWidth = Dimensions.get('screen').width * 0.6
     }
 
 
@@ -71,13 +71,14 @@ export default class Chat extends Component {
         this.setState({msg: text})
     }
 
-    sendMessage=(msg)=>{
+    sendMessage=(type, msg)=>{
         if(msg.trim()===''){
             return
         }
         var message = {
             uid: this.props.navigation.getParam('authid'),
             rid: this.props.navigation.getParam('roomId'),
+            type_message: type,
             message: msg,
         }
         try{
@@ -86,6 +87,71 @@ export default class Chat extends Component {
             alert('send message failed: ' + error)
         }
         this.setState({msg: ""})
+    }
+
+    openImage = () => {
+        ImagePicker.openCamera({
+            width: 350,
+            height: 300,
+            cropping: true,
+            mediaType: 'photo'
+        }).then(image=>{
+            const data = new FormData();
+            let name = "image.png"
+            if(image.mime === "image/jpeg") name = "image.jpg"
+            data.append('file',{
+                type: image.mime,
+                uri: image.path,
+                name,
+            })
+            Axios(`https://serverappfood.herokuapp.com/api/user/uploading`, {
+                method: "POST",
+                data,
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                    'Authorization': `Bearer ${Unstated.state.account.token}`
+                },
+            }).then(res=>{
+                if(res.data.status){
+                    this.sendMessage('image', res.data.link)
+                }else{
+                    alert(res.data.message)
+                }
+            }).catch(err=>console.log('err', JSON.stringify(err)))
+        }).catch(err => {
+            alert('open image error: ' + err)
+        })
+    }
+
+    pickerImage = () => {
+        ImagePicker.openPicker({
+            width: 350,
+            height: 300,
+            cropping: true,
+            mediaType: 'photo'
+        }).then(image=>{
+            const data = new FormData();
+            let name = "image.png"
+            if(image.mime === "image/jpeg") name = "image.jpg"
+            data.append('file', {type: image.mime, uri: image.path, name})
+
+            Axios(`https://serverappfood.herokuapp.com/api/user/uploading`,{
+                method: "POST",
+                data,
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                    'Authorization': `Bearer ${Unstated.state.account.token}`
+                  },
+            }).then(res=>{
+                if(res.data.status){
+                    this.sendMessage('image', res.data.link)
+                }else{
+                    alert(res.data.message)
+                }
+            }).catch(err=>console.log('err', err))
+        }).catch(err => {
+            alert('picker image error: ' + err)
+        })
     }
 
     loadMoreMessage = () => {
@@ -97,9 +163,11 @@ export default class Chat extends Component {
             if(item.item.uid === this.props.navigation.getParam('authid')){
                 return(
                     <View style={{flexDirection: 'row', justifyContent: 'flex-end', marginBottom: 10}}>
+                        {item.item.type_message === 'image' ? 
+                        <Image style={{width: 200, height: 150}} source={{uri: item.item.message}} resizeMode="cover" /> :
                         <View style={[styles.box, {backgroundColor: "#C1EEF7"}]}>
                             <Text style={{color: 'black'}}>{item.item.message}</Text>
-                        </View>
+                        </View>}
                         <Image style={[styles.avatar, {marginLeft: 10}]}
                             source={{uri: Unstated.state.account.avatar}} />
                     </View>
@@ -121,15 +189,16 @@ export default class Chat extends Component {
     render(){
         const user = this.props.navigation.getParam('user')
         return(
-        <TouchableWithoutFeedback >
             <View style={styles.container}>
                 <View style={styles.header}>
-                    <TouchableOpacity style={styles.avatar}>
-                        <Image style={styles.avatar} source={{uri: user.avatar}} />
-                    </TouchableOpacity>
-                    <Text style={styles.name}>{user.email}</Text>
+                    <View>
+                        <TouchableOpacity style={styles.avatar}>
+                            <Image style={styles.avatar} source={{uri: user.avatar}} />
+                        </TouchableOpacity>
+                        <Text style={styles.name}>{user.email}</Text>
+                    </View>
                     <Text style={{
-                        alignSelf: 'flex-end', 
+                        alignSelf: 'center', 
                         fontSize: 14, 
                         lineHeight: 16, 
                         color: '#FF8000', 
@@ -144,19 +213,29 @@ export default class Chat extends Component {
                 renderItem={item => this.renderItem(item, user.avatar)}
                 onEndReached={this.loadMoreMessage()}
                 />
-                <View style={styles.send}>
-                    <TextInput
-                    value={this.state.msg}
-                    placeholder="message"
-                    onChangeText={text => this.handletext(text)}
-                    style={styles.input}
-                    />
-                    <TouchableOpacity onPress={()=>this.sendMessage(this.state.msg)} style={{marginLeft: 15}}>
-                        <Icons name="send" size={20} />
-                    </TouchableOpacity>
+                <View>
+                    <View style={{flexDirection: 'row', paddingHorizontal: 10, paddingVertical: 5}}>
+                        <TouchableOpacity onPress={()=>this.openImage()}>
+                            <Icons1 name="camera" size={25} />
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={()=>this.pickerImage()}>
+                            <Icons1 name="picture" size={25} style={{marginLeft: 10}} />
+                        </TouchableOpacity>
+                    </View>
+                    <View style={{borderWidth: 1, borderColor: '#9FF7EF'}} />
+                    <View style={styles.send}>
+                        <TextInput
+                        value={this.state.msg}
+                        placeholder="message"
+                        onChangeText={text => this.handletext(text)}
+                        style={styles.input}
+                        />
+                        <TouchableOpacity onPress={()=>this.sendMessage(this.state.msg)} style={{marginLeft: 15}}>
+                            <Icons name="send" size={25} />
+                        </TouchableOpacity>
+                    </View>
                 </View>
             </View>
-        </TouchableWithoutFeedback>
         )
     }
 }
@@ -174,6 +253,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         borderBottomWidth: 0.5,
+        justifyContent: 'space-between'
     },
     avatar: {
         width: 30,
@@ -221,7 +301,7 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: 'black', 
         borderRadius: 4,
-        maxWidth: this.maxWidth, 
+        maxWidth: Dimensions.get('screen').width * 0.6, 
         paddingHorizontal: 7,
         paddingVertical: 10, 
         minWidth: 20
