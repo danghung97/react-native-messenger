@@ -12,30 +12,34 @@ import {
 } from 'react-native';
 import Entypo from "react-native-vector-icons/Entypo";
 import { connect } from 'react-redux'
-import { login } from '../store/actions/UseAction';
+import { login, saveuser } from '../store/actions/UseAction';
 import LoadingModal from '../Component/loading';
 import Unstated from '../store/Unstated';
 
 class Login extends Component {
 	constructor(props){
-		AsyncStorage.getItem("account", (error, result) => {
-			if (error) {
-				// callback(null);
-				return
-			} else {
-				if(result){
-					props.navigation.navigate("HomeScreen")
-					Unstated.setAccount('account', JSON.parse(result));
-				}
-				// callback(result);
-			}
-		});
-			// callback(null);
 		super(props);
 		this.email = "";
 		this.password = "";
 	}
 
+	async componentDidMount() {
+        this.getUser();
+    }
+
+	async getUser() {
+		await AsyncStorage.getItem("account", (error, result) => {
+			if (error) {
+				return
+			} else {
+				if(result){
+					global.isLogging = true;
+					Unstated.setAccount('account', JSON.parse(result));
+					this.props.saveuser(JSON.parse(result))
+				}
+			}
+		});
+	}
 	shouldComponentUpdate(nextProps){
 		if(nextProps.user.isSucces) {
 			this.refs['loading'].hideModal()
@@ -211,18 +215,19 @@ const styles = StyleSheet.create({
 	},
 });
 
-const mapStateToProp =  state => {
+const mapStateToProps =  state => {
 	return {
 		user: state.user,
 	}
 }
 
-const mapDispatchToProp = {
+const mapDispatchToProps = {
 	login: login,
+	saveuser: saveuser
 }
 
 
 export default connect(
-	mapStateToProp,
-	mapDispatchToProp
+	mapStateToProps,
+	mapDispatchToProps
 )(Login)

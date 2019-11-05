@@ -11,8 +11,10 @@ import {
 // import Icons from "react-native-vector-icons/AntDesign";
 import Unstated from '../store/Unstated'
 import axios from 'axios';
+import { connect } from 'react-redux';
 import Icons from 'react-native-vector-icons/AntDesign';
 import ModalFindUser from '../Component/messenger/modalFindUser';
+import { FlatList } from 'react-native-gesture-handler';
 
 const user =[{"ID": 8, "name": "hcmut"}, {"ID": 13, "name": "appfast"}]
 
@@ -22,11 +24,28 @@ export default class Mess extends Component {
         this.state={
             name: '',
             user: '',
+            arrMessenger: [],
         }
-        this.email = "1511335@hcmut.edu.vn";
+        this.email = "";
     }
 
-    sendRequestLoadRoom=(user)=>{
+    async componentDidMount() {
+        this.getMessenger()
+    }
+    async getMessenger(){
+        await AsyncStorage.getItem("arrayMessenger", (error, result) => {
+            if (error) {
+                // callback(null);
+                return
+            } else {
+                if(result) {
+                    this.setState({arrMessenger: JSON.parse(result)})
+                }
+            }
+        });
+    }
+
+    sendRequestLoadRoom=(user, arrMessenger)=>{
         axios.post(`https://serverappfood.herokuapp.com/api/loadroom`,
         {
             authid: Unstated.state.account.ID,
@@ -46,6 +65,18 @@ export default class Mess extends Component {
                 user: user,
                 authid: Unstated.state.account.ID,
                 initMessage: res.data.arrayMessage})
+                if(arrMessenger.length !== 0) {
+                    let findDuplicate = arrMessenger.filter(rs => rs.ID === user.ID)
+                    if (findDuplicate.length !== 0) return
+                    else{
+                        let temp = arrMessenger.concat(user)
+                        AsyncStorage.setItem("arrayMessenger", JSON.stringify(temp))
+                        this.setState({arrMessenger: temp})
+                    }
+                }else {
+                    AsyncStorage.setItem("arrayMessenger", JSON.stringify([{...user}]))
+                    this.setState({arrMessenger: temp})
+                }
             }else {
                 alert(res.data.message)
             }
@@ -77,11 +108,10 @@ export default class Mess extends Component {
          <View style={styles.container}>
              <View style={styles.header}>
                 <TouchableOpacity style={styles.avatar} onPress={()=> this.props.navigation.navigate("chatScreen")}>
-                    <Image style={styles.avatar} source={require('../Image/avatar.jpg')} />
+                    <Image style={styles.avatar} source={{uri: Unstated.state.account.avatar}} />
                 </TouchableOpacity>
-                <Text style={styles.name}>DANG HUNG</Text>
+                <Text style={styles.name}>{Unstated.state.account.name}</Text>
              </View>
-             <View style={styles.Divider} />
              <View style={{flexDirection: 'row', alignItems: 'center'}}>
                  <TextInput
                  style={{
@@ -93,7 +123,6 @@ export default class Mess extends Component {
                      marginLeft: 10,
                      marginTop: 10,
                  }}
-                 value="1511335@hcmut.edu.vn"
                  placeholder="Email..."
                  placeholderTextColor="#F9A825"
                  onChangeText={text => this.email = text}
@@ -102,19 +131,31 @@ export default class Mess extends Component {
                         <Icons name="search1" size={30} />
                 </TouchableOpacity>
              </View>
-
-             {/* <View style={styles.mess}>
-                 {user.map(us=>{
-                     return(
-                         <TouchableOpacity style={{flexDirection: 'row', alignItems: 'center'}} 
-                         onPress={()=>this.sendRequestLoadRoom(us)}>
-                             <Image style={{width: 50, height: 50, borderRadius: 25}} source={require('../Image/avatar.jpg')} />
-                             <Text>{us.name}</Text>
-                         </TouchableOpacity>
-                     )
-                 })}
-             </View> */}
-             <ModalFindUser ref="finduser" goChat={this.sendRequestLoadRoom} />
+             <FlatList
+             style={{ marginTop: 10, marginLeft: 10 }}
+             data={this.state.arrMessenger}
+             keyExtractor={ item => item.ID}
+             showsVerticalScrollIndicator={false}
+             removeClippedSubviews
+             renderItem={({item})=> {
+                 return(
+                    <TouchableOpacity style={{flexDirection: 'row', alignItems: 'center'}} 
+                    onPress={()=>this.sendRequestLoadRoom(item, this.state.arrMessenger)}>
+                        <Image style={{width: 50, height: 50, borderRadius: 25}} source={{uri: item.avatar}} />
+                        <Text>{item.email}</Text>
+                    </TouchableOpacity>
+                 )
+             }}
+             ItemSeparatorComponent={()=>{
+                 return(
+                     <View style={{height: 10}} />
+                 )
+             }}
+             />
+             <ModalFindUser ref="finduser" 
+             goChat={this.sendRequestLoadRoom}
+             arrMessenger={this.state.arrMessenger}
+             />
          </View>   
         )
     }
@@ -123,9 +164,18 @@ export default class Mess extends Component {
 const styles = StyleSheet.create({
     container:{
         width: '100%',
-        backgroundColor: '#fff',
+        backgroundColor: '#FFFFFF',
     },
     header: {
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+        backgroundColor: '#FFFFFF',
+        elevation: 6,
         padding: 15,
         width: '100%',
         flexDirection: 'row',
@@ -140,12 +190,7 @@ const styles = StyleSheet.create({
         fontSize: 10,
         lineHeight: 12,
         fontWeight: '800',
-        marginLeft: 10
-    },
-    Divider :{
-        borderWidth: 0.5,
-        borderColor: 'black',
-        width: '100%',
+        marginLeft: 20
     },
     mess: {
         width: '100%',
@@ -180,3 +225,4 @@ const styles = StyleSheet.create({
         borderBottomWidth: 0.5,
     }
 })
+

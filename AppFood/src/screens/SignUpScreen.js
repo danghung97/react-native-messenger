@@ -225,17 +225,17 @@ const styles = StyleSheet.create({
   
 });
 
-const mapStateToProp =  state => {
+const mapStateToProps =  state => {
 	return {
 		user: state.user,
 	}
 }
 
-const mapDispatchToProp = {
+const mapDispatchToProps = {
 	signup: signup,
 }
 
 export default connect(
-	mapStateToProp,
-	mapDispatchToProp
+	mapStateToProps,
+	mapDispatchToProps
 )(SignUp)

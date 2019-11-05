@@ -28,7 +28,7 @@ export default class ModalFindUser extends Component {
         this.setState({user: user})
     }
     render(){
-        const {goChat} = this.props;
+        const { goChat, arrMessenger } = this.props;
         return (
             <Modal 
                 isVisible={this.state.isVisible}
@@ -59,7 +59,7 @@ export default class ModalFindUser extends Component {
                         justifyContent: 'center',
                         alignItems: 'center',
                         marginLeft: 20,
-                        borderRadius: 6,}} onPress={()=>goChat(this.state.user)} >
+                        borderRadius: 6,}} onPress={()=>goChat(this.state.user, arrMessenger)} >
                         {!this.state.isLoading ? <Text style={{
                             fontSize: 18,
                             lineHeight: 20,

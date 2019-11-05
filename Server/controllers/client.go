@@ -36,7 +36,7 @@ var upgrader = websocket.Upgrader{
 
 type Client struct {
 	hub *Hub
-	rid uint
+	uid uint
 	conn *websocket.Conn
 	send chan interface{}
 }
@@ -146,12 +146,14 @@ func (c *Client) dispatchRaw(raw []byte) {
 		log.Println("s.dispatch", err)
 		return
 	}
-	models.GetDB().Create(&msg)
-	models.GetDB().Model(&msg).Update("created_at", time.Now())
 	if msg.ID < 0 {
 		log.Println("connection error")
 		return
 	}
-	c.rid = msg.RoomID
+	if msg.TypeMessage != "client-connected" {
+		models.GetDB().Create(&msg)
+		models.GetDB().Model(&msg).Update("created_at", time.Now())
+	}
+	c.uid = msg.UserID
 	c.hub.broadcast <- msg
 }

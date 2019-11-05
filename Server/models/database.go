@@ -12,6 +12,8 @@ var db *gorm.DB
 
 var refreshTokens map[string]string
 
+var FcmTokens map[string]string
+
 func init(){
 	//e := godotenv.Load()
 	//if e!=nil{
@@ -46,6 +48,7 @@ func GetDB() *gorm.DB{
 
 func InitDBToken() {
 	refreshTokens = make(map[string]string)
+	FcmTokens = make(map[string]string)
 }
 
 func StoreRefreshToken() (jti string) {
@@ -67,4 +70,16 @@ func DeleteRefreshToken(jti string) {
 
 func CheckRefreshToken(jti string) bool{
 	return refreshTokens[jti] != ""
+}
+
+func StoreFcmToken( deviceId, fcmToken string) {
+	FcmTokens[deviceId] = fcmToken
+}
+
+func DeleteFcmToken(deviceId string) {
+	delete(FcmTokens, deviceId)
+}
+
+func CheckFcmToken(deviceId string) bool {
+	return FcmTokens[deviceId] != ""
 }

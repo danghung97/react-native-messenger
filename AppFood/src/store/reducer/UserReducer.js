@@ -1,4 +1,4 @@
-import { USER_LOGIN, LOGIN_SUCESS, LOGIN_FAIL, SIGN_UP_FAIL, SIGN_UP_SUCCESS, REFRESH} from '../actions/UseAction'
+import { USER_LOGIN, LOGIN_SUCESS, LOGIN_FAIL, SIGN_UP_FAIL, SIGN_UP_SUCCESS, REFRESH, SAVE_USER} from '../actions/UseAction'
 import { AsyncStorage } from 'react-native';
 import Unstated from '../Unstated';
 
@@ -16,6 +16,7 @@ const reducer = (state = initial, action) => {
         case LOGIN_SUCESS:
             AsyncStorage.setItem("account", JSON.stringify(action.data));
             Unstated.setAccount('account', action.data);
+            global.isLogging = true;
             return {...state, user: action.data, isLoadding: false, isSucces: true, error: null}
         case LOGIN_FAIL:
             return {...state, error: action.message, isLoadding: false, isSucces: false, user: null}
@@ -24,7 +25,8 @@ const reducer = (state = initial, action) => {
         case SIGN_UP_SUCCESS:
             AsyncStorage.setItem("account", JSON.stringify(action.data));
             Unstated.setAccount('account', action.data);
-            return {...state, isSucces: true, isLoadding: false, user: action.account, error: false}
+            global.isLogging = true;
+            return {...state, isSucces: true, isLoadding: false, user: action.account, error: null}
         case SIGN_UP_FAIL:
             return {...state, isSucces: false, error: action.message, isLoadding: false}
         case REFRESH:
@@ -33,6 +35,14 @@ const reducer = (state = initial, action) => {
                 isLoadding: false,
                 error: "",
                 user: null,
+            }
+        case SAVE_USER:
+            return {
+                ...state,
+                isSucces: false,
+                isLoadding: false,
+                error: "",
+                user: action.user
             }
         default:
             return state

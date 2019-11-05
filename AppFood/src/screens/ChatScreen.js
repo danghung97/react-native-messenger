@@ -15,69 +15,122 @@ import Icons1 from 'react-native-vector-icons/AntDesign';
 import _ from 'lodash';
 import Unstated from '../store/Unstated'
 import ImagePicker from 'react-native-image-crop-picker';
-import Axios from 'axios'
+import Axios from 'axios';
+import { connect } from 'react-redux';
 
-export default class Chat extends Component {
+class Chat extends Component {
     constructor(props){
         super(props);
         this.state={
             message: props.navigation.getParam('initMessage') || [],
-            msg: "",
-            connect: '',
         }
+        this.rid = props.navigation.getParam('roomId')
+        this.authid = props.navigation.getParam('authid')
     }
 
+    componentWillReceiveProps(nextProps) {
+        this.receiveMessage(nextProps)
+    }
+    componentDidMount() {
+        this.receiveMessage(this.props)
+    }
 
-    componentWillMount(){
-        this.connectSocket()
-    };
-
-    connectSocket = () => {
-        if (_.isUndefined(global.socketIO)){
-            global.socket = new WebSocket('ws://serverappfood.herokuapp.com/ws')
-        }
-        let that = this
-        var connectInterval
-        global.socket.onopen=()=>{
-            this.setState({connect: 'connected'})
-            clearTimeout(connectInterval); // clear Interval on on open of websocket connection
-        }
-
-        global.socket.onclose=(e)=>{
-            this.setState({connect: 'closed: '})
-            // global.socket.removeAllListeners()
-            connectInterval = setTimeout(this.check, 3000)
-        }
-
-        global.socket.onerror=(err)=>{
-            this.setState({connect: 'err: ' + err.message})
-            global.socket.close()
-        }
-
-        // global.socket.on('error')
-        global.socket.onmessage=(msg)=>{
-            const data = JSON.parse(msg.data)
-            let temp = this.state.message
-            temp = [{...data}].concat(temp)
+    receiveMessage = (props) => {
+        const messageOfRoom = props.socket.message.filter(
+            msg => msg.rid === this.rid)
+        if(messageOfRoom.length !== 0 && 
+            _.get(messageOfRoom[0], 'ID', null) !== _.get(this.state.message[0], 'ID', null)){
+            let temp = [{...messageOfRoom[0]}].concat(this.state.message)
             this.setState({message: temp})
         }
     }
 
-    check = () => {
-        if (!global.socket || global.socket.readyState === WebSocket.CLOSED) this.connectSocket()
-    }
-    
-    handletext=(text)=>{
-        this.setState({msg: text})
+    loadMoreMessage = () => {
+
     }
 
+    renderItem = (item, uri) => {
+        {
+            if(item.item.uid === this.authid){
+                const showAvatar = item.index === 0 || 
+                _.get(this.state.message[item.index-1], 'uid', null) !== this.authid 
+                return(
+                    <View style={{flexDirection: 'row', justifyContent: 'flex-end', marginBottom: 10}}>
+                        {item.item.type_message === 'image' ? 
+                        <Image style={{width: 200, height: 150}} source={{uri: item.item.message}} resizeMode="cover" /> :
+                        <View style={[styles.box, {backgroundColor: "#C1EEF7"}]}>
+                            <Text style={{color: 'black'}}>{item.item.message}</Text>
+                        </View>}
+                        {showAvatar ? <Image style={[styles.avatar, {marginLeft: 10}]}
+                            source={{uri: Unstated.state.account.avatar}} /> : <View style={{width: 30, height: 30, marginLeft: 10}} /> }
+                    </View>
+                )
+            }else {
+                const showAvatar = item.index === 0 || 
+                _.get(this.state.message[item.index-1], 'uid', null) === this.authid
+                return(
+                    <View style={{flexDirection: 'row', justifyContent: 'flex-start', marginBottom: 10}}>
+                        {showAvatar ? <Image style={[styles.avatar, {marginRight: 10}]} 
+                            source = {{ uri }} /> : <View style={{width: 30, height: 30, marginRight: 10}} /> }
+                        {item.item.type_message === 'image' ? 
+                        <Image style={{width: 200, height: 150}} source={{uri: item.item.message}} resizeMode="cover" /> :
+                        <View style = {[styles.box, {backgroundColor: '#fff'}]} >
+                            <Text style={{color: 'black'}}> {item.item.message} </Text>
+                        </View>}
+                    </View>
+                )
+            }
+        }
+    }
+    
+    render(){
+        const user = this.props.navigation.getParam('user')
+        return(
+            <View style={styles.container}>
+                <View style={styles.header}>
+                    <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                        <TouchableOpacity style={styles.avatar}>
+                            <Image style={styles.avatar} source={{uri: user.avatar}} />
+                        </TouchableOpacity>
+                        <Text style={styles.name}>{user.email}</Text>
+                    </View>
+                </View>
+                <FlatList
+                style={styles.content}
+                data={this.state.message}
+                keyExtractor={item=> item.ID}
+                inverted
+                showsVerticalScrollIndicator={false}
+                removeClippedSubviews
+                renderItem={(item) => this.renderItem(item, user.avatar)}
+                onEndReached={this.loadMoreMessage()}
+                />
+                <View>
+                    <InputMessage
+                    authId = {this.authid}
+                    rid = {this.rid}
+                    />
+                </View>
+            </View>
+        )
+    }
+}
+
+class InputMessage extends React.PureComponent{
+    constructor(props){
+        super(props);
+        this.state={
+            msg: "",
+        }
+    }
     sendMessage=(type, msg)=>{
         if(msg.trim()===''){
             return
         }
-        var message = {
-            uid: this.props.navigation.getParam('authid'),
-            rid: this.props.navigation.getParam('roomId'),
+        const { authId, rid } = this.props
+        let message = {
+            uid: authId,
+            rid,
             type_message: type,
             message: msg,
         }
@@ -153,68 +206,10 @@ export default class Chat extends Component {
             alert('picker image error: ' + err)
         })
     }
-
-    loadMoreMessage = () => {
-
-    }
-
-    renderItem = (item, uri) => {
-        {
-            if(item.item.uid === this.props.navigation.getParam('authid')){
-                return(
-                    <View style={{flexDirection: 'row', justifyContent: 'flex-end', marginBottom: 10}}>
-                        {item.item.type_message === 'image' ? 
-                        <Image style={{width: 200, height: 150}} source={{uri: item.item.message}} resizeMode="cover" /> :
-                        <View style={[styles.box, {backgroundColor: "#C1EEF7"}]}>
-                            <Text style={{color: 'black'}}>{item.item.message}</Text>
-                        </View>}
-                        <Image style={[styles.avatar, {marginLeft: 10}]}
-                            source={{uri: Unstated.state.account.avatar}} />
-                    </View>
-                )
-            }else {
-                return(
-                    <View style={{flexDirection: 'row', justifyContent: 'flex-start', marginBottom: 10}}>
-                        <Image style={[styles.avatar, {marginRight: 10}]} 
-                            source = {{ uri }} />
-                        <View style = {[styles.box, {backgroundColor: '#fff'}]} >
-                            <Text style={{color: 'black'}}> {item.item.message} </Text>
-                        </View>
-                    </View>
-                )
-            }
-        }
-    }
-    
     render(){
-        const user = this.props.navigation.getParam('user')
         return(
-            <View style={styles.container}>
-                <View style={styles.header}>
-                    <View>
-                        <TouchableOpacity style={styles.avatar}>
-                            <Image style={styles.avatar} source={{uri: user.avatar}} />
-                        </TouchableOpacity>
-                        <Text style={styles.name}>{user.email}</Text>
-                    </View>
-                    <Text style={{
-                        alignSelf: 'center', 
-                        fontSize: 14, 
-                        lineHeight: 16, 
-                        color: '#FF8000', 
-                        fontWeight: '500'}}>{this.state.connect}</Text>
-                </View>
-                <FlatList
-                style={styles.content}
-                data={this.state.message}
-                keyExtractor={(item, index)=>`message + ${index}`}
-                inverted
-                removeClippedSubviews
-                renderItem={item => this.renderItem(item, user.avatar)}
-                onEndReached={this.loadMoreMessage()}
-                />
-                <View>
-                    <View style={{flexDirection: 'row', paddingHorizontal: 10, paddingVertical: 5}}>
+            <View>
+                <View style={{flexDirection: 'row', paddingHorizontal: 10, paddingVertical: 5}}>
                         <TouchableOpacity onPress={()=>this.openImage()}>
                             <Icons1 name="camera" size={25} />
                         </TouchableOpacity>
@@ -222,24 +217,22 @@ export default class Chat extends Component {
                             <Icons1 name="picture" size={25} style={{marginLeft: 10}} />
                         </TouchableOpacity>
                     </View>
-                    <View style={{borderWidth: 1, borderColor: '#9FF7EF'}} />
-                    <View style={styles.send}>
-                        <TextInput
-                        value={this.state.msg}
-                        placeholder="message"
-                        onChangeText={text => this.handletext(text)}
-                        style={styles.input}
-                        />
-                        <TouchableOpacity onPress={()=>this.sendMessage(this.state.msg)} style={{marginLeft: 15}}>
-                            <Icons name="send" size={25} />
-                        </TouchableOpacity>
-                    </View>
+                <View style={{borderWidth: 1, borderColor: '#9FF7EF'}} />
+                <View style={styles.send}>
+                    <TextInput
+                    value={this.state.msg}
+                    placeholder="message"
+                    onChangeText={text => this.setState({msg: text})}
+                    style={styles.input}
+                    />
+                    <TouchableOpacity onPress={()=>this.sendMessage('text', this.state.msg)} style={{marginLeft: 15}}>
+                        <Icons name="send" size={25} />
+                    </TouchableOpacity>
                 </View>
             </View>
         )
     }
 }
-
 
 const styles = StyleSheet.create({
     container : {
@@ -253,7 +246,17 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         borderBottomWidth: 0.5,
-        justifyContent: 'space-between'
+        justifyContent: 'space-between',
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+        backgroundColor: '#FFFFFF',
+
+        elevation: 5,
     },
     avatar: {
         width: 30,
@@ -261,23 +264,19 @@ const styles = StyleSheet.create({
         borderRadius: 15,
         borderWidth: 0.5, 
         borderColor: '#FFF',
+        alignSelf: 'flex-end'
     },
     name: {
         fontSize: 10,
         lineHeight: 12,
         fontWeight: '800',
-        marginLeft: 10
-    },
-    Divider:{
-        borderWidth: 0.5,
-        borderColor: 'black',
-        width: '100%',
+        marginLeft: 20
     },
     content: {
         width: '100%',
         // height: 400,
         // flex: 1,
-        backgroundColor: '#C4C4C4',
+        backgroundColor: '#E5E5E5',
     },
     send: {
         width: '100%',
@@ -307,3 +306,11 @@ const styles = StyleSheet.create({
         minWidth: 20
     }
 })
+
+const mapStateToProps = state => {
+    return {
+        socket: state.socket
+    }
+}
+
+export default connect(mapStateToProps, null)(Chat)

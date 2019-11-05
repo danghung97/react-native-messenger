@@ -3,6 +3,7 @@ package controllers
 import (
 	"Server/models"
 	"encoding/json"
+	"github.com/jinzhu/gorm"
 )
 
 type Hub struct {
@@ -39,8 +40,13 @@ func (h *Hub) Run() {
 				close(client.send)
 			}
 		case message := <-h.broadcast:
+			room := &models.Rooms{}
+			err := models.GetDB().Table("rooms").Where("id = ?", message.RoomID).First(room).Error
+			if err != nil && err != gorm.ErrRecordNotFound {
+				//return u.Message(false, "Connection error. Please retry")
+			}
 			for client := range h.clients {
-				if client.rid == message.RoomID {
+				if client.uid == room.UserId1 || client.uid == room.UserId2 {
 					m, _ := json.Marshal(message)
 					select {
 					case client.send <- m:

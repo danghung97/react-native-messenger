@@ -11,20 +11,21 @@ import { reset } from '../store/actions/UseAction';
 
 class HomeScreen extends Component{
     
+    LogOut=()=>{
+        // axios.post(`https://serverappfood.herokuapp.com/api/user/logout/`,null,{
+        //     headers:{
+        //         Auth
+        //     },
+            
+        // })
+        // .then(res=>console.log(res.data))
+        // .catch(err=>alert(err))
+        AsyncStorage.removeItem("account");
+        this.props.reset();
+        global.isLogging = false;
+        global.socket.close();
+    }
     render(){
-        this.LogOut=()=>{
-            // axios.post(`https://serverappfood.herokuapp.com/api/user/logout/`,null,{
-            //     headers:{
-            //         Auth
-            //     },
-                
-            // })
-            // .then(res=>console.log(res.data))
-            // .catch(err=>alert(err))
-            AsyncStorage.removeItem("account");
-            this.props.reset();
-            this.props.navigation.navigate("loginScreen");
-        }
         return(
             <View>
                 <TouchableOpacity onPress={()=>this.LogOut()}>
@@ -35,18 +36,18 @@ class HomeScreen extends Component{
     }
 }
 
-const mapStateToProp =  state => {
+const mapStateToProps =  state => {
 	return {
 		user: state.user,
 	}
 }
 
-const mapDispatchToProp = {
+const mapDispatchToProps = {
 	reset: reset,
 }
 
 
 export default connect(
-	mapStateToProp,
-	mapDispatchToProp
+	mapStateToProps,
+	mapDispatchToProps
 )(HomeScreen)

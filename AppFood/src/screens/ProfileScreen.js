@@ -8,7 +8,7 @@ import{
 } from 'react-native';
 import Avatar from '../Component/avatar'
 import Unstated from '../store/Unstated';
-import axios from 'axios';
+// import axios from 'axios';
 
 export default class ProfileScreen extends Component{
     constructor(props){

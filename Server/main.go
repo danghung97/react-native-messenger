@@ -30,6 +30,7 @@ func main(){
 	router.HandleFunc("/api/loadroom", controllers.LoadRoom).Methods("POST")
 	router.HandleFunc("/api/user/refresh", app.Refresh).Methods("POST")
 	router.HandleFunc("/api/user/find", models.FindUser).Methods("POST")
+	//router.HandleFunc("/api/phone-device/push", models.FcmToken).Methods("POST")
 	router.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request){
 		controllers.ServeWs(hub, w, r)
 	})
