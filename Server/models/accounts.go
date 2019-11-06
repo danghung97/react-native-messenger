@@ -8,6 +8,8 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"gopkg.in/go-playground/validator.v9"
 	"os"
+	"time"
+	
 	//"Server/help"
 )
 
@@ -23,26 +25,25 @@ type Account struct{
 	Name string `json:"name"`
 	Phone int `json:"phone"`
 	Address string `json:"address"`
-	//avatar string
 	Token string `json:"token";sql:"-"`
 	Code string `json:"code"`
-	Avatar string
-	//friends []Friend
+	Avatar string `json:"avatar"`
+	//ListFriends []*Friend `json:"list_friends"`
 }
 
-type Friend struct {
-	gorm.Model
-	Email string
-	//Name string
-	//Phone int
-	//Address string
-	//avatar string
-}
+//type Friend struct {
+//	gorm.Model
+//	Email string `json:"email"`
+//	Name string `json:"name"`
+//	Phone int `json:"phone"`
+//	Address string `json:"address"`
+//	Avatar string `json:"avatar"`
+//}
 
 type FakeAccount struct{
 	gorm.Model
 	Email string `json:"email" validate:"email"`
-	Code string
+	Code string	`json:"code"`
 }
 
 var validate *validator.Validate
@@ -97,8 +98,21 @@ func (account *Account) Create() map[string] interface{} {
 	if account.ID<0{
 		return u.Message(false, "Failed to create account, connection error.")
 	}
-
-	tk:= &Token{UserId: account.ID}
+	
+	expirationTime := time.Now().Add(60 * time.Minute)
+	Jti := StoreRefreshToken()
+	tk := &Token{
+		UserId: account.ID,
+		StandardClaims: jwt.StandardClaims{
+			//Audience:  "",
+			ExpiresAt: expirationTime.Unix(),
+			Id:        Jti,
+			//IssuedAt:  0,
+			//Issuer:    "",
+			//NotBefore: 0,
+			//Subject:   "",
+		},
+	}
 	token := jwt.NewWithClaims(jwt.GetSigningMethod("HS256"), tk)
 	tokenString, _ := token.SignedString([]byte(os.Getenv("token_password")))
 	account.Token = tokenString
@@ -125,8 +139,23 @@ func Login(email, password string) map[string]interface{} {
 	if err!=nil && err==bcrypt.ErrMismatchedHashAndPassword{ //Password does not match!
 		return u.Message(false, "Invalid login credentials. Please try again")
 	}
+	
 	account.Password = ""
-	tk := &Token{UserId: account.ID}
+	
+	expirationTime := time.Now().Add(60 * time.Minute)
+	Jti := StoreRefreshToken()
+	tk := &Token{
+		UserId: account.ID,
+		StandardClaims: jwt.StandardClaims{
+			//Audience:  "",
+			ExpiresAt: expirationTime.Unix(),
+			Id:        Jti,
+			//IssuedAt:  0,
+			//Issuer:    "",
+			//NotBefore: 0,
+			//Subject:   "",
+		},
+	}
 	token := jwt.NewWithClaims(jwt.GetSigningMethod("HS256"), tk)
 	tokenString, _ := token.SignedString([]byte(os.Getenv("token_password")))
 	account.Token = tokenString

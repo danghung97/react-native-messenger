@@ -56,8 +56,15 @@ export default class Avatar extends Component{
                     'Authorization': `Bearer ${Unstated.state.account.token}`
                 },
             }).then(res=>{
-                this.setState({link: res.data.link})
+                if(res.data.status){
+                    this.setState({link: res.data.link})
+                }else{
+                    alert(res.data.message)
+                }
             }).catch(err=>console.log('err', JSON.stringify(err)))
+        }).catch(err => {
+            this.setState({ isVisible: false})
+            alert('open image error: ' + err)
         })
     }
 
@@ -72,7 +79,7 @@ export default class Avatar extends Component{
             const data = new FormData();
             let name = "image.png"
             if(image.mime === "image/jpeg") name = "image.jpg"
-            data.append('file', {type: 'image/jpg', uri: image.path, name:"image.jpg"})
+            data.append('file', {type: image.mime, uri: image.path, name})
 
             Axios(`https://serverappfood.herokuapp.com/api/user/uploading`,{
                 method: "POST",
@@ -82,14 +89,22 @@ export default class Avatar extends Component{
                     'Authorization': `Bearer ${Unstated.state.account.token}`
                   },
             }).then(res=>{
-                this.setState({link: res.data.link})
+                if(res.data.status){
+                    this.setState({link: res.data.link})
+                }else{
+                    alert(res.data.message)
+                }
             }).catch(err=>console.log('err', err))
+        }).catch(err => {
+            this.setState({ isVisible: false})
+            alert('picker image error: ' + err)
         })
     }
 
     render(){
         const { isVisible, link } = this.state;
-        let uri = !!link || !this.props.uri ? require('../Image/avatar.jpg') : {uri: this.props.uri};
+        let uri = !this.props.uri ? require('../Image/avatar.jpg') : {uri: this.props.uri};
+        if(!!link) uri = {uri: link}
         return(
             <View style={styles.container}>
                 <TouchableOpacity style={styles.avatar} onPress={()=>this.props.navigation.navigate("ImageZoomScreen", {

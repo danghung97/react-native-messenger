@@ -2,6 +2,8 @@
 #
 .DS_Store
 
+/*.env
+
 # Xcode
 #
 build/
@@ -57,8 +59,6 @@ buck-out/
 
 # CocoaPods
 /ios/Pods/
-
-Server/.env
 
 .vscode
 .env*

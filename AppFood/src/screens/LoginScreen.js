@@ -12,33 +12,34 @@ import {
 } from 'react-native';
 import Entypo from "react-native-vector-icons/Entypo";
 import { connect } from 'react-redux'
-import { login } from '../store/actions/UseAction';
+import { login, saveuser } from '../store/actions/UseAction';
 import LoadingModal from '../Component/loading';
 import Unstated from '../store/Unstated';
 
 class Login extends Component {
 	constructor(props){
-		AsyncStorage.getItem("account", (error, result) => {
+		super(props);
+		this.email = "";
+		this.password = "";
+	}
+
+	async componentDidMount() {
+        this.getUser();
+    }
+
+	async getUser() {
+		await AsyncStorage.getItem("account", (error, result) => {
 			if (error) {
-				// callback(null);
 				return
 			} else {
 				if(result){
-					props.navigation.navigate("HomeScreen")
+					global.isLogging = true;
 					Unstated.setAccount('account', JSON.parse(result));
+					this.props.saveuser(JSON.parse(result))
 				}
-				// callback(result);
 			}
 		});
-			// callback(null);
-		super(props);
-		this.state={
-			email: '',
-			password: '',
-		}
-
 	}
-
 	shouldComponentUpdate(nextProps){
 		if(nextProps.user.isSucces) {
 			this.refs['loading'].hideModal()
@@ -55,8 +56,8 @@ class Login extends Component {
 	}
 	SendRequestLogin = ()=>{
 		this.props.login({
-			email: this.state.email,
-			password: this.state.password
+			email: this.email,
+			password: this.password
 		})
 	}
 	
@@ -93,19 +94,19 @@ class Login extends Component {
 						<Text style={[styles.textconnect, { marginTop: 24 }]}>Or</Text>
 						<View style={styles.block}>
 							<TextInput
-								value={this.state.email}
+								// value={this.email}
 								style={styles.input}
 								placeholder="Email or username"
 								placeholderTextColor="#F9A825"
-								onChangeText={text=>this.setState({email: text})}
+								onChangeText={text=>{this.email = text}}
 							/>
 							<TextInput
-								value={this.state.password}
+								// value={this.password}
 								secureTextEntry
 								style={styles.input}
 								placeholder="password"
 								placeholderTextColor="#F9A825"
-								onChangeText={text=>this.setState({password: text})}
+								onChangeText={text=>{this.password = text}}
 							/>	
 
 							<TouchableOpacity style={styles.buttonsignin} onPress={()=>this.SendRequestLogin()}>
@@ -214,19 +215,19 @@ const styles = StyleSheet.create({
 	},
 });
 
-const mapStateToProp =  state => {
+const mapStateToProps =  state => {
 	return {
 		user: state.user,
-		loading: state.isLoadding,
 	}
 }
 
-const mapDispatchToProp = {
+const mapDispatchToProps = {
 	login: login,
+	saveuser: saveuser
 }
 
 
 export default connect(
-	mapStateToProp,
-	mapDispatchToProp
+	mapStateToProps,
+	mapDispatchToProps
 )(Login)

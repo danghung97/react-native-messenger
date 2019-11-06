@@ -1,20 +1,24 @@
 package models
 
 import (
+	"Server/help"
 	"fmt"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
-	"github.com/joho/godotenv"
 	"os"
 )
 
 var db *gorm.DB
 
+var refreshTokens map[string]string
+
+var FcmTokens map[string]string
+
 func init(){
-	e := godotenv.Load()
-	if e!=nil{
-		fmt.Print(e)
-	}
+	//e := godotenv.Load()
+	//if e!=nil{
+	//	fmt.Print(e)
+	//}
 
 	username := os.Getenv("db_user")
 	password := os.Getenv("db_pass")
@@ -31,8 +35,51 @@ func init(){
 	}
 
 	db.Debug().AutoMigrate(&Account{}, &FakeAccount{}, &Messages{}, &Rooms{})
+	//db.DropTable("friends")
+	//err = db.Model(&Messages{}).DropColumn("type_message").Error
+	//if err != nil {
+	//	log.Print("ERROR: We expect the receiver_id column to be drop-able")
+	//}
 }
 
 func GetDB() *gorm.DB{
 	return db
+}
+
+func InitDBToken() {
+	refreshTokens = make(map[string]string)
+	FcmTokens = make(map[string]string)
+}
+
+func StoreRefreshToken() (jti string) {
+	jti = help.GenerateString(32)
+	
+	for refreshTokens[jti] != ""{	// check to make sure our jti is unique
+		jti = help.GenerateString(32)
+		return jti
+	}
+	
+	refreshTokens[jti] = "valid"
+	
+	return jti
+}
+
+func DeleteRefreshToken(jti string) {
+	delete(refreshTokens, jti)
+}
+
+func CheckRefreshToken(jti string) bool{
+	return refreshTokens[jti] != ""
+}
+
+func StoreFcmToken( deviceId, fcmToken string) {
+	FcmTokens[deviceId] = fcmToken
+}
+
+func DeleteFcmToken(deviceId string) {
+	delete(FcmTokens, deviceId)
+}
+
+func CheckFcmToken(deviceId string) bool {
+	return FcmTokens[deviceId] != ""
 }

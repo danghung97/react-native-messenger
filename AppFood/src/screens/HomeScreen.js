@@ -6,22 +6,26 @@ import{
     AsyncStorage
 } from 'react-native';
 import Icons from 'react-native-vector-icons/AntDesign';
+import { connect } from 'react-redux'
+import { reset } from '../store/actions/UseAction';
 
-export default class HomeScreen extends Component{
+class HomeScreen extends Component{
     
+    LogOut=()=>{
+        // axios.post(`https://serverappfood.herokuapp.com/api/user/logout/`,null,{
+        //     headers:{
+        //         Auth
+        //     },
+            
+        // })
+        // .then(res=>console.log(res.data))
+        // .catch(err=>alert(err))
+        AsyncStorage.removeItem("account");
+        this.props.reset();
+        global.isLogging = false;
+        global.socket.close();
+    }
     render(){
-        this.LogOut=()=>{
-            // axios.post(`https://serverappfood.herokuapp.com/api/user/logout/`,null,{
-            //     headers:{
-            //         Auth
-            //     },
-                
-            // })
-            // .then(res=>console.log(res.data))
-            // .catch(err=>alert(err))
-            AsyncStorage.removeItem("account");
-            this.props.navigation.navigate("loginScreen");
-        }
         return(
             <View>
                 <TouchableOpacity onPress={()=>this.LogOut()}>
@@ -31,3 +35,19 @@ export default class HomeScreen extends Component{
         )
     }
 }
+
+const mapStateToProps =  state => {
+	return {
+		user: state.user,
+	}
+}
+
+const mapDispatchToProps = {
+	reset: reset,
+}
+
+
+export default connect(
+	mapStateToProps,
+	mapDispatchToProps
+)(HomeScreen)

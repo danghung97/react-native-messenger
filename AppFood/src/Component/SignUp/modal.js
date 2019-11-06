@@ -14,22 +14,26 @@ export default class ModalCode extends Component {
         this.state={
             isVisible: false,
             code: '',
+            error: '',
         }
     }
 
-    show=()=>{
+    showModal = () => {
         this.setState({isVisible: true})
     }
-    closeModal=()=>{
+    hideModal=  () => {
         this.setState({isVisible: false, code: ""})
-      }
+    }
+    showError = (err) => {
+        this.setState({error: err})
+    }
     render(){
         return(
         <Modal 
           isVisible={this.state.isVisible}
-          onBackdropPress={() => this.closeModal()}
-          onBackButtonPress={() => this.closeModal()}
-          onSwipeComplete={() => this.closeModal()}
+          onBackdropPress={() => this.hideModal()}
+          onBackButtonPress={() => this.hideModal()}
+          onSwipeComplete={() => this.hideModal()}
           style={styles.Modal}
           swipeDirection={["left","right","down"]}>
             <View style={{paddingHorizontal: 10, alignSelf: 'center', backgroundColor: 'white'}}>
@@ -41,6 +45,9 @@ export default class ModalCode extends Component {
                 placeholderTextColor="#F9A825"
                 onChangeText={text=>this.setState({code: text})}
               />
+              {!!this.state.error && <Text style={{color: 'red'}}>
+                  error: {this.state.error}
+              </Text>}
               <TouchableOpacity style={styles.button} onPress={()=>this.props.request(this.state.code)}>
                 <Text>SEND</Text>
               </TouchableOpacity>
