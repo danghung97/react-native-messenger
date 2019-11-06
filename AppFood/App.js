@@ -4,11 +4,16 @@ import Project from './src/screens/Project';
 import Wrapper from './src/navigation/WrapperNavigation'
 import { connect } from 'react-redux';
 import firebase from 'react-native-firebase';
-// import DeviceInfo from 'react-native-device-info';
-// import { getDeviceId } from 'react-native-device-info';
+import SplashScreen from 'react-native-splash-screen';
+import axios from 'axios';
+import DeviceInfo from 'react-native-device-info';
+import { getDeviceId, getDeviceName } from 'react-native-device-info';
 
 class App extends Component {
     async componentDidMount() {
+        setTimeout(()=>{
+            SplashScreen.hide()
+        }, 1000)
         this.checkPermission();
         this.createNotificationListeners();
     }
@@ -40,6 +45,7 @@ class App extends Component {
         * */
         const notificationOpen = await firebase.notifications().getInitialNotification();
         if (notificationOpen) {
+            const action = notificationOpen.action;
             const { title, body } = notificationOpen.notification;
             this.showAlert(title, body);
         }
@@ -54,7 +60,6 @@ class App extends Component {
   
     async checkPermission() {
         const enabled = await firebase.messaging().hasPermission();
-        console.warn('enable', enabled)
         if (enabled) {
             this.getToken()
         } else {
@@ -64,7 +69,6 @@ class App extends Component {
 
     async getToken() {
         let fcmToken = await AsyncStorage.getItem('fcmToken');
-        console.warn('1', fcmToken)
         if (!fcmToken) {
             fcmToken = await firebase.messaging().getToken();
             console.warn('2', fcmToken)
