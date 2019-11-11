@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/jinzhu/gorm"
+	"github.com/lib/pq"
 	"golang.org/x/crypto/bcrypt"
 	"gopkg.in/go-playground/validator.v9"
 	"os"
@@ -28,6 +29,8 @@ type Account struct{
 	Token string `json:"token";sql:"-"`
 	Code string `json:"code"`
 	Avatar string `json:"avatar"`
+	FcmToken pq.StringArray `gorm:"type:varchar(100)[];default:array[]::varchar[]" json:"fcm_tokens"`
+	StatusFcmTokens pq.BoolArray `gorm:"type:boolean[];default:array[]::boolean[]" json:"status_fcm_tokens"`
 	//ListFriends []*Friend `json:"list_friends"`
 }
 
