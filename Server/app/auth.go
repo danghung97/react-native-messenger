@@ -79,12 +79,12 @@ var JwtAuthentication = func(next http.Handler) http.Handler {
 			//Everything went well, proceed with the request and set the caller to the user retrieved from the parsed token
 			//fmt.Sprintf("User %", tk.UserId) //Useful for monitoring
 			
-			if r.URL.Path == "/api/user/logout" {
-				ctx := context.WithValue(r.Context(), "token", tokenPart)
-				r = r.WithContext(ctx)
-				next.ServeHTTP(w, r)
-				return
-			}
+			//if r.URL.Path == "/api/user/logout" {
+			//	ctx := context.WithValue(r.Context(), "token", tokenPart)
+			//	r = r.WithContext(ctx)
+			//	next.ServeHTTP(w, r)
+			//	return
+			//}
 			ctx := context.WithValue(r.Context(), "user", tk.UserId)
 			r = r.WithContext(ctx)
 			next.ServeHTTP(w, r) //proceed in the middleware chain!

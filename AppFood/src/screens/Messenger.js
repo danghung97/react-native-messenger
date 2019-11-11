@@ -52,7 +52,7 @@ export default class Mess extends Component {
             received: user.ID
         },
         {
-            headers :{
+            headers: {
                 "Content-Type": 'application/json',
                 'Authorization': `Bearer ${Unstated.state.account.token}`
             },
