@@ -155,5 +155,5 @@ func (c *Client) dispatchRaw(raw []byte) {
 		models.GetDB().Model(&msg).Update("created_at", time.Now())
 	}
 	c.uid = msg.UserID
-	c.hub.broadcast <- msg
+	c.hub.broadcast <- &msg
 }

@@ -18,8 +18,9 @@ class Project extends Component {
         var connectInterval
         global.socket.onopen=()=>{
             alert('Connected Websocket')
-            let message = {
+            const message = {
                 uid: this.props.user.user.ID,
+                rid: 0,
                 type_message: "client-connected",
                 message: "connected",
             }

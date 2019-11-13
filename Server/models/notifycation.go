@@ -19,7 +19,7 @@ type FCMdata struct {
 	Results []map[string]interface{} `json:"results"`
 }
 
-func GetFCMData(token, title, body, image string ) (bool, error) {
+func SendNotification(token, title, body, image string, auth *Account, screen string ) (bool, error) {
 	requestBody, err := json.Marshal(map[string]interface{}{
 		"to": token,
 		"notification": map[string]interface{}{
@@ -35,6 +35,8 @@ func GetFCMData(token, title, body, image string ) (bool, error) {
 			"title" : title,
 			"content_available" : true,
 			"priority" : "high",
+			"author": auth,
+			"screen": screen,
 		},
 	})
 	
@@ -58,6 +60,8 @@ func GetFCMData(token, title, body, image string ) (bool, error) {
 		return false, err
 	}
 	defer resp.Body.Close()
+	fmt.Println("status: ", resp.StatusCode)
+	fmt.Println("body", resp.Body)
 	if resp.StatusCode == http.StatusOK {
 		//bodyBytes, _ := ioutil.ReadAll(resp.Body)
 		result := &FCMdata{}
@@ -74,11 +78,11 @@ type FCMTokens struct {
 	//DeviceId uint `json:"deviceid"`
 	//DeviceName string `json:"deviceName"`
 	//Platform string `json:"platform"`
-	Token string `json:"fcmtoken"`
+	Token string `json:"fcm_token"`
 }
 
 var FcmToken = func(w http.ResponseWriter, r *http.Request) {
-	//userid := r.Context().Value("user")
+	userid := r.Context().Value("user")
 	FcmToken := &FCMTokens{}
 	err := json.NewDecoder(r.Body).Decode(FcmToken)
 	if err!=nil {
@@ -87,7 +91,7 @@ var FcmToken = func(w http.ResponseWriter, r *http.Request) {
 	}
 
 	account := &Account{}
-	err = GetDB().Table("accounts").Where("id = ?",4).First(account).Error
+	err = GetDB().Table("accounts").Where("id = ?",userid.(uint)).First(account).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
 		utils.Respond(w, utils.Message(false, "connection error. Please retry"))
 		return
@@ -95,9 +99,11 @@ var FcmToken = func(w http.ResponseWriter, r *http.Request) {
 	arrayFcmTokens := account.FcmToken
 	arrayStatusFcmTokens := account.StatusFcmTokens
 	check := false
-	for _, value := range arrayFcmTokens {
+	for index, value := range arrayFcmTokens {
 		if value == FcmToken.Token {
 			check = true
+			arrayStatusFcmTokens[index] = true
+			GetDB().Model(&account).Update("status_fcm_tokens", arrayStatusFcmTokens)
 			utils.Respond(w, utils.Message(true, "token already available"))
 			return
 		}

@@ -6,7 +6,9 @@ import {
     TouchableOpacity,
 } from 'react-native';
 import { connect } from 'react-redux';
+import { removenotifi } from '../store/actions/UseAction'
 import Icons from 'react-native-vector-icons/AntDesign'
+import axios from 'axios';
 
 class CustomTabBarItem extends React.PureComponent {
     render() {
@@ -25,11 +27,47 @@ class CustomTabBarItem extends React.PureComponent {
       );
     }
   }
-export default class CustomTabBar extends React.Component {
+class CustomTabBar extends React.Component {
     navigationHandler = (name) => {
 
         const {navigation} = this.props;
         navigation.navigate(name);
+    }
+    
+    componentWillReceiveProps(nextProps){
+      const { navigation } = this.props
+      const {user, data_notification} = nextProps
+      const received = JSON.parse(data_notification.data.author || "{}")
+
+      if (data_notification.data.screen === "ChatScreen"){
+        axios.post(`https://serverappfood.herokuapp.com/api/loadroom`,
+        {
+            authid: user.user.ID,
+            received: received.ID
+        },
+        {
+            headers: {
+                "Content-Type": 'application/json',
+                'Authorization': `Bearer ${user.user.token}`
+            },
+        }).then(res=>{
+          if(res.data.status){
+              navigation.navigate("chatScreen", {
+              roomId: res.data.rid, 
+              user: received,
+              authid: user.user.ID,
+              initMessage: res.data.arrayMessage})
+              this.props.removenotifi()
+              // let tempArr = arrMessenger.filter(rs => rs.ID !== received.ID)
+              
+              // let temp = tempArr.concat(received)
+              // AsyncStorage.setItem("arrayMessenger", JSON.stringify(temp))
+              // this.setState({arrMessenger: temp})
+          }else {
+              alert(res.data.message)
+          }
+        }).catch(err => console.warn(err))
+      }
     }
 
   render() {
@@ -44,7 +82,6 @@ export default class CustomTabBar extends React.Component {
             <View style={{borderWidth: 1, borderColor: '#BBEBEB'}} />
             <View style={styles.container}>
                 {routes.map((route, index) => {
-
                     return (<CustomTabBarItem
                         nameIcon={listIcon[index].name}
                         key={index}
@@ -65,3 +102,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row'
   }
 })
+
+const mapStateToProps = state => {
+  return {
+    user: state.user,
+    data_notification: state.notifi
+  }
+}
+
+const mapDispatchToProps = {
+  removenotifi: removenotifi
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(CustomTabBar)

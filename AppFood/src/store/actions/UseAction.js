@@ -8,6 +8,8 @@ export const LOAD_ROOM = "LOAD_ROOM"
 export const REFRESH = "REFRESH"
 export const RECEIVE_MESSAGE = "RECEIVE_MESSAGE"
 export const SAVE_USER = "SAVE_USER"
+export const NOTIFICATION = "NOTIFICATION"
+export const REMOVE_NOTIFICATION = "REMOVE_NOTIFICATION"
 
 
 export const login = (data) => {
@@ -62,5 +64,18 @@ export const saveuser = (user) => {
     return {
         type: SAVE_USER,
         user
+    }
+}
+
+export const savenotifi = (data) => {
+    return {
+        type: NOTIFICATION,
+        data
+    }
+}
+
+export const removenotifi = () => {
+    return {
+        type: REMOVE_NOTIFICATION,
     }
 }

@@ -5,9 +5,7 @@ import Wrapper from './src/navigation/WrapperNavigation'
 import { connect } from 'react-redux';
 import firebase from 'react-native-firebase';
 import SplashScreen from 'react-native-splash-screen';
-import axios from 'axios';
-import DeviceInfo from 'react-native-device-info';
-import { getDeviceId, getDeviceName } from 'react-native-device-info';
+import { savenotifi } from './src/store/actions/UseAction'
 
 class App extends Component {
     async componentDidMount() {
@@ -29,15 +27,16 @@ class App extends Component {
   * */
         this.notificationListener = firebase.notifications().onNotification((notification) => {
             const { title, body } = notification;
-            this.showAlert(title, body);
+            // this.showAlert(title, body);
         });
 
         /*
         * If your app is in background, you can listen for when a notification is clicked / tapped / opened as follows:
         * */
         this.notificationOpenedListener = firebase.notifications().onNotificationOpened((notificationOpen) => {
-            const { title, body } = notificationOpen.notification;
-            this.showAlert(title, body);
+            const notification = notificationOpen.notification;
+            const data = notification._data || {};
+            this.props.savenotifi(data)
         });
 
         /*
@@ -47,17 +46,17 @@ class App extends Component {
         if (notificationOpen) {
             const action = notificationOpen.action;
             const { title, body } = notificationOpen.notification;
-            this.showAlert(title, body);
+            // this.showAlert(title, body);
         }
         /*
         * Triggered for data only payload in foreground
         * */
         this.messageListener = firebase.messaging().onMessage((message) => {
         //process data message
-        console.log(JSON.stringify(message));
+            console.log(JSON.stringify(message));
         });
     }
-  
+
     async checkPermission() {
         const enabled = await firebase.messaging().hasPermission();
         if (enabled) {
@@ -68,11 +67,10 @@ class App extends Component {
     }
 
     async getToken() {
-        let fcmToken = await AsyncStorage.getItem('fcmToken');
-        if (!fcmToken) {
-            fcmToken = await firebase.messaging().getToken();
-            console.warn('2', fcmToken)
-            if (fcmToken) {
+        global.fcmToken = await AsyncStorage.getItem('fcmToken');
+        if (!global.fcmToken) {
+            global.fcmToken = await firebase.messaging().getToken();
+            if (global.fcmToken) {
                 await AsyncStorage.setItem('fcmToken', fcmToken)
             }
         }
@@ -100,7 +98,11 @@ const mapStateToProps = state => {
   }
 }
 
+const mapDispatchToProps = {
+    savenotifi: savenotifi,
+}
+
 export default connect(
 	mapStateToProps,
-	null
+	mapDispatchToProps
 )(App)

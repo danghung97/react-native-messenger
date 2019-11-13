@@ -98,7 +98,7 @@ class Chat extends Component {
                 <FlatList
                 style={styles.content}
                 data={this.state.message}
-                keyExtractor={item=> item.ID}
+                keyExtractor={item => `message ${item.ID}`}
                 inverted
                 showsVerticalScrollIndicator={false}
                 removeClippedSubviews
@@ -128,7 +128,7 @@ class InputMessage extends React.PureComponent{
             return
         }
         const { authId, rid } = this.props
-        let message = {
+        const message = {
             uid: authId,
             rid,
             type_message: type,
