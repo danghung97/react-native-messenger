@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
-	"github.com/joho/godotenv"
 	"os"
 )
 
@@ -14,10 +13,10 @@ var db *gorm.DB
 var refreshTokens map[string]string
 
 func init(){
-	e := godotenv.Load()
-	if e!=nil{
-		fmt.Print(e)
-	}
+	//e := godotenv.Load()
+	//if e!=nil{
+	//	fmt.Print(e)
+	//}
 
 	username := os.Getenv("db_user")
 	password := os.Getenv("db_pass")
@@ -35,7 +34,7 @@ func init(){
 
 	db.Debug().AutoMigrate(&Account{}, &FakeAccount{}, &Messages{}, &Rooms{})
 	//db.DropTable("friends")
-	//err = db.Model(&Messages{}).DropColumn("type_message").Error
+	//err = db.Model(&Account{}).DropColumn("fcm_token").Error
 	//if err != nil {
 	//	log.Print("ERROR: We expect the receiver_id column to be drop-able")
 	//}

@@ -29,7 +29,7 @@ type Account struct{
 	Token string `json:"token";sql:"-"`
 	Code string `json:"code"`
 	Avatar string `json:"avatar"`
-	FcmToken pq.StringArray `gorm:"type:varchar(100)[];default:array[]::varchar[]" json:"fcm_tokens"`
+	FcmToken pq.StringArray `gorm:"type:varchar(500)[];default:array[]::varchar[]" json:"fcm_tokens"`
 	StatusFcmTokens pq.BoolArray `gorm:"type:boolean[];default:array[]::boolean[]" json:"status_fcm_tokens"`
 	//ListFriends []*Friend `json:"list_friends"`
 }
@@ -102,7 +102,7 @@ func (account *Account) Create() map[string] interface{} {
 		return u.Message(false, "Failed to create account, connection error.")
 	}
 	
-	expirationTime := time.Now().Add(60 * time.Minute)
+	expirationTime := time.Now().Add(12 * time.Hour)
 	Jti := StoreRefreshToken()
 	tk := &Token{
 		UserId: account.ID,
@@ -121,6 +121,8 @@ func (account *Account) Create() map[string] interface{} {
 	account.Token = tokenString
 
 	account.Password = ""
+	account.FcmToken = pq.StringArray{}
+	account.StatusFcmTokens = pq.BoolArray{}
 	reponse := u.Message(true, "Account has been created")
 	reponse["account"]= account
 	return reponse
@@ -145,7 +147,7 @@ func Login(email, password string) map[string]interface{} {
 	
 	account.Password = ""
 	
-	expirationTime := time.Now().Add(60 * time.Minute)
+	expirationTime := time.Now().Add(12 * time.Hour)
 	Jti := StoreRefreshToken()
 	tk := &Token{
 		UserId: account.ID,

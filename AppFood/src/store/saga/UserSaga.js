@@ -2,6 +2,7 @@ import instance from '../axios/AxiosInstance'
 import { put, takeLatest, all, fork } from 'redux-saga/effects'
 import { USER_LOGIN, LOGIN_SUCESS, LOGIN_FAIL, SIGN_UP_SUCCESS, SIGN_UP_FAIL, SIGN_UP} from '../actions/UseAction'
 import PATH from '../axios/Url'
+import axios from 'axios';
 
 function* login(action){
     const response = yield instance.post(
@@ -14,6 +15,18 @@ function* login(action){
         yield put({
             type: LOGIN_SUCESS,
             data: response.account
+        })
+        axios.post('https://serverappfood.herokuapp.com/api/phone-device/push', {
+            fcm_token: global.fcmToken
+        },{
+            headers: {
+                "Content-Type": 'application/json',
+                'Authorization': `Bearer ${response.account.token}`
+            },
+        }).then(res => {
+            if(res.data.status){
+                console.warn('success', res.data.message)
+            }
         })
     }else {
         yield put({

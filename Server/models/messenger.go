@@ -4,6 +4,7 @@ import (
 	"Server/utils"
 	"encoding/json"
 	"github.com/jinzhu/gorm"
+	"github.com/lib/pq"
 	"log"
 	"net/http"
 	"time"
@@ -112,7 +113,9 @@ var FindUser = func(w http.ResponseWriter, r *http.Request) {
 	resp := utils.Message(true, "found user")
 	account2.Password = ""
 	account2.Token = ""
-	account2. Code = ""
+	account2.Code = ""
+	account2.FcmToken = pq.StringArray{}
+	account2.StatusFcmTokens = pq.BoolArray{}
 	resp["user"] = account2
 	utils.Respond(w, resp)
 }

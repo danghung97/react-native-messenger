@@ -6,6 +6,7 @@ import {
     StyleSheet,
     TouchableOpacity,
     TextInput,
+    FlatList,
     AsyncStorage
 } from 'react-native';
 // import Icons from "react-native-vector-icons/AntDesign";
@@ -14,7 +15,6 @@ import axios from 'axios';
 import { connect } from 'react-redux';
 import Icons from 'react-native-vector-icons/AntDesign';
 import ModalFindUser from '../Component/messenger/modalFindUser';
-import { FlatList } from 'react-native-gesture-handler';
 
 const user =[{"ID": 8, "name": "hcmut"}, {"ID": 13, "name": "appfast"}]
 
@@ -65,18 +65,11 @@ export default class Mess extends Component {
                 user: user,
                 authid: Unstated.state.account.ID,
                 initMessage: res.data.arrayMessage})
-                if(arrMessenger.length !== 0) {
-                    let findDuplicate = arrMessenger.filter(rs => rs.ID === user.ID)
-                    if (findDuplicate.length !== 0) return
-                    else{
-                        let temp = arrMessenger.concat(user)
-                        AsyncStorage.setItem("arrayMessenger", JSON.stringify(temp))
-                        this.setState({arrMessenger: temp})
-                    }
-                }else {
-                    AsyncStorage.setItem("arrayMessenger", JSON.stringify([{...user}]))
-                    this.setState({arrMessenger: temp})
-                }
+                let tempArr = arrMessenger.filter(rs => rs.ID !== user.ID)
+                
+                let temp = tempArr.concat(user)
+                AsyncStorage.setItem("arrayMessenger", JSON.stringify(temp))
+                this.setState({arrMessenger: temp})
             }else {
                 alert(res.data.message)
             }
@@ -134,7 +127,7 @@ export default class Mess extends Component {
              <FlatList
              style={{ marginTop: 10, marginLeft: 10 }}
              data={this.state.arrMessenger}
-             keyExtractor={ item => item.ID}
+             keyExtractor={ item => `user ${item.ID}`}
              showsVerticalScrollIndicator={false}
              removeClippedSubviews
              renderItem={({item})=> {
