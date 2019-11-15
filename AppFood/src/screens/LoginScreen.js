@@ -14,7 +14,6 @@ import Entypo from "react-native-vector-icons/Entypo";
 import { connect } from 'react-redux'
 import { login, saveuser } from '../store/actions/UseAction';
 import LoadingModal from '../Component/loading';
-import Unstated from '../store/Unstated';
 
 class Login extends Component {
 	constructor(props){
@@ -34,7 +33,6 @@ class Login extends Component {
 			} else {
 				if(result){
 					global.isLogging = true;
-					Unstated.setAccount('account', JSON.parse(result));
 					this.props.saveuser(JSON.parse(result))
 				}
 			}

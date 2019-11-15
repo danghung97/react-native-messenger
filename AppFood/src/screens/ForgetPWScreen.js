@@ -26,7 +26,7 @@ export default class ForgetPW extends Component{
         //check email password roi moi gui request
         //
         axios.post(`https://serverappfood.herokuapp.com/api/user/sendemail`, {
-        email: this.state.email,
+            email: this.state.email,
         },
         {
         headers: {
