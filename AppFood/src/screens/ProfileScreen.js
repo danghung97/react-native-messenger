@@ -7,13 +7,12 @@ import{
     RefreshControl,
 } from 'react-native';
 import Avatar from '../Component/avatar'
-import Unstated from '../store/Unstated';
+import { connect } from 'react-redux';
 // import axios from 'axios';
 
-export default class ProfileScreen extends Component{
+class ProfileScreen extends Component{
     constructor(props){
         super(props);
-        this.account = Unstated.state.account;
         this.state={
             refreshing: false
         }
@@ -29,7 +28,7 @@ export default class ProfileScreen extends Component{
     render(){
         const {refreshing} = this.state
         
-        const {email, name, address, phone} = this.account
+        const {email, name, address, phone, avatar} = this.props.user.user
         return(
             <ScrollView refreshControl={
                 <RefreshControl refreshing={refreshing} onRefresh={()=>this.onRefresh()} />
@@ -37,7 +36,11 @@ export default class ProfileScreen extends Component{
             style={{width: '100%', display: "flex"}}>
                 <View style={styles.part1} />
                 <View style={styles.avatar}>
-                    <Avatar uri={this.account.avatar} navigation={this.props.navigation}/>
+                    <Avatar 
+                    user={this.props.user.user} 
+                    uri={avatar} 
+                    navigation={this.props.navigation}
+                    />
                 </View>
                 <View style={styles.containerInput}>
                     <View style={styles.rectangle}>
@@ -99,3 +102,14 @@ const styles = StyleSheet.create({
         fontWeight: '500'
     }
 })
+
+const mapStateToProps =  state => {
+	return {
+		user: state.user,
+	}
+}
+
+export default connect(
+	mapStateToProps,
+	null
+)(ProfileScreen)

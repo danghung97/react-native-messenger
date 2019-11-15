@@ -27,6 +27,7 @@ func main(){
 	router.HandleFunc("/api/user/logout", controllers.Logout).Methods("POST")
 	router.HandleFunc("/api/user/uploading", controllers.Uploads).Methods("POST")
 	router.HandleFunc("/api/user/taken", controllers.TakeInfoAccount).Methods("GET")
+	router.HandleFunc("/api/load-more-message", models.LoadMoreMessage).Methods("POST")
 	router.HandleFunc("/api/loadroom", controllers.LoadRoom).Methods("POST")
 	router.HandleFunc("/api/user/refresh", app.Refresh).Methods("POST")
 	router.HandleFunc("/api/user/find", models.FindUser).Methods("POST")

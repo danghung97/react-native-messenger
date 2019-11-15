@@ -25,6 +25,11 @@ type Rooms struct {
 	UserId2 uint
 }
 
+type LoadMoreMsg struct {
+	Offset uint `json:"offset"`
+	RoomID uint `json:"room_id"`
+}
+
 const messagesPerPage = 15
 
 func GetRoomId(author, receive interface{}) (uint, error){
@@ -50,7 +55,7 @@ func GetRoomId(author, receive interface{}) (uint, error){
 }
 
 func GetMessageForUser( rid, Offset uint) []Messages {
-	rows, err := GetDB().Table("messages").Order("created_at DESC").Where("room_id = ?", rid).Limit(messagesPerPage).Offset((Offset - 1)*messagesPerPage).Rows()
+	rows, err := GetDB().Table("messages").Order("created_at DESC").Where("room_id = ?", rid).Offset((Offset - 1)*messagesPerPage).Limit(messagesPerPage).Rows()
 	if err != nil {
 	
 	}
@@ -117,5 +122,19 @@ var FindUser = func(w http.ResponseWriter, r *http.Request) {
 	account2.FcmToken = pq.StringArray{}
 	account2.StatusFcmTokens = pq.BoolArray{}
 	resp["user"] = account2
+	utils.Respond(w, resp)
+}
+
+var LoadMoreMessage = func(w http.ResponseWriter, r *http.Request) {
+	info := &LoadMoreMsg{}
+	err := json.NewDecoder(r.Body).Decode(info)
+	if err!=nil {
+		utils.Respond(w, utils.Message(false, "Invalid Request"))
+		return
+	}
+	
+	arrayMessage := GetMessageForUser(info.RoomID, info.Offset)
+	resp := utils.Message(true, "load more success")
+	resp["arrayMessage"] = arrayMessage
 	utils.Respond(w, resp)
 }
