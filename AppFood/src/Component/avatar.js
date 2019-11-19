@@ -10,8 +10,8 @@ import{
 import Icons from 'react-native-vector-icons/AntDesign';
 import BottomSheetDialog from './popUpPicker';
 import ImagePicker from 'react-native-image-crop-picker';
-import Axios from 'axios'
-import Unstated from '../store/Unstated'
+import Axios from 'axios';
+
 export default class Avatar extends Component{
     constructor(props){
         super(props);
@@ -53,7 +53,7 @@ export default class Avatar extends Component{
                 data,
                 headers: {
                     'Content-Type': 'multipart/form-data',
-                    'Authorization': `Bearer ${Unstated.state.account.token}`
+                    'Authorization': `Bearer ${this.props.user.token}`
                 },
             }).then(res=>{
                 if(res.data.status){
@@ -86,7 +86,7 @@ export default class Avatar extends Component{
                 data,
                 headers: {
                     'Content-Type': 'multipart/form-data',
-                    'Authorization': `Bearer ${Unstated.state.account.token}`
+                    'Authorization': `Bearer ${this.props.user.token}`
                   },
             }).then(res=>{
                 if(res.data.status){

@@ -10,7 +10,6 @@ import {
     AsyncStorage
 } from 'react-native';
 // import Icons from "react-native-vector-icons/AntDesign";
-import Unstated from '../store/Unstated'
 import axios from 'axios';
 import { connect } from 'react-redux';
 import Icons from 'react-native-vector-icons/AntDesign';
@@ -18,7 +17,7 @@ import ModalFindUser from '../Component/messenger/modalFindUser';
 
 const user =[{"ID": 8, "name": "hcmut"}, {"ID": 13, "name": "appfast"}]
 
-export default class Mess extends Component {
+class Mess extends Component {
     constructor(props){
         super(props);
         this.state={
@@ -45,16 +44,17 @@ export default class Mess extends Component {
         });
     }
 
-    sendRequestLoadRoom=(user, arrMessenger)=>{
+    sendRequestLoadRoom=(friend, arrMessenger)=>{
+        const { user } = this.props.user
         axios.post(`https://serverappfood.herokuapp.com/api/loadroom`,
         {
-            authid: Unstated.state.account.ID,
-            received: user.ID
+            authid: user.ID,
+            received: friend.ID
         },
         {
             headers: {
                 "Content-Type": 'application/json',
-                'Authorization': `Bearer ${Unstated.state.account.token}`
+                'Authorization': `Bearer ${user.token}`
             },
         }).then(res=>{
             // console.warn("respone", res)
@@ -62,12 +62,12 @@ export default class Mess extends Component {
             if(res.data.status){
                 this.props.navigation.navigate("chatScreen", {
                 roomId: res.data.rid, 
+                friend: friend,
                 user: user,
-                authid: Unstated.state.account.ID,
                 initMessage: res.data.arrayMessage})
-                let tempArr = arrMessenger.filter(rs => rs.ID !== user.ID)
+                let tempArr = arrMessenger.filter(rs => rs.ID !== friend.ID)
                 
-                let temp = tempArr.concat(user)
+                let temp = tempArr.concat(friend)
                 AsyncStorage.setItem("arrayMessenger", JSON.stringify(temp))
                 this.setState({arrMessenger: temp})
             }else {
@@ -84,7 +84,7 @@ export default class Mess extends Component {
         {
             headers :{
                 "Content-Type": 'application/json',
-                'Authorization': `Bearer ${Unstated.state.account.token}`
+                'Authorization': `Bearer ${this.props.user.user.token}`
             },
         }).then(res => {
             if(res.data.status) {
@@ -97,13 +97,14 @@ export default class Mess extends Component {
     }
 
     render(){
+        const { user } = this.props.user
         return (
          <View style={styles.container}>
              <View style={styles.header}>
                 <TouchableOpacity style={styles.avatar} onPress={()=> this.props.navigation.navigate("chatScreen")}>
-                    <Image style={styles.avatar} source={{uri: Unstated.state.account.avatar}} />
+                    <Image style={styles.avatar} source={{uri: user.avatar}} />
                 </TouchableOpacity>
-                <Text style={styles.name}>{Unstated.state.account.name}</Text>
+                <Text style={styles.name}>{user.name}</Text>
              </View>
              <View style={{flexDirection: 'row', alignItems: 'center'}}>
                  <TextInput
@@ -219,3 +220,13 @@ const styles = StyleSheet.create({
     }
 })
 
+const mapStateToProps =  state => {
+	return {
+		user: state.user,
+	}
+}
+
+export default connect(
+	mapStateToProps,
+	null
+)(Mess)

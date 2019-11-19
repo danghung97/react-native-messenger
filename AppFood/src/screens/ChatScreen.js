@@ -22,7 +22,6 @@ import {
 import Icons from 'react-native-vector-icons/Feather';
 import Icons1 from 'react-native-vector-icons/AntDesign';
 import _ from 'lodash';
-import Unstated from '../store/Unstated'
 import ImagePicker from 'react-native-image-crop-picker';
 import Axios from 'axios';
 import { connect } from 'react-redux';
@@ -30,11 +29,11 @@ import { connect } from 'react-redux';
 class Chat extends Component {
     constructor(props){
         super(props);
-        this.state={
+        this.state = {
             message: props.navigation.getParam('initMessage') || [],
+            Offset: 2,
         }
         this.rid = props.navigation.getParam('roomId')
-        this.authid = props.navigation.getParam('authid')
     }
 
     componentWillReceiveProps(nextProps) {
@@ -55,14 +54,31 @@ class Chat extends Component {
     }
 
     loadMoreMessage = () => {
-
+        Axios.post('https://serverappfood.herokuapp.com/api/load-more-message',{
+            offset: this.state.Offset,
+            room_id: this.rid
+        },{
+            headers:{
+                'Content-Type': 'multipart/form-data',
+                'Authorization': `Bearer ${this.props.navigation.getParam('user').token}`
+            }
+        }).then(res => {
+            if(res.data.status){
+                if(res.data.arrayMessage.length === 0) return
+                else {
+                    const temp = this.state.message.concat(res.data.arrayMessage)
+                    this.setState({ message: temp, Offset: this.state.Offset + 1 })
+                }
+            }
+        }).catch(err => console.warn(err))
     }
 
     renderItem = (item, uri) => {
+        const user = this.props.navigation.getParam('user')
         {
-            if(item.item.uid === this.authid){
+            if(item.item.uid === user.ID){
                 const showAvatar = item.index === 0 || 
-                _.get(this.state.message[item.index-1], 'uid', null) !== this.authid 
+                _.get(this.state.message[item.index-1], 'uid', null) !== user.ID 
                 return(
                     <View style={{flexDirection: 'row', justifyContent: 'flex-end', marginBottom: 10}}>
                         {item.item.type_message === 'image' ? 
@@ -71,12 +87,12 @@ class Chat extends Component {
                             <Text style={{color: 'black'}}>{item.item.message}</Text>
                         </View>}
                         {showAvatar ? <Image style={[styles.avatar, {marginLeft: 10}]}
-                            source={{uri: Unstated.state.account.avatar}} /> : <View style={{width: 30, height: 30, marginLeft: 10}} /> }
+                            source={{uri: user.avatar}} /> : <View style={{width: 30, height: 30, marginLeft: 10}} /> }
                     </View>
                 )
             }else {
                 const showAvatar = item.index === 0 || 
-                _.get(this.state.message[item.index-1], 'uid', null) === this.authid
+                _.get(this.state.message[item.index-1], 'uid', null) === user.ID
                 return(
                     <View style={{flexDirection: 'row', justifyContent: 'flex-start', marginBottom: 10}}>
                         {showAvatar ? <Image style={[styles.avatar, {marginRight: 10}]} 
@@ -93,15 +109,16 @@ class Chat extends Component {
     }
     
     render(){
+        const friend = this.props.navigation.getParam('friend')
         const user = this.props.navigation.getParam('user')
         return(
             <View style={styles.container}>
                 <View style={styles.header}>
                     <View style={{flexDirection: 'row', alignItems: 'center'}}>
                         <TouchableOpacity style={styles.avatar}>
-                            <Image style={styles.avatar} source={{uri: user.avatar}} />
+                            <Image style={styles.avatar} source={{uri: friend.avatar}} />
                         </TouchableOpacity>
-                        <Text style={styles.name}>{user.email}</Text>
+                        <Text style={styles.name}>{friend.email}</Text>
                     </View>
                 </View>
                 <FlatList
@@ -111,12 +128,13 @@ class Chat extends Component {
                 inverted
                 showsVerticalScrollIndicator={false}
                 removeClippedSubviews
-                renderItem={(item) => this.renderItem(item, user.avatar)}
+                renderItem={(item) => this.renderItem(item, friend.avatar)}
                 onEndReached={this.loadMoreMessage()}
+                onEndReachedThreshold={0.1}
                 />
                 <View>
                     <InputMessage
-                    authId = {this.authid}
+                    user = {user}
                     rid = {this.rid}
                     />
                 </View>
@@ -138,7 +156,7 @@ class InputMessage extends React.PureComponent{
         if(msg.trim()===''){
             return
         }
-        const { authId, rid } = this.props
+        const { user, rid } = this.props
         const message = {
           uid: authId,
           rid,
@@ -199,12 +217,12 @@ class InputMessage extends React.PureComponent{
             if(image.mime === "image/jpeg") name = "image.jpg"
             data.append('file', {type: image.mime, uri: image.path, name})
 
-            Axios(`https://serverappfood.herokuapp.com/api/user/uploading`,{
+            Axios(`https://serverappfood.herokuapp.com/api/user/uploading`, {
                 method: "POST",
                 data,
                 headers: {
                     'Content-Type': 'multipart/form-data',
-                    'Authorization': `Bearer ${Unstated.state.account.token}`
+                    'Authorization': `Bearer ${this.props.user.token}`
                   },
             }).then(res=>{
                 if(res.data.status){
