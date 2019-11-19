@@ -9,7 +9,16 @@ import {
     FlatList,
     Dimensions
 } from 'react-native';
-// import SocketIOClient from 'socket.io-client';
+import {
+    RTCPeerConnection,
+    RTCIceCandidate,
+    RTCSessionDescription,
+    RTCView,
+    MediaStream,
+    MediaStreamTrack,
+    mediaDevices,
+    registerGlobals
+} from 'react-native-webrtc';
 import Icons from 'react-native-vector-icons/Feather';
 import Icons1 from 'react-native-vector-icons/AntDesign';
 import _ from 'lodash';
@@ -121,6 +130,8 @@ class InputMessage extends React.PureComponent{
         super(props);
         this.state={
             msg: "",
+            selfViewSrc: null,
+            remoteList: {},
         }
     }
     sendMessage=(type, msg)=>{
@@ -129,10 +140,10 @@ class InputMessage extends React.PureComponent{
         }
         const { authId, rid } = this.props
         const message = {
-            uid: authId,
-            rid,
-            type_message: type,
-            message: msg,
+          uid: authId,
+          rid,
+          type_message: type,
+          message: msg,
         }
         try{
             global.socket.send(JSON.stringify(message));
@@ -143,37 +154,37 @@ class InputMessage extends React.PureComponent{
     }
 
     openImage = () => {
-        ImagePicker.openCamera({
-            width: 350,
-            height: 300,
-            cropping: true,
-            mediaType: 'photo'
-        }).then(image=>{
-            const data = new FormData();
-            let name = "image.png"
-            if(image.mime === "image/jpeg") name = "image.jpg"
-            data.append('file',{
-                type: image.mime,
-                uri: image.path,
-                name,
-            })
-            Axios(`https://serverappfood.herokuapp.com/api/user/uploading`, {
-                method: "POST",
-                data,
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                    'Authorization': `Bearer ${Unstated.state.account.token}`
-                },
-            }).then(res=>{
-                if(res.data.status){
-                    this.sendMessage('image', res.data.link)
-                }else{
-                    alert(res.data.message)
-                }
-            }).catch(err=>console.log('err', JSON.stringify(err)))
-        }).catch(err => {
-            alert('open image error: ' + err)
+      ImagePicker.openCamera({
+        width: 350,
+        height: 300,
+        cropping: true,
+        mediaType: 'photo'
+      }).then(image=>{
+        const data = new FormData();
+        let name = "image.png"
+        if(image.mime === "image/jpeg") name = "image.jpg"
+        data.append('file',{
+          type: image.mime,
+          uri: image.path,
+          name,
         })
+        Axios(`https://serverappfood.herokuapp.com/api/user/uploading`, {
+          method: "POST",
+          data,
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            'Authorization': `Bearer ${Unstated.state.account.token}`
+          },
+        }).then(res=>{
+          if(res.data.status){
+            this.sendMessage('image', res.data.link)
+          }else{
+            alert(res.data.message)
+          }
+        }).catch(err=>console.log('err', JSON.stringify(err)))
+      }).catch(err => {
+        alert('open image error: ' + err)
+      })
     }
 
     pickerImage = () => {
@@ -209,26 +220,36 @@ class InputMessage extends React.PureComponent{
     render(){
         return(
             <View>
-                <View style={{flexDirection: 'row', paddingHorizontal: 10, paddingVertical: 5}}>
-                        <TouchableOpacity onPress={()=>this.openImage()}>
-                            <Icons1 name="camera" size={25} />
-                        </TouchableOpacity>
-                        <TouchableOpacity onPress={()=>this.pickerImage()}>
-                            <Icons1 name="picture" size={25} style={{marginLeft: 10}} />
-                        </TouchableOpacity>
-                    </View>
-                <View style={{borderWidth: 1, borderColor: '#9FF7EF'}} />
-                <View style={styles.send}>
-                    <TextInput
-                    value={this.state.msg}
-                    placeholder="message"
-                    onChangeText={text => this.setState({msg: text})}
-                    style={styles.input}
-                    />
-                    <TouchableOpacity onPress={()=>this.sendMessage('text', this.state.msg)} style={{marginLeft: 15}}>
-                        <Icons name="send" size={25} />
-                    </TouchableOpacity>
-                </View>
+              <RTCView streamURL={this.state.selfViewSrc} style={{ width: 200, height: 150 }} />
+              <View style={{flexDirection: 'row', paddingHorizontal: 10, paddingVertical: 5}}>
+                <TouchableOpacity onPress={() => this.openImage()}>
+                  <Icons1 name="camera" size={25} />
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => this.pickerImage()}>
+                  <Icons1 name="picture" size={25} style={{marginLeft: 10}} />
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => this.requestCall()}>
+                  <Icons name="phone-call" size={25} style={{marginLeft: 10}} />
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => 
+                this.props.navigation.navigate('VideoCallScreen', {
+
+                })}>
+                  <Icons name="phone-call" size={25} style={{marginLeft: 10}} />
+                </TouchableOpacity>
+              </View>
+              <View style={{borderWidth: 1, borderColor: '#9FF7EF'}} />
+              <View style={styles.send}>
+                <TextInput
+                value={this.state.msg}
+                placeholder="message"
+                onChangeText={text => this.setState({msg: text})}
+                style={styles.input}
+                />
+                <TouchableOpacity onPress={()=>this.sendMessage('text', this.state.msg)} style={{marginLeft: 15}}>
+                  <Icons name="send" size={25} />
+                </TouchableOpacity>
+              </View>
             </View>
         )
     }

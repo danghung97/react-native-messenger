@@ -66,10 +66,23 @@ func SendNotification(token, title, body, image string, auth *Account, screen st
 		//bodyBytes, _ := ioutil.ReadAll(resp.Body)
 		result := &FCMdata{}
 		err = json.NewDecoder(resp.Body).Decode(&result)
+		if err!=nil {
+			return false, fmt.Errorf("invalid request")
+		}
 		if result.Success >= 1 {
 			return true, nil
 		}
-		return false, err
+		for _, value := range result.Results {
+			for key, info := range value {
+				if key == "error"{
+					if info == "NotRegistered" {
+						return false, fmt.Errorf("NotRegistered")
+					}
+					return false, fmt.Errorf(info.(string))
+				}
+			}
+		}
+		return false, nil
 	}
 	return false, nil
 }

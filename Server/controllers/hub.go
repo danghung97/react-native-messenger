@@ -96,10 +96,16 @@ func sendNotifi(receiver, auth *models.Account, message *models.Messages) {
 			auth.FcmToken = pq.StringArray{}
 			auth.StatusFcmTokens = pq.BoolArray{}
 			_, err := models.SendNotification(arrayFcmTokens[i], receiver.Email, message.Message, "", auth, "ChatScreen")
+			if err == fmt.Errorf("NotRegistered") {
+				//arrayFcmTokens[i] = nil
+				arrayFcmTokens = append(arrayFcmTokens[:i], arrayFcmTokens[i+1:]...)
+				models.GetDB().Model(&auth).Update("fcm_token", arrayFcmTokens)
+			}
 			fmt.Println("err", err)
 			if err != nil {
 				log.Fatal(err)
 			}
+			
 		}
 	}
 }
