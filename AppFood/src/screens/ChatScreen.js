@@ -114,12 +114,12 @@ class Chat extends Component {
         return(
             <View style={styles.container}>
                 <View style={styles.header}>
-                    <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                        <TouchableOpacity style={styles.avatar}>
-                            <Image style={styles.avatar} source={{uri: friend.avatar}} />
-                        </TouchableOpacity>
-                        <Text style={styles.name}>{friend.email}</Text>
-                    </View>
+                  <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                    <TouchableOpacity style={styles.avatar}>
+                      <Image style={styles.avatar} source={{uri: friend.avatar}} />
+                    </TouchableOpacity>
+                    <Text style={styles.name}>{friend.email}</Text>
+                  </View>
                 </View>
                 <FlatList
                 style={styles.content}
@@ -134,7 +134,8 @@ class Chat extends Component {
                 />
                 <View>
                     <InputMessage
-                    user = {user}
+                    navigation = {this.props.navigation}
+                    authId = {this.authid}
                     rid = {this.rid}
                     />
                 </View>
@@ -148,15 +149,13 @@ class InputMessage extends React.PureComponent{
         super(props);
         this.state={
             msg: "",
-            selfViewSrc: null,
-            remoteList: {},
         }
     }
     sendMessage=(type, msg)=>{
         if(msg.trim()===''){
             return
         }
-        const { user, rid } = this.props
+        const { authId, rid } = this.props
         const message = {
           uid: authId,
           rid,
@@ -236,41 +235,42 @@ class InputMessage extends React.PureComponent{
         })
     }
     render(){
-        return(
-            <View>
-              <RTCView streamURL={this.state.selfViewSrc} style={{ width: 200, height: 150 }} />
-              <View style={{flexDirection: 'row', paddingHorizontal: 10, paddingVertical: 5}}>
-                <TouchableOpacity onPress={() => this.openImage()}>
-                  <Icons1 name="camera" size={25} />
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => this.pickerImage()}>
-                  <Icons1 name="picture" size={25} style={{marginLeft: 10}} />
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => this.requestCall()}>
-                  <Icons name="phone-call" size={25} style={{marginLeft: 10}} />
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => 
-                this.props.navigation.navigate('VideoCallScreen', {
-
-                })}>
-                  <Icons name="phone-call" size={25} style={{marginLeft: 10}} />
-                </TouchableOpacity>
-              </View>
-              <View style={{borderWidth: 1, borderColor: '#9FF7EF'}} />
-              <View style={styles.send}>
-                <TextInput
-                value={this.state.msg}
-                placeholder="message"
-                onChangeText={text => this.setState({msg: text})}
-                style={styles.input}
-                />
-                <TouchableOpacity onPress={()=>this.sendMessage('text', this.state.msg)} style={{marginLeft: 15}}>
-                  <Icons name="send" size={25} />
-                </TouchableOpacity>
-              </View>
-            </View>
-        )
-    }
+      const { authId, rid } = this.props
+      return(
+        <View>
+          <View style={{flexDirection: 'row', paddingHorizontal: 10, paddingVertical: 5}}>
+            <TouchableOpacity onPress={() => this.openImage()}>
+              <Icons1 name="camera" size={25} />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => this.pickerImage()}>
+              <Icons1 name="picture" size={25} style={{marginLeft: 10}} />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => this.requestCall()}>
+              <Icons name="phone-call" size={25} style={{marginLeft: 10}} />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => 
+            this.props.navigation.navigate('VideoCallScreen', {
+              userId: authId,
+              rid
+            })}>
+              <Icons1 name="videocamera" size={25} style={{marginLeft: 10}} />
+            </TouchableOpacity>
+          </View>
+          <View style={{borderWidth: 1, borderColor: '#9FF7EF'}} />
+          <View style={styles.send}>
+            <TextInput
+            value={this.state.msg}
+            placeholder="message"
+            onChangeText={text => this.setState({msg: text})}
+            style={styles.input}
+            />
+            <TouchableOpacity onPress={()=>this.sendMessage('text', this.state.msg)} style={{marginLeft: 15}}>
+              <Icons name="send" size={25} />
+            </TouchableOpacity>
+          </View>
+        </View>
+      )
+  }
 }
 
 const styles = StyleSheet.create({

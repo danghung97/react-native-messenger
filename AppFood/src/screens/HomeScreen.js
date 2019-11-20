@@ -9,7 +9,6 @@ import Icons from 'react-native-vector-icons/AntDesign';
 import { connect } from 'react-redux'
 import { reset } from '../store/actions/UseAction';
 import axios from 'axios';
-import EmojiSelector, { Categories } from "react-native-emoji-selector";
 
 class HomeScreen extends Component{
 

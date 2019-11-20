@@ -61,10 +61,10 @@ class Mess extends Component {
             this.refs['finduser'].hideModal()
             if(res.data.status){
                 this.props.navigation.navigate("chatScreen", {
-                roomId: res.data.rid, 
-                friend: friend,
-                user: user,
-                initMessage: res.data.arrayMessage})
+                  roomId: res.data.rid, 
+                  friend: friend,
+                  user: user,
+                  initMessage: res.data.arrayMessage})
                 let tempArr = arrMessenger.filter(rs => rs.ID !== friend.ID)
                 
                 let temp = tempArr.concat(friend)
@@ -100,7 +100,7 @@ class Mess extends Component {
         const { user } = this.props.user
         return (
          <View style={styles.container}>
-             <View style={styles.header}>
+            <View style={styles.header}>
                 <TouchableOpacity style={styles.avatar} onPress={()=> this.props.navigation.navigate("chatScreen")}>
                     <Image style={styles.avatar} source={{uri: user.avatar}} />
                 </TouchableOpacity>
@@ -108,14 +108,14 @@ class Mess extends Component {
              </View>
              <View style={{flexDirection: 'row', alignItems: 'center'}}>
                  <TextInput
-                 style={{
-                     width: '80%',
-                     padding: 5,
-                     borderRadius: 6,
-                     borderWidth: 1,
-                     borderColor: 'black',
-                     marginLeft: 10,
-                     marginTop: 10,
+                  style={{
+                    width: '80%',
+                    padding: 5,
+                    borderRadius: 6,
+                    borderWidth: 1,
+                    borderColor: 'black',
+                    marginLeft: 10,
+                    marginTop: 10,
                  }}
                  placeholder="Email..."
                  placeholderTextColor="#F9A825"
@@ -142,7 +142,7 @@ class Mess extends Component {
              }}
              ItemSeparatorComponent={()=>{
                  return(
-                     <View style={{height: 10}} />
+                    <View style={{height: 10}} />
                  )
              }}
              />
@@ -157,66 +157,64 @@ class Mess extends Component {
 
 const styles = StyleSheet.create({
     container:{
-        width: '100%',
-        backgroundColor: '#FFFFFF',
+      width: '100%',
+      backgroundColor: '#FFFFFF',
     },
     header: {
-        shadowColor: "#000",
-        shadowOffset: {
-            width: 0,
-            height: 2,
-        },
-        shadowOpacity: 0.25,
-        shadowRadius: 3.84,
-        backgroundColor: '#FFFFFF',
-        elevation: 6,
-        padding: 15,
-        width: '100%',
-        flexDirection: 'row',
-        alignItems: 'center',
+      shadowColor: "#000",
+      shadowOffset: {
+        width: 0,
+        height: 2,
+      },
+      shadowOpacity: 0.25,
+      shadowRadius: 3.84,
+      backgroundColor: '#FFFFFF',
+      elevation: 6,
+      padding: 15,
+      width: '100%',
+      flexDirection: 'row',
+      alignItems: 'center',
     },
     avatar: {
-        width: 30,
-        height: 30,
-        borderRadius: 15,
+      width: 30,
+      height: 30,
+      borderRadius: 15,
     },
     name: {
-        fontSize: 10,
-        lineHeight: 12,
-        fontWeight: '800',
-        marginLeft: 20
+      fontSize: 10,
+      lineHeight: 12,
+      fontWeight: '800',
+      marginLeft: 20
     },
     mess: {
-        width: '100%',
-        padding: 10,
+      width: '100%',
+      padding: 10,
     },
     search:{
-        width: '100%',
-        flexDirection: 'row',
-        alignItems: 'center'
+      width: '100%',
+      flexDirection: 'row',
+      alignItems: 'center'
     },
     wrapper: {
-        height: 40,
-        width: '80%',
-        marginLeft: 10,
-        borderWidth: 0.5,
-        borderColor: 'black',
+      height: 40,
+      width: '80%',
+      marginLeft: 10,
+      borderWidth: 0.5,
+      borderColor: 'black',
     },
     input: {
-        height: 40,
-        width: '100%',
-        // borderWidth: 0.5,
-        // borderColor: 'black',
+      height: 40,
+      width: '100%',
     },
     result: {
-        flexDirection: 'row',
-        height: 40,
-        alignItems: 'center',
-        width: '100%',
-        borderColor: 'black',
-        borderLeftWidth: 0.5,
-        borderRightWidth: 0.5,
-        borderBottomWidth: 0.5,
+      flexDirection: 'row',
+      height: 40,
+      alignItems: 'center',
+      width: '100%',
+      borderColor: 'black',
+      borderLeftWidth: 0.5,
+      borderRightWidth: 0.5,
+      borderBottomWidth: 0.5,
     }
 })
 

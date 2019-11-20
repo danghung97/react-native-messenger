@@ -166,6 +166,8 @@ func Login(email, password string) map[string]interface{} {
 	account.Token = tokenString
 
 	resp := u.Message(true, "logged in")
+	account.FcmToken = pq.StringArray{}
+	account.StatusFcmTokens = pq.BoolArray{}
 	resp["account"] = account
 	return resp
 }

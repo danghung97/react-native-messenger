@@ -1,11 +1,10 @@
-import React, {PureComponent} from 'react';
+import React, {Component} from 'react';
 import {
     View,
     Text,
     Platform,
     TouchableOpacity
 } from 'react-native';
-import Modal from 'react-native-modal';
 import {
     RTCPeerConnection,
     RTCMediaStream,
@@ -13,52 +12,70 @@ import {
     RTCSessionDescription,
     RTCView,
     MediaStreamTrack,
-    getUserMedia,
+    mediaDevices,
   } from 'react-native-webrtc';
+import { connect } from 'react-redux';
 
 const configuration = {"iceServers": [{"url": "stun:stun.l.google.com:19302"}]};
 const pcPeers = {}
 let localStream;
 
-function getLocalStream(isFront, callback) {
-  let videoSourceId
-
-  if (Platform.OS === 'ios') {
-    MediaStreamTrack.getSources(sourceInfos => {
-      console.log("sourceInfos: ", sourceInfos);
-
-      for (const i = 0; i < sourceInfos.length; i++) {
-        const sourceInfo = sourceInfos[i];
-        if(sourceInfo.kind === "video" && sourceInfo.facing === (isFront ? "front" : "back")) {
-          videoSourceId = sourceInfo.id;
-        }
-      }
-    });
-  }
-  getUserMedia({
-    audio: true,
-    video: {
-      mandatory: {
-        minWidth: 640, // Provide your own width, height and frame rate here
-        minHeight: 360,
-        minFrameRate: 30,
-      },
-      facingMode: (isFront ? "user" : "environment"),
-      optional: (videoSourceId ? [{sourceId: videoSourceId}] : []),
-    }
-  }, function (stream) {
-    console.log('getUserMedia success', stream);
-    callback(stream);
-  }, logError)
-}
-
-export default class VideoCall extends PureComponent {
+class VideoCall extends Component {
   constructor(props){
     super(props);
     this.state = {
       isFront: true,
       selfViewSrc: null,
       remoteList: {},
+    }
+    this.userId = props.navigation.getParam('userId')
+    this.rid = props.navigation.getParam('rid')
+  }
+
+  getLocalStream = (isFront, callback) => {
+    // let videoSourceId
+  
+    mediaDevices.enumerateDevices().then(sourceInfos => {
+      console.log(sourceInfos);
+      let videoSourceId;
+      for (let i = 0; i < sourceInfos.length; i++) {
+        const sourceInfo = sourceInfos[i];
+        if(sourceInfo.kind == "videoinput" && sourceInfo.facing == (isFront ? "front" : "back")) {
+          videoSourceId = sourceInfo.deviceId;
+        }
+      }
+      mediaDevices.getUserMedia({
+        audio: true,
+        video: {
+          mandatory: {
+            minWidth: 500, // Provide your own width, height and frame rate here
+            minHeight: 300,
+            minFrameRate: 30
+          },
+          facingMode: (isFront ? "user" : "environment"),
+          optional: (videoSourceId ? [{sourceId: videoSourceId}] : [])
+        }
+      })
+      .then(stream => {
+        // Got stream!
+        callback(stream);
+      })
+      .catch(error => {
+        // Log error
+      })
+    })
+  }
+  sendMessage = (type_message, msg) => {
+    const message = {
+      uid: this.userId,
+      rid: this.rid,
+      type_message,
+      message: msg,
+    }
+    try{
+      global.socket.send(JSON.stringify(message));
+    } catch (error) {
+      alert('send message failed: ' + error)
     }
   }
 
@@ -68,26 +85,33 @@ export default class VideoCall extends PureComponent {
   
     pc.onicecandidate = (event) => {
       if (event.candidate) {
-        const message = {
-          
-        }
-
+        this.sendMessage('WebRTC', JSON.stringify(event.candidate))
       }
     }
   
-    createOffer = () => {
-      pc.createOffer(function (desc) {
-        pc.setLocalDescription(desc, function () {
-          //socket
-        }, logError)
-      }, logError)
+    // createOffer = () => {
+    //   pc.createOffer(function (desc) {
+    //     pc.setLocalDescription(desc, function () {
+    //       this.sendMessage('WebRTC', JSON.stringify(pc.localDescription))
+    //     }, this.logError)
+    //   }, this.logError)
+    // }
+
+    pc.onnegotiationneeded = () => {
+      if(isOffer) {
+        pc.createOffer((desc) => {
+          pc.setLocalDescription(desc, () => {
+            this.sendMessage('WebRTC', JSON.stringify(pc.localDescription))
+          }, this.logError)
+        }, this.logError)
+      }
     }
   
     pc.onconnectionstatechange = (event) => {
       if(event.target.iceConnectionState === 'completed') {
-        setTimeout(()=> {
-          this.getStats()
-        }, 1000)
+        // setTimeout(()=> {
+        //   this.getStats()
+        // }, 1000)
       }
       if(event.target.iceConnectionState === 'connected'){
         // createDataChannel()
@@ -95,7 +119,7 @@ export default class VideoCall extends PureComponent {
     }
   
     pc.onsignalingstatechange = (event) => {
-  
+
     }
   
     pc.onaddstream = (event) => {
@@ -117,47 +141,69 @@ export default class VideoCall extends PureComponent {
   }
 
   componentDidMount() {
-    getLocalStream(true, function(stream) {
+    this.getLocalStream(true, (stream) => {
       localStream = stream
       this.setState({ selfViewSrc: stream.toURL() })
     })
-    global.pc.createOffer().then(desc => {
-      global.pc.setLocalDescription(desc).then(() => {
-        console.warn('pc', pc.localDescription)
-        // send pc.localDescription to peer
-      })
-    })
+    setTimeout(()=>{
+      this.createPC(this.userId, true)
+    },500)
+  }
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.data.message === 'leave') {
+      this.leave(nextProps.data.uid)
+    }
+    if (nextProps.data) {
+      const fromId = nextProps.data.uid
+      let pc;
+      if (fromId in pcPeers) {
+        pc = pcPeers[fromId]
+      } else {
+        pc = this.createPC(fromId, false)
+      }
+      if (JSON.parse(nextProps.data.message).sdp) {
+        pc.setRemoteDescription(new RTCSessionDescription(data.sdp), () => {
+          if (pc.remoteDescription.type === "offer") {
+            pc.createAnswer((desc) => {
+              pc.setLocalDescription(desc, () => {
+                this.sendMessage('WebRTC', JSON.stringify(pc.localDescription))
+              }, this.logError);
+            }, this.logError);
+          }
+        })
+      }else {
+        console.log('exchange candidate', data);
+        pc.addIceCandidate(new RTCIceCandidate(data.candidate));
+      }
+    }
   }
 
-  //when somebody sends us an offer 
-  handleOffer = (offer) => {
-    global.pc.setRemoteDescription(new RTCSessionDescription(offer))
-    global.pc.createAnswer((answer) => { 
-      global.pc.setLocalDescription(answer, ()=>{
-        
-      }); 
-      //send
-   })
+  mapHash = (hash, func) => {
+    const array = [];
+    for (const key in hash) {
+      const obj = hash[key];
+      array.push(func(obj, key));
+    }
+    return array;
   }
 
-  //when we got an answer from a remote user
-  handleAnswer = (answer) => {
-    global.pc.setRemoteDescription(new RTCSessionDescription(answer))
+  leave = (userId) => {
+    const pc = pcPeers[userId]
+    pc.close()
+    delete pcPeers[userId]
+    const remoteList = this.state.remoteList
+    delete remoteList[userId]
+    this.setState({remoteList})
   }
-
-  //when we got an ice candidate from a remote user 
-  handleCandidate = (candidate) => { 
-    global.pc.addIceCandidate(new RTCIceCandidate(candidate)); 
-  };
 
   handleLeave = () => {
-    global.pc.close()
+    this.sendMessage('WebRTC', 'leave')
+    this.props.navigation.goBack()
   }
-
   _switchVideoType = () => {
     const isFront = !this.state.isFront
     this.setState({isFront});
-    getLocalStream(isFront, function(stream) {
+    this.getLocalStream(isFront, (stream) => {
       if(localStream) {
         for (const id in pcPeers) {
           const pc = pcPeers[id]
@@ -178,19 +224,36 @@ export default class VideoCall extends PureComponent {
   render(){
     return(
       <View style={{width: '100%', height: '100%', justifyContent: 'space-between'}}>
-        <RTCView streamURL={this.state.selfViewSrc} style={{width: '100%', height: '4459%', backgroundColor: 'black'}} />
-        <View style={{flexDirection: 'row'}}>
+        <RTCView streamURL={this.state.selfViewSrc} style={{width: '100%', height: '45%'}} />
+        <View style={{flexDirection: 'row', justifyContent: 'center'}}>
           <Text>
             {this.state.isFront ? "Use front camera" : "Use back camera"}
           </Text>
           <TouchableOpacity
-            style={{borderWidth: 1, borderColor: 'black'}}
+            style={{borderWidth: 1, borderColor: 'black', marginLeft: 15}}
             onPress={this._switchVideoType}>
             <Text>Switch camera</Text>
           </TouchableOpacity>
+          <TouchableOpacity
+            style={{borderWidth: 1, borderColor: 'black', marginLeft: 15}}
+            onPress={this.handleLeave}>
+            <Text>LEAVE</Text>
+          </TouchableOpacity>
         </View>
-        <RTCView style={{width: '100%', height: '45%', backgroundColor: 'black'}} />
+        {
+          this.mapHash(this.state.remoteList, function(remote, index) {
+            return <RTCView key={index} streamURL={remote} style={styles.remoteView}/>
+          })
+        }
       </View>
     )
   }
 }
+
+const mapStateToProps = state => {
+  return {
+    data: state.socket.data_webrtc
+  }
+}
+
+export default connect(mapStateToProps, null)(VideoCall)
