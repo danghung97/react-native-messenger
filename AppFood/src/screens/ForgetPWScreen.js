@@ -55,27 +55,27 @@ export default class ForgetPW extends Component{
             <View style={{ width: "90%" }}>
               <View style={styles.block}>
                 <TextInput
-                value={this.state.email}
-                style={styles.input}
-                placeholder="Email"
-                placeholderTextColor="#F9A825"
-                onChangeText={text=>this.setState({email: text})}
+                  value={this.state.email}
+                  style={styles.input}
+                  placeholder="Email"
+                  placeholderTextColor="#F9A825"
+                  onChangeText={text=>this.setState({email: text})}
                 />
                 <TextInput
-                value={this.state.new_password}
-                secureTextEntry
-                style={styles.input}
-                placeholder="New password"
-                placeholderTextColor="#F9A825"
-                onChangeText={text=>this.setState({password: text})}
+                  value={this.state.new_password}
+                  secureTextEntry
+                  style={styles.input}
+                  placeholder="New password"
+                  placeholderTextColor="#F9A825"
+                  onChangeText={text=>this.setState({password: text})}
                 />
                 <TextInput
-                value={this.state.repeatNew_pw}
-                secureTextEntry
-                style={styles.input}
-                placeholder="Repeat new password"
-                placeholderTextColor="#F9A825"
-                onChangeText={text=>this.setState({password: text})}
+                  value={this.state.repeatNew_pw}
+                  secureTextEntry
+                  style={styles.input}
+                  placeholder="Repeat new password"
+                  placeholderTextColor="#F9A825"
+                  onChangeText={text=>this.setState({password: text})}
                 />
 
                 <TouchableOpacity style={styles.buttonsignin} onPress={()=>this.requestSendEmail()}>
