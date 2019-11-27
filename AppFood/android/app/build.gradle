@@ -209,9 +209,6 @@ dependencies {
 
     compile project(':WebRTCModule')
 
-    compile(project(':react-native-firebase')) {
-        transitive = false
-    }
     if (enableHermes) {
         def hermesPath = "../../node_modules/hermes-engine/android/";
         debugImplementation files(hermesPath + "hermes-debug.aar")
