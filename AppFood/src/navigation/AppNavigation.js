@@ -2,7 +2,8 @@
 import Home from '../screens/HomeScreen';
 import Profile from '../screens/ProfileScreen';
 import Mess from '../screens/Messenger';
-import Chat from '../screens/ChatScreen'
+import Chat from '../screens/ChatScreen';
+import VideoCall from '../screens/ChatComponent/VideoCall';
 import { createAppContainer } from 'react-navigation';
 import { createStackNavigator } from 'react-navigation-stack';
 import { createBottomTabNavigator } from 'react-navigation-tabs';
@@ -40,6 +41,7 @@ const stackNavigator = createStackNavigator(
     chatScreen: Chat,
     drawer: DrawerNavigator,
     ImageZoomScreen: ImageZoom,
+    VideoCallScreen: VideoCall
   },
   { headerMode: 'none', navigationOptions: { headerVisible: false } }
 );

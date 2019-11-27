@@ -8,11 +8,10 @@ import {
 	TouchableOpacity,
 	TouchableWithoutFeedback,
 	Keyboard,
-	AsyncStorage,
 } from 'react-native';
 import Entypo from "react-native-vector-icons/Entypo";
 import { connect } from 'react-redux'
-import { login, saveuser } from '../store/actions/UseAction';
+import { login, checkLogin } from '../store/actions/UseAction';
 import LoadingModal from '../Component/loading';
 
 class Login extends Component {
@@ -23,21 +22,9 @@ class Login extends Component {
 	}
 
 	async componentDidMount() {
-        this.getUser();
-    }
+    this.props.checkLogin();
+  }
 
-	async getUser() {
-		await AsyncStorage.getItem("account", (error, result) => {
-			if (error) {
-				return
-			} else {
-				if(result){
-					global.isLogging = true;
-					this.props.saveuser(JSON.parse(result))
-				}
-			}
-		});
-	}
 	shouldComponentUpdate(nextProps){
 		if(nextProps.user.isSucces) {
 			this.refs['loading'].hideModal()
@@ -220,8 +207,8 @@ const mapStateToProps =  state => {
 }
 
 const mapDispatchToProps = {
-	login: login,
-	saveuser: saveuser
+	checkLogin: checkLogin,
+	login: login
 }
 
 
