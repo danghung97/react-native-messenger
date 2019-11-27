@@ -61,23 +61,6 @@ class Chat extends Component {
     }catch (error) {
       console.warn('load message fail: ', error)
     }
-      // Axios.post('https://serverappfood.herokuapp.com/api/load-more-message',{
-      //   offset: this.state.Offset,
-      //   room_id: this.rid
-      // },{
-      //   headers:{
-      //     'Content-Type': 'multipart/form-data',
-      //     'Authorization': `Bearer ${this.props.navigation.getParam('user').token}`
-      //   }
-      // }).then(res => {
-      //   if(res.data.status){
-      //     if(res.data.arrayMessage.length === 0) return
-      //     else {
-      //       const temp = this.state.message.concat(res.data.arrayMessage)
-      //       this.setState({ message: temp, Offset: this.state.Offset + 1 })
-      //     }
-      //   }
-      // }).catch(err => console.warn(err))
   }
 
   renderItem = (item, uri) => {
@@ -203,20 +186,7 @@ class InputMessage extends React.PureComponent{
       }catch (error) {
         console.warn(error)
       }
-      // Axios(`https://serverappfood.herokuapp.com/api/user/uploading`, {
-      //   method: "POST",
-      //   data,
-      //   headers: {
-      //     'Content-Type': 'multipart/form-data',
-      //     'Authorization': `Bearer ${Unstated.state.account.token}`
-      //   },
-      // }).then(res=>{
-      //   if(res.data.status){
-      //     this.sendMessage('image', res.data.link)
-      //   }else{
-      //     alert(res.data.message)
-      //   }
-      // }).catch(err=>console.log('err', JSON.stringify(err)))
+
     })
     .catch(err => {
       alert('open image error: ' + err)

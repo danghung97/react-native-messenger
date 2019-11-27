@@ -44,68 +44,68 @@ export default class ForgetPW extends Component{
     requestRfPW=(code)=>{
 
     }
-    render(){
-        return(
-        <View>
+  render(){
+    return(
+      <View>
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-            <ImageBackground
-            source={require('../Image/background.png')}
-            style={styles.container}
-            >
-                <View style={{ width: "90%" }}>
-                    <View style={styles.block}>
-                        <TextInput
-                        value={this.state.email}
-                        style={styles.input}
-                        placeholder="Email"
-                        placeholderTextColor="#F9A825"
-                        onChangeText={text=>this.setState({email: text})}
-                        />
-                        <TextInput
-                        value={this.state.new_password}
-                        secureTextEntry
-                        style={styles.input}
-                        placeholder="New password"
-                        placeholderTextColor="#F9A825"
-                        onChangeText={text=>this.setState({password: text})}
-                        />
-                        <TextInput
-                        value={this.state.repeatNew_pw}
-                        secureTextEntry
-                        style={styles.input}
-                        placeholder="Repeat new password"
-                        placeholderTextColor="#F9A825"
-                        onChangeText={text=>this.setState({password: text})}
-                        />
+          <ImageBackground
+          source={require('../Image/background.png')}
+          style={styles.container}
+          >
+            <View style={{ width: "90%" }}>
+              <View style={styles.block}>
+                <TextInput
+                value={this.state.email}
+                style={styles.input}
+                placeholder="Email"
+                placeholderTextColor="#F9A825"
+                onChangeText={text=>this.setState({email: text})}
+                />
+                <TextInput
+                value={this.state.new_password}
+                secureTextEntry
+                style={styles.input}
+                placeholder="New password"
+                placeholderTextColor="#F9A825"
+                onChangeText={text=>this.setState({password: text})}
+                />
+                <TextInput
+                value={this.state.repeatNew_pw}
+                secureTextEntry
+                style={styles.input}
+                placeholder="Repeat new password"
+                placeholderTextColor="#F9A825"
+                onChangeText={text=>this.setState({password: text})}
+                />
 
-                        <TouchableOpacity style={styles.buttonsignin} onPress={()=>this.requestSendEmail()}>
-                            <Text style={styles.textsignin}>SEND</Text>
-                        </TouchableOpacity>
-                        <View style={styles.group}>
-                            <TouchableOpacity
-                            onPress={() => this.props.navigation.navigate("loginScreen")}
-                            >
-                            <Text style={styles.textconnect}>Login</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity
-                            onPress={() => {
-                                this.props.navigation.navigate("signUpScreen")
-                            }}
-                            >
-                            <Text style={styles.textconnect}>SignUp</Text>
-                            </TouchableOpacity>
-                        </View>
-                    </View>
+                <TouchableOpacity style={styles.buttonsignin} onPress={()=>this.requestSendEmail()}>
+                    <Text style={styles.textsignin}>SEND</Text>
+                </TouchableOpacity>
+                <View style={styles.group}>
+                  <TouchableOpacity
+                  onPress={() => this.props.navigation.navigate("loginScreen")}
+                  >
+                  <Text style={styles.textconnect}>Login</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                  onPress={() => {
+                      this.props.navigation.navigate("signUpScreen")
+                  }}
+                  >
+                  <Text style={styles.textconnect}>SignUp</Text>
+                  </TouchableOpacity>
                 </View>
-            </ImageBackground>
+              </View>
+            </View>
+          </ImageBackground>
         </TouchableWithoutFeedback>
         <Modal
             ref="Modal"
             request={this.requestRfPW}
         />
-        </View>
-        )
-    }
+      </View>
+    )
+  }
 }
 
 const styles = StyleSheet.create({

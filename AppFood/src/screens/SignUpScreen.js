@@ -55,23 +55,6 @@ class SignUp extends Component {
     }catch (error) {
       console.warn('send mail failed: ', error)
     }
-    // axios.post(`https://serverappfood.herokuapp.com/api/user/sendmail`, {
-    //   email: this.state.email,
-    // },
-    // {
-    //   headers: {
-    //     Accept: 'application/json',
-    //     'Content-Type': 'application/json',
-    //   },
-    // })
-    // .then(res=>{
-    //   if(res.data.status){
-    //     this.refs['Modal'].showModal()
-    //   }else{
-    //     alert(res.data.message)
-    //   }
-    // })
-    // .catch(err=>console.warn(err));
   }
 
   requestSignUp=(code)=>{
@@ -81,10 +64,6 @@ class SignUp extends Component {
       password: this.state.password,
       name: this.state.name,
     })
-      // if(res.data.status){
-      //   this.refs['Modal'].closeModal()
-      //   this.props.navigation.navigate("bottomScreen")
-      // }
   }
 
   shouldComponentUpdate(nextProps){

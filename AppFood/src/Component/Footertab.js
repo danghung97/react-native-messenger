@@ -61,28 +61,6 @@ class CustomTabBar extends React.Component {
         } catch(error) {
             console.warn('load room failed: ', error)
         }
-        // axios.post(`https://serverappfood.herokuapp.com/api/loadroom`,
-        // {
-        //     authid: user.user.ID,
-        //     received: received.ID
-        // },
-        // {
-        //     headers: {
-        //         "Content-Type": 'application/json',
-        //         'Authorization': `Bearer ${user.user.token}`
-        //     },
-        // }).then(res=>{
-        //   if(res.data.status){
-        //       navigation.navigate("chatScreen", {
-        //       roomId: res.data.rid, 
-        //       user: received,
-        //       authid: user.user.ID,
-        //       initMessage: res.data.arrayMessage})
-        //       this.props.removenotifi()
-        //   }else {
-        //       alert(res.data.message)
-        //   }
-        // }).catch(err => console.warn(err))
       }
     }
 
