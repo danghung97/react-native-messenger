@@ -5,17 +5,25 @@ export const SIGN_UP = "SIGN_UP"
 export const SIGN_UP_SUCCESS = "SIGN_UP_SUCCESS"
 export const SIGN_UP_FAIL = "SIGN_UP_FAIL"
 export const LOAD_ROOM = "LOAD_ROOM"
-export const REFRESH = "REFRESH"
 export const RECEIVE_MESSAGE = "RECEIVE_MESSAGE"
-export const SAVE_USER = "SAVE_USER"
+export const CHECK_LOGIN = "CHECK_LOGIN"
 export const NOTIFICATION = "NOTIFICATION"
 export const REMOVE_NOTIFICATION = "REMOVE_NOTIFICATION"
+export const CHECK_LOGIN_SUCCESS = "CHECK_LOGIN_SUCCESS"
 
+export const USER_LOGOUT = "USER_LOGOUT"
+export const LOGOUT_SUCCESS = "LOGOUT_SUCCESS"
 
 export const login = (data) => {
     return{
         type: USER_LOGIN,
         data: data    
+    }
+}
+
+export const logout = () => {
+    return {
+        type: USER_LOGOUT
     }
 }
 
@@ -47,12 +55,6 @@ export const loadroom = (received) => {
     }
 }
 
-export const reset = () => {
-    return {
-        type: REFRESH,
-    }
-}
-
 export const messageSocket = (message) => {
     return {
         type: RECEIVE_MESSAGE,
@@ -60,10 +62,9 @@ export const messageSocket = (message) => {
     }
 }
 
-export const saveuser = (user) => {
+export const checkLogin = () => {
     return {
-        type: SAVE_USER,
-        user
+        type: CHECK_LOGIN,
     }
 }
 

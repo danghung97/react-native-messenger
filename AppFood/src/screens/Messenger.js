@@ -10,12 +10,11 @@ import {
     AsyncStorage
 } from 'react-native';
 // import Icons from "react-native-vector-icons/AntDesign";
-import axios from 'axios';
+import ApiService from '../store/axios/AxiosInstance';
+import PATH from '../store/axios/Url';
 import { connect } from 'react-redux';
 import Icons from 'react-native-vector-icons/AntDesign';
 import ModalFindUser from '../Component/messenger/modalFindUser';
-
-const user =[{"ID": 8, "name": "hcmut"}, {"ID": 13, "name": "appfast"}]
 
 class Mess extends Component {
     constructor(props){
@@ -44,56 +43,48 @@ class Mess extends Component {
         });
     }
 
-    sendRequestLoadRoom=(friend, arrMessenger)=>{
+    sendRequestLoadRoom= async(friend, arrMessenger) => {
         const { user } = this.props.user
-        axios.post(`https://serverappfood.herokuapp.com/api/loadroom`,
-        {
+        try{
+          const reponse = await ApiService.post(PATH.TAKE_ROOM, {
             authid: user.ID,
             received: friend.ID
-        },
-        {
-            headers: {
-                "Content-Type": 'application/json',
-                'Authorization': `Bearer ${user.token}`
-            },
-        }).then(res=>{
-            // console.warn("respone", res)
-            this.refs['finduser'].hideModal()
-            if(res.data.status){
-                this.props.navigation.navigate("chatScreen", {
-                  roomId: res.data.rid, 
-                  friend: friend,
-                  user: user,
-                  initMessage: res.data.arrayMessage})
-                let tempArr = arrMessenger.filter(rs => rs.ID !== friend.ID)
-                
-                let temp = tempArr.concat(friend)
-                AsyncStorage.setItem("arrayMessenger", JSON.stringify(temp))
-                this.setState({arrMessenger: temp})
-            }else {
-                alert(res.data.message)
-            }
-        }).catch(err => console.warn(err))
+          })
+          if(reponse.data.status){
+            this.props.navigation.navigate("chatScreen", {
+              roomId: reponse.data.rid, 
+              friend: friend,
+              user: user,
+              initMessage: reponse.data.arrayMessage})
+            let tempArr = arrMessenger.filter(rs => rs.ID !== friend.ID)
+            
+            let temp = tempArr.concat(friend)
+            AsyncStorage.setItem("arrayMessenger", JSON.stringify(temp))
+            this.setState({arrMessenger: temp})
+          }else {
+            alert(reponse.data.message)
+          }
+          this.refs['finduser'].hideModal()
+        } catch(error) {
+            console.warn('load room failed: ', error)
+        }
     }
 
-    FindUser = (mail) => {
-        axios.post(`https://serverappfood.herokuapp.com/api/user/find`,
-        {
-            email: mail,
-        },
-        {
-            headers :{
-                "Content-Type": 'application/json',
-                'Authorization': `Bearer ${this.props.user.user.token}`
-            },
-        }).then(res => {
-            if(res.data.status) {
-                this.refs['finduser'].catchUser(res.data.user)
-                this.refs['finduser'].showModal()
-            }else{
-                alert(res.data.message)
-            }
-        }).catch(err => alert(err))
+    FindUser = async(mail) => {
+      try{
+        const response = await ApiService.post(PATH.FIND_USER, {
+          email: mail,
+        })
+
+        if(response.data.status) {
+          this.refs['finduser'].catchUser(response.data.user)
+          this.refs['finduser'].showModal()
+        }else{
+          alert(response.data.message)
+        }
+      } catch(error) {
+          console.warn('find user fail: ', error)
+      }
     }
 
     render(){

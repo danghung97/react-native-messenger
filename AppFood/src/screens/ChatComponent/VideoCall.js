@@ -19,6 +19,7 @@ import { connect } from 'react-redux';
 const configuration = {"iceServers": [{"url": "stun:stun.l.google.com:19302"}]};
 const pcPeers = {}
 let localStream;
+let pc;
 
 class VideoCall extends Component {
   constructor(props){
@@ -33,10 +34,8 @@ class VideoCall extends Component {
   }
 
   getLocalStream = (isFront, callback) => {
-    // let videoSourceId
   
     mediaDevices.enumerateDevices().then(sourceInfos => {
-      console.log(sourceInfos);
       let videoSourceId;
       for (let i = 0; i < sourceInfos.length; i++) {
         const sourceInfo = sourceInfos[i];
@@ -62,6 +61,7 @@ class VideoCall extends Component {
       })
       .catch(error => {
         // Log error
+        alert('error stream: ', error)
       })
     })
   }
@@ -78,64 +78,6 @@ class VideoCall extends Component {
       alert('send message failed: ' + error)
     }
   }
-
-  createPC = (userId, isOffer) => {
-    const pc = new RTCPeerConnection(configuration)
-    pcPeers[userId] = pc
-  
-    pc.onicecandidate = (event) => {
-      if (event.candidate) {
-        this.sendMessage('WebRTC', JSON.stringify(event.candidate))
-      }
-    }
-  
-    // createOffer = () => {
-    //   pc.createOffer(function (desc) {
-    //     pc.setLocalDescription(desc, function () {
-    //       this.sendMessage('WebRTC', JSON.stringify(pc.localDescription))
-    //     }, this.logError)
-    //   }, this.logError)
-    // }
-
-    pc.onnegotiationneeded = () => {
-      if(isOffer) {
-        pc.createOffer((desc) => {
-          pc.setLocalDescription(desc, () => {
-            this.sendMessage('WebRTC', JSON.stringify(pc.localDescription))
-          }, this.logError)
-        }, this.logError)
-      }
-    }
-  
-    pc.onconnectionstatechange = (event) => {
-      if(event.target.iceConnectionState === 'completed') {
-        // setTimeout(()=> {
-        //   this.getStats()
-        // }, 1000)
-      }
-      if(event.target.iceConnectionState === 'connected'){
-        // createDataChannel()
-      }
-    }
-  
-    pc.onsignalingstatechange = (event) => {
-
-    }
-  
-    pc.onaddstream = (event) => {
-      const remoteList = this.state.remoteList
-      remoteList[userId] = event.stream.toURL()
-      this.setState({remoteList})
-    }
-
-    pc.onremovestream = (event) => {
-
-    }
-
-    pc.addStream(localStream);
-    return pc;
-  }
-  
   logError = (error) => {
     console.log("logError", error);
   }
@@ -143,37 +85,49 @@ class VideoCall extends Component {
   componentDidMount() {
     this.getLocalStream(true, (stream) => {
       localStream = stream
+      pc = new RTCPeerConnection(configuration)
+
+      pc.addStream(stream)
+      pc.onaddstream = (event) => {
+        const remoteList = this.state.remoteList
+        remoteList = event.stream.toURL()
+        this.setState({ remoteList })
+      }
+      pc.onicecandidate = (event) => {
+        if (event.candidate) {
+          this.sendMessage('WebRTC-candidate', JSON.stringify(event.candidate))
+        }
+      }
+      setTimeout(() => {
+        pc.createOffer().then(desc => {
+          pc.setLocalDescription(desc).then(() => {
+            this.sendMessage('WebRTC-offer', JSON.stringify(pc.localDescription.sdp))
+          }, this.logError)
+        }, this.logError)
+      }, 1000)
       this.setState({ selfViewSrc: stream.toURL() })
     })
-    setTimeout(()=>{
-      this.createPC(this.userId, true)
-    },500)
   }
   componentWillReceiveProps(nextProps) {
+    console.log('nextProps', nextProps.data)
     if (nextProps.data.message === 'leave') {
       this.leave(nextProps.data.uid)
     }
     if (nextProps.data) {
-      const fromId = nextProps.data.uid
-      let pc;
-      if (fromId in pcPeers) {
-        pc = pcPeers[fromId]
-      } else {
-        pc = this.createPC(fromId, false)
-      }
-      if (JSON.parse(nextProps.data.message).sdp) {
-        pc.setRemoteDescription(new RTCSessionDescription(data.sdp), () => {
-          if (pc.remoteDescription.type === "offer") {
-            pc.createAnswer((desc) => {
-              pc.setLocalDescription(desc, () => {
-                this.sendMessage('WebRTC', JSON.stringify(pc.localDescription))
-              }, this.logError);
-            }, this.logError);
-          }
-        })
-      }else {
+      const data = JSON.parse(nextProps.data.message)
+      const type = nextProps.data.type_message
+      if (type === 'WebRTC-offer') {
+        pc.setRemoteDescription(new RTCSessionDescription(data))
+        pc.createAnswer().then(desc => {
+          pc.setLocalDescription(desc).then(() => {
+            this.sendMessage('WebRTC-answer', JSON.stringify(pc.localDescription.sdp))
+          }, this.logError);
+        }, this.logError);
+      } else if (type === 'WebRTC-candidate') {
         console.log('exchange candidate', data);
-        pc.addIceCandidate(new RTCIceCandidate(data.candidate));
+        pc.addIceCandidate(new RTCIceCandidate(data));
+      } else if (type === 'WebRTC-answer') {
+        pc.setRemoteDescription(new RTCSessionDescription(data))
       }
     }
   }
@@ -189,7 +143,7 @@ class VideoCall extends Component {
 
   leave = (userId) => {
     const pc = pcPeers[userId]
-    pc.close()
+    // pc.close()
     delete pcPeers[userId]
     const remoteList = this.state.remoteList
     delete remoteList[userId]
@@ -197,7 +151,7 @@ class VideoCall extends Component {
   }
 
   handleLeave = () => {
-    this.sendMessage('WebRTC', 'leave')
+    this.sendMessage('WebRTC-leave', 'leave')
     this.props.navigation.goBack()
   }
   _switchVideoType = () => {
