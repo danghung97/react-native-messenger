@@ -34,7 +34,7 @@ class CustomTabBar extends React.Component {
         navigation.navigate(name);
     }
     
-    componentWillReceiveProps(nextProps){
+    async componentWillReceiveProps(nextProps){
       const { navigation } = this.props
       const {user, data_notification} = nextProps
       const received = JSON.parse(data_notification.data.author || "{}")
