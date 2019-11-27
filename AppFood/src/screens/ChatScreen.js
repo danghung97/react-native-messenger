@@ -64,6 +64,13 @@ class Chat extends Component {
         }).catch(err => console.warn(err))
     }
 
+    showImg = (item) => {
+        let uri = {
+            uri: item.item.message
+        }
+        this.props.navigation.navigate("ImageZoomScreen", {uri: uri})
+    }
+
     renderItem = (item, uri) => {
         const user = this.props.navigation.getParam('user')
         {
@@ -73,7 +80,10 @@ class Chat extends Component {
                 return(
                     <View style={{flexDirection: 'row', justifyContent: 'flex-end', marginBottom: 10}}>
                         {item.item.type_message === 'image' ? 
-                        <Image style={{width: 200, height: 150}} source={{uri: item.item.message}} resizeMode="cover" /> :
+                        <TouchableOpacity onPress={() => this.showImg(item)}>
+                            <Image style={{width: 200, height: 150}} source={{uri: item.item.message}} resizeMode="cover" />                            
+                        </TouchableOpacity>
+                         :
                         <View style={[styles.box, {backgroundColor: "#C1EEF7"}]}>
                             <Text style={{color: 'black'}}>{item.item.message}</Text>
                         </View>}
@@ -89,7 +99,10 @@ class Chat extends Component {
                         {showAvatar ? <Image style={[styles.avatar, {marginRight: 10}]} 
                             source = {{ uri }} /> : <View style={{width: 30, height: 30, marginRight: 10}} /> }
                         {item.item.type_message === 'image' ? 
-                        <Image style={{width: 200, height: 150}} source={{uri: item.item.message}} resizeMode="cover" /> :
+                        <TouchableOpacity onPress = { () => this.showImg(item)} >
+                            <Image style={{width: 200, height: 150}} source={{uri: item.item.message}} resizeMode="cover" /> 
+                        </TouchableOpacity>
+                        :
                         <View style = {[styles.box, {backgroundColor: '#fff'}]} >
                             <Text style={{color: 'black'}}> {item.item.message} </Text>
                         </View>}

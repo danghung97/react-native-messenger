@@ -95,13 +95,13 @@ class Mess extends Component {
             }
         }).catch(err => alert(err))
     }
-
+    
     render(){
         const { user } = this.props.user
         return (
          <View style={styles.container}>
              <View style={styles.header}>
-                <TouchableOpacity style={styles.avatar} onPress={()=> this.props.navigation.navigate("chatScreen")}>
+                <TouchableOpacity style={styles.avatar} onPress={()=> this.props.navigation.navigate("ProfileScreen")}>
                     <Image style={styles.avatar} source={{uri: user.avatar}} />
                 </TouchableOpacity>
                 <Text style={styles.name}>{user.name}</Text>
