@@ -3,7 +3,6 @@ package controllers
 import (
 	"Server/models"
 	"encoding/json"
-	"fmt"
 	"github.com/jinzhu/gorm"
 	"github.com/lib/pq"
 	"log"
@@ -44,35 +43,36 @@ func (h *Hub) Run() {
 			}
 		case message := <-h.broadcast:
 			room := &models.Rooms{}
-			if message.TypeMessage != "client-connected" {
-				err := models.GetDB().Table("rooms").Where("id = ?", message.RoomID).First(room).Error
-				if err != nil && err != gorm.ErrRecordNotFound {
-					//return u.Message(false, "Connection error. Please retry")
-				}
+			
+			err := models.GetDB().Table("rooms").Where("id = ?", message.RoomID).First(room).Error
+			if err != nil && err != gorm.ErrRecordNotFound {
+				//return u.Message(false, "Connection error. Please retry")
 			}
+			
 			for client := range h.clients {
-				if client.uid == room.UserId1 || client.uid == room.UserId2 || message.TypeMessage == "client-connected" {
-					receiver := &models.Account{}
-					auth := &models.Account{}
-					var err error
-					if client.uid == room.UserId1 && message.UserID == client.uid{
-						err = models.GetDB().Table("accounts").Where("id = ?", room.UserId2).First(receiver).Error
-						err = models.GetDB().Table("accounts").Where("id = ?", room.UserId1).First(auth).Error
-						if err != nil {
-							log.Fatal(err)
-						} else {
-							sendNotifi(receiver, auth, message)
-						}
-					} else if client.uid == room.UserId2 && message.UserID == client.uid {
-						err = models.GetDB().Table("accounts").Where("id = ?", room.UserId1).First(receiver).Error
-						err = models.GetDB().Table("accounts").Where("id = ?", room.UserId2).First(auth).Error
-						if err != nil {
-							log.Fatal(err)
-						} else {
-							sendNotifi(receiver, auth, message)
+				if client.uid == room.UserId1 || client.uid == room.UserId2 {
+					if message.TypeMessage == "text" || message.TypeMessage == "image" {
+						receiver := models.Account{}
+						auth := models.Account{}
+						var err error
+						if message.UserID == room.UserId1 {
+							err = models.GetDB().Table("accounts").Where("id = ?", room.UserId2).First(&receiver).Error
+							err = models.GetDB().Table("accounts").Where("id = ?", room.UserId1).First(&auth).Error
+							if err != nil {
+								log.Fatal(err)
+							} else {
+								requestSend(&receiver, &auth, message)
+							}
+						} else if message.UserID == room.UserId2 {
+							err = models.GetDB().Table("accounts").Where("id = ?", room.UserId1).First(&receiver).Error
+							err = models.GetDB().Table("accounts").Where("id = ?", room.UserId2).First(&auth).Error
+							if err != nil {
+								log.Fatal(err)
+							} else {
+								requestSend(&receiver, &auth, message)
+							}
 						}
 					}
-
 					m, _ := json.Marshal(message)
 					select {
 					case client.send <- m:
@@ -85,7 +85,7 @@ func (h *Hub) Run() {
 		}
 	}
 }
-func sendNotifi(receiver, auth *models.Account, message *models.Messages) {
+func requestSend(receiver, auth *models.Account, message *models.Messages) {
 	arrayFcmTokens := receiver.FcmToken
 	arrayStatusFcmTokens := receiver.StatusFcmTokens
 	for i := 0; i < len(arrayFcmTokens); i++ {
@@ -96,14 +96,14 @@ func sendNotifi(receiver, auth *models.Account, message *models.Messages) {
 			auth.FcmToken = pq.StringArray{}
 			auth.StatusFcmTokens = pq.BoolArray{}
 			_, err := models.SendNotification(arrayFcmTokens[i], receiver.Email, message.Message, "", auth, "ChatScreen")
-			if err == fmt.Errorf("NotRegistered") {
-				//arrayFcmTokens[i] = nil
-				arrayFcmTokens = append(arrayFcmTokens[:i], arrayFcmTokens[i+1:]...)
-				models.GetDB().Model(&auth).Update("fcm_token", arrayFcmTokens)
-			}
-			fmt.Println("err", err)
+			//if err == fmt.Errorf("NotRegistered") {
+			//	//arrayFcmTokens[i] = nil
+			//	fmt.Println("deleted")
+			//	arrayFcmTokens = append(arrayFcmTokens[:i], arrayFcmTokens[i+1:]...)
+			//	models.GetDB().Model(&auth).Update("fcm_token", arrayFcmTokens)
+			//}
 			if err != nil {
-				log.Fatal(err)
+				log.Fatal("send notification error: ", err)
 			}
 			
 		}
