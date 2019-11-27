@@ -42,11 +42,13 @@ class Project extends Component {
 
         global.socket.onerror=(err) => {
             // alert('Websocket error')
+            console.log('socket err', err)
             global.socket.close()
         }
 
         global.socket.onmessage=(msg)=>{
             const data = JSON.parse(msg.data)
+            // console.log('onmessage', data)
             this.props.messageSocket(data)
         }
     }

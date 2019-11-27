@@ -6,9 +6,11 @@ import {
     TouchableOpacity,
 } from 'react-native';
 import { connect } from 'react-redux';
-import { removenotifi } from '../store/actions/UseAction'
-import Icons from 'react-native-vector-icons/AntDesign'
-import axios from 'axios';
+import { removenotifi } from '../store/actions/UseAction';
+import Icons from 'react-native-vector-icons/AntDesign';
+// import axios from 'axios';
+import ApiService from '../store/axios/AxiosInstance';
+import PATH from '../store/axios/Url'
 
 class CustomTabBarItem extends React.PureComponent {
     render() {
@@ -40,33 +42,47 @@ class CustomTabBar extends React.Component {
       const received = JSON.parse(data_notification.data.author || "{}")
 
       if (data_notification.data.screen === "ChatScreen"){
-        axios.post(`https://serverappfood.herokuapp.com/api/loadroom`,
-        {
+        try{
+          const reponse = await ApiService.post(PATH.TAKE_ROOM, {
             authid: user.user.ID,
             received: received.ID
-        },
-        {
-            headers: {
-                "Content-Type": 'application/json',
-                'Authorization': `Bearer ${user.user.token}`
-            },
-        }).then(res=>{
+          })
           if(res.data.status){
-              navigation.navigate("chatScreen", {
-              roomId: res.data.rid, 
-              user: received,
-              authid: user.user.ID,
-              initMessage: res.data.arrayMessage})
-              this.props.removenotifi()
-              // let tempArr = arrMessenger.filter(rs => rs.ID !== received.ID)
-              
-              // let temp = tempArr.concat(received)
-              // AsyncStorage.setItem("arrayMessenger", JSON.stringify(temp))
-              // this.setState({arrMessenger: temp})
+            navigation.navigate("chatScreen", {
+            roomId: res.data.rid, 
+            user: received,
+            authid: user.user.ID,
+            initMessage: res.data.arrayMessage})
+            this.props.removenotifi()
           }else {
-              alert(res.data.message)
+            alert(res.data.message)
           }
-        }).catch(err => console.warn(err))
+          this.refs['finduser'].hideModal()
+        } catch(error) {
+            console.warn('load room failed: ', error)
+        }
+        // axios.post(`https://serverappfood.herokuapp.com/api/loadroom`,
+        // {
+        //     authid: user.user.ID,
+        //     received: received.ID
+        // },
+        // {
+        //     headers: {
+        //         "Content-Type": 'application/json',
+        //         'Authorization': `Bearer ${user.user.token}`
+        //     },
+        // }).then(res=>{
+        //   if(res.data.status){
+        //       navigation.navigate("chatScreen", {
+        //       roomId: res.data.rid, 
+        //       user: received,
+        //       authid: user.user.ID,
+        //       initMessage: res.data.arrayMessage})
+        //       this.props.removenotifi()
+        //   }else {
+        //       alert(res.data.message)
+        //   }
+        // }).catch(err => console.warn(err))
       }
     }
 

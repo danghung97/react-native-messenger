@@ -10,12 +10,11 @@ import {
     AsyncStorage
 } from 'react-native';
 // import Icons from "react-native-vector-icons/AntDesign";
-import axios from 'axios';
+import ApiService from '../store/axios/AxiosInstance';
+import PATH from '../store/axios/Url';
 import { connect } from 'react-redux';
 import Icons from 'react-native-vector-icons/AntDesign';
 import ModalFindUser from '../Component/messenger/modalFindUser';
-
-const user =[{"ID": 8, "name": "hcmut"}, {"ID": 13, "name": "appfast"}]
 
 class Mess extends Component {
     constructor(props){
@@ -44,56 +43,48 @@ class Mess extends Component {
         });
     }
 
-    sendRequestLoadRoom=(friend, arrMessenger)=>{
+    sendRequestLoadRoom= async(friend, arrMessenger) => {
         const { user } = this.props.user
-        axios.post(`https://serverappfood.herokuapp.com/api/loadroom`,
-        {
+        try{
+          const reponse = await ApiService.post(PATH.TAKE_ROOM, {
             authid: user.ID,
             received: friend.ID
-        },
-        {
-            headers: {
-                "Content-Type": 'application/json',
-                'Authorization': `Bearer ${user.token}`
-            },
-        }).then(res=>{
-            // console.log("respone", res)
-            this.refs['finduser'].hideModal()
-            if(res.data.status){
-                this.props.navigation.navigate("chatScreen", {
-                roomId: res.data.rid, 
-                friend: friend,
-                user: user,
-                initMessage: res.data.arrayMessage})
-                let tempArr = arrMessenger.filter(rs => rs.ID !== friend.ID)
-                
-                let temp = tempArr.concat(friend)
-                AsyncStorage.setItem("arrayMessenger", JSON.stringify(temp))
-                this.setState({arrMessenger: temp})
-            }else {
-                alert(res.data.message)
-            }
-        }).catch(err => console.warn(err))
+          })
+          if(reponse.data.status){
+            this.props.navigation.navigate("chatScreen", {
+              roomId: reponse.data.rid, 
+              friend: friend,
+              user: user,
+              initMessage: reponse.data.arrayMessage})
+            let tempArr = arrMessenger.filter(rs => rs.ID !== friend.ID)
+            
+            let temp = tempArr.concat(friend)
+            AsyncStorage.setItem("arrayMessenger", JSON.stringify(temp))
+            this.setState({arrMessenger: temp})
+          }else {
+            alert(reponse.data.message)
+          }
+          this.refs['finduser'].hideModal()
+        } catch(error) {
+            console.warn('load room failed: ', error)
+        }
     }
 
-    FindUser = (mail) => {
-        axios.post(`https://serverappfood.herokuapp.com/api/user/find`,
-        {
-            email: mail,
-        },
-        {
-            headers :{
-                "Content-Type": 'application/json',
-                'Authorization': `Bearer ${this.props.user.user.token}`
-            },
-        }).then(res => {
-            if(res.data.status) {
-                this.refs['finduser'].catchUser(res.data.user)
-                this.refs['finduser'].showModal()
-            }else{
-                alert(res.data.message)
-            }
-        }).catch(err => alert(err))
+    FindUser = async(mail) => {
+      try{
+        const response = await ApiService.post(PATH.FIND_USER, {
+          email: mail,
+        })
+
+        if(response.data.status) {
+          this.refs['finduser'].catchUser(response.data.user)
+          this.refs['finduser'].showModal()
+        }else{
+          alert(response.data.message)
+        }
+      } catch(error) {
+          console.warn('find user fail: ', error)
+      }
     }
     
     render(){
@@ -108,14 +99,14 @@ class Mess extends Component {
              </View>
              <View style={{flexDirection: 'row', alignItems: 'center'}}>
                  <TextInput
-                 style={{
-                     width: '80%',
-                     padding: 5,
-                     borderRadius: 6,
-                     borderWidth: 1,
-                     borderColor: 'black',
-                     marginLeft: 10,
-                     marginTop: 10,
+                  style={{
+                    width: '80%',
+                    padding: 5,
+                    borderRadius: 6,
+                    borderWidth: 1,
+                    borderColor: 'black',
+                    marginLeft: 10,
+                    marginTop: 10,
                  }}
                  placeholder="Email..."
                  placeholderTextColor="#F9A825"
@@ -142,7 +133,7 @@ class Mess extends Component {
              }}
              ItemSeparatorComponent={()=>{
                  return(
-                     <View style={{height: 10}} />
+                    <View style={{height: 10}} />
                  )
              }}
              />
@@ -157,66 +148,64 @@ class Mess extends Component {
 
 const styles = StyleSheet.create({
     container:{
-        width: '100%',
-        backgroundColor: '#FFFFFF',
+      width: '100%',
+      backgroundColor: '#FFFFFF',
     },
     header: {
-        shadowColor: "#000",
-        shadowOffset: {
-            width: 0,
-            height: 2,
-        },
-        shadowOpacity: 0.25,
-        shadowRadius: 3.84,
-        backgroundColor: '#FFFFFF',
-        elevation: 6,
-        padding: 15,
-        width: '100%',
-        flexDirection: 'row',
-        alignItems: 'center',
+      shadowColor: "#000",
+      shadowOffset: {
+        width: 0,
+        height: 2,
+      },
+      shadowOpacity: 0.25,
+      shadowRadius: 3.84,
+      backgroundColor: '#FFFFFF',
+      elevation: 6,
+      padding: 15,
+      width: '100%',
+      flexDirection: 'row',
+      alignItems: 'center',
     },
     avatar: {
-        width: 30,
-        height: 30,
-        borderRadius: 15,
+      width: 30,
+      height: 30,
+      borderRadius: 15,
     },
     name: {
-        fontSize: 10,
-        lineHeight: 12,
-        fontWeight: '800',
-        marginLeft: 20
+      fontSize: 10,
+      lineHeight: 12,
+      fontWeight: '800',
+      marginLeft: 20
     },
     mess: {
-        width: '100%',
-        padding: 10,
+      width: '100%',
+      padding: 10,
     },
     search:{
-        width: '100%',
-        flexDirection: 'row',
-        alignItems: 'center'
+      width: '100%',
+      flexDirection: 'row',
+      alignItems: 'center'
     },
     wrapper: {
-        height: 40,
-        width: '80%',
-        marginLeft: 10,
-        borderWidth: 0.5,
-        borderColor: 'black',
+      height: 40,
+      width: '80%',
+      marginLeft: 10,
+      borderWidth: 0.5,
+      borderColor: 'black',
     },
     input: {
-        height: 40,
-        width: '100%',
-        // borderWidth: 0.5,
-        // borderColor: 'black',
+      height: 40,
+      width: '100%',
     },
     result: {
-        flexDirection: 'row',
-        height: 40,
-        alignItems: 'center',
-        width: '100%',
-        borderColor: 'black',
-        borderLeftWidth: 0.5,
-        borderRightWidth: 0.5,
-        borderBottomWidth: 0.5,
+      flexDirection: 'row',
+      height: 40,
+      alignItems: 'center',
+      width: '100%',
+      borderColor: 'black',
+      borderLeftWidth: 0.5,
+      borderRightWidth: 0.5,
+      borderBottomWidth: 0.5,
     }
 })
 

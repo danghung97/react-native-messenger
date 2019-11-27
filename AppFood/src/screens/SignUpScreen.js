@@ -12,9 +12,10 @@ import {
 } from "react-native";
 import { connect } from 'react-redux'
 import { signup } from '../store/actions/UseAction';
-import axios from 'axios';
 import Modal from '../Component/SignUp/modal';
 import LoadingModal from '../Component/loading';
+import ApiService from '../store/axios/AxiosInstance';
+import PATH from '../store/axios/Url';
 
 class SignUp extends Component {
   constructor(props){
@@ -28,37 +29,49 @@ class SignUp extends Component {
       name: "",
     }
   }
-  requestSendEmail=()=>{
-    const { email, password, repeat_password } = this.state
-    if(email.trim() === '') {
-      alert("you should fill your email")
-      return
-    }
-    if(password.trim() === ''){
-      alert("you should fill your password")
-      return
-    }
-    if(password !== repeat_password) {
-      alert("your repeat password wrong")
-      return
-    }
-    axios.post(`https://serverappfood.herokuapp.com/api/user/sendmail`, {
-      email: this.state.email,
-    },
-    {
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-    })
-    .then(res=>{
+  requestSendEmail= async() => {
+    try{
+      const { email, password, repeat_password } = this.state
+      if(email.trim() === '') {
+        alert("you should fill your email")
+        return
+      }
+      if(password.trim() === ''){
+        alert("you should fill your password")
+        return
+      }
+      if(password !== repeat_password) {
+        alert("your repeat password wrong")
+        return
+      }
+      const response = await ApiService.post(PATH.SEND_EMAIL, {
+        email: this.state.email,
+      })
       if(res.data.status){
         this.refs['Modal'].showModal()
       }else{
         alert(res.data.message)
       }
-    })
-    .catch(err=>console.warn(err));
+    }catch (error) {
+      console.warn('send mail failed: ', error)
+    }
+    // axios.post(`https://serverappfood.herokuapp.com/api/user/sendmail`, {
+    //   email: this.state.email,
+    // },
+    // {
+    //   headers: {
+    //     Accept: 'application/json',
+    //     'Content-Type': 'application/json',
+    //   },
+    // })
+    // .then(res=>{
+    //   if(res.data.status){
+    //     this.refs['Modal'].showModal()
+    //   }else{
+    //     alert(res.data.message)
+    //   }
+    // })
+    // .catch(err=>console.warn(err));
   }
 
   requestSignUp=(code)=>{

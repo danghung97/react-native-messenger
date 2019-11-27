@@ -203,6 +203,11 @@ dependencies {
     implementation 'com.google.firebase:firebase-auth:19.1.0'
     implementation 'com.google.firebase:firebase-firestore:21.2.1'
     implementation "com.google.firebase:firebase-messaging:20.0.0"
+    implementation 'com.android.support:multidex:1.0.3'
+
+    compile 'com.android.support:appcompat-v7:21.0.0'
+
+    compile project(':WebRTCModule')
 
     if (enableHermes) {
         def hermesPath = "../../node_modules/hermes-engine/android/";
