@@ -231,22 +231,22 @@ class InputMessage extends React.PureComponent{
         mediaType: 'photo'
       }).then( async(image) => {
         try{
-        const data = new FormData();
-        let name = "image.png"
-        if(image.mime === "image/jpeg") name = "image.jpg"
-        data.append('file', {type: image.mime, uri: image.path, name})
+          const data = new FormData();
+          let name = "image.png"
+          if(image.mime === "image/jpeg") name = "image.jpg"
+          data.append('file', {type: image.mime, uri: image.path, name})
 
-        const response = await ApiService.post({
-          data
-        })
-        if(response.data.status){
-          this.sendMessage('image', res.data.link)
-        }else{
-          alert(res.data.message)
+          const response = await ApiService.post({
+            data
+          })
+          if(response.data.status){
+            this.sendMessage('image', res.data.link)
+          }else{
+            alert(res.data.message)
+          }
+        }catch (error) {
+          console.warn(error)
         }
-      }catch (error) {
-        console.warn(error)
-      }
       })
       .catch(err => {
           alert('picker image error: ' + err)

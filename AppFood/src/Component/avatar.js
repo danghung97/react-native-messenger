@@ -38,7 +38,8 @@ export default class Avatar extends Component{
             height: 300,
             cropping: true,
             mediaType: 'photo'
-        }).then(image=>{
+        }).then( async (image) => {
+          try{
             this.setState({ isVisible: false})
             const data = new FormData();
             let name = "image.png"
@@ -48,21 +49,19 @@ export default class Avatar extends Component{
                 uri: image.path,
                 name,
             })
-            Axios(`https://serverappfood.herokuapp.com/api/user/uploading`, {
-                method: "POST",
-                data,
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                    'Authorization': `Bearer ${this.props.user.token}`
-                },
-            }).then(res=>{
-                if(res.data.status){
-                    this.setState({link: res.data.link})
-                }else{
-                    alert(res.data.message)
-                }
-            }).catch(err=>console.log('err', JSON.stringify(err)))
-        }).catch(err => {
+            const response = await ApiService.post({
+              data
+            })
+            if(response.data.status){
+              this.sendMessage('image', res.data.link)
+            }else{
+              alert(res.data.message)
+            }
+          } catch (error){
+            console.warn(error)
+          }
+        })
+        .catch(err => {
             this.setState({ isVisible: false})
             alert('open image error: ' + err)
         })
@@ -74,28 +73,27 @@ export default class Avatar extends Component{
             height: 300,
             cropping: true,
             mediaType: 'photo'
-        }).then(image=>{
+        }).then( async (image) => {
+          try{
             this.setState({isVisible: false})
             const data = new FormData();
             let name = "image.png"
             if(image.mime === "image/jpeg") name = "image.jpg"
             data.append('file', {type: image.mime, uri: image.path, name})
 
-            Axios(`https://serverappfood.herokuapp.com/api/user/uploading`,{
-                method: "POST",
-                data,
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                    'Authorization': `Bearer ${this.props.user.token}`
-                  },
-            }).then(res=>{
-                if(res.data.status){
-                    this.setState({link: res.data.link})
-                }else{
-                    alert(res.data.message)
-                }
-            }).catch(err=>console.log('err', err))
-        }).catch(err => {
+            const response = await ApiService.post({
+              data
+            })
+            if(response.data.status){
+              this.sendMessage('image', res.data.link)
+            }else{
+              alert(res.data.message)
+            }
+          }catch (error) {
+            console.warn(error)
+          }
+        })
+        .catch(err => {
             this.setState({ isVisible: false})
             alert('picker image error: ' + err)
         })
