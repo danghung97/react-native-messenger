@@ -44,30 +44,30 @@ class Mess extends Component {
   }
 
   sendRequestLoadRoom= async(friend, arrMessenger) => {
-      const { user } = this.props.user
-      try{
-        const reponse = await ApiService.post(PATH.TAKE_ROOM, {
-          authid: user.ID,
-          received: friend.ID
-        })
-        if(reponse.data.status){
-          this.props.navigation.navigate("chatScreen", {
-            roomId: reponse.data.rid, 
-            friend: friend,
-            user: user,
-            initMessage: reponse.data.arrayMessage})
-          let tempArr = arrMessenger.filter(rs => rs.ID !== friend.ID)
-          
-          let temp = tempArr.concat(friend)
-          AsyncStorage.setItem("arrayMessenger", JSON.stringify(temp))
-          this.setState({arrMessenger: temp})
-        }else {
-          alert(reponse.data.message)
-        }
-        this.refs['finduser'].hideModal()
-      } catch(error) {
-          console.warn('load room failed: ', error)
+    const { user } = this.props.user
+    try{
+      const reponse = await ApiService.post(PATH.TAKE_ROOM, {
+        authid: user.ID,
+        received: friend.ID
+      })
+      if(reponse.data.status){
+        this.props.navigation.navigate("chatScreen", {
+          roomId: reponse.data.rid, 
+          friend: friend,
+          user: user,
+          initMessage: reponse.data.arrayMessage})
+        let tempArr = arrMessenger.filter(rs => rs.ID !== friend.ID)
+        
+        let temp = tempArr.concat(friend)
+        AsyncStorage.setItem("arrayMessenger", JSON.stringify(temp))
+        this.setState({arrMessenger: temp})
+      }else {
+        alert(reponse.data.message)
       }
+      this.refs['finduser'].hideModal()
+    } catch(error) {
+        console.warn('load room failed: ', error)
+    }
   }
 
   FindUser = async(mail) => {
@@ -91,32 +91,32 @@ class Mess extends Component {
     const { user } = this.props.user
     return (
       <View style={styles.container}>
-          <View style={styles.header}>
-            <TouchableOpacity style={styles.avatar} onPress={()=> this.props.navigation.navigate("ProfileScreen")}>
-                <Image style={styles.avatar} source={{uri: user.avatar}} />
-            </TouchableOpacity>
-            <Text style={styles.name}>{user.name}</Text>
-          </View>
-          <View style={{flexDirection: 'row', alignItems: 'center'}}>
-            <TextInput
-            style={{
-              width: '80%',
-              padding: 5,
-              borderRadius: 6,
-              borderWidth: 1,
-              borderColor: 'black',
-              marginLeft: 10,
-              marginTop: 10,
-            }}
-            placeholder="Email..."
-            placeholderTextColor="#F9A825"
-            onChangeText={text => this.email = text}
-            />
-            <TouchableOpacity onPress={()=>this.FindUser(this.email)} style={{marginLeft: 15}}>
-                  <Icons name="search1" size={30} />
-            </TouchableOpacity>
-          </View>
-          <FlatList
+        <View style={styles.header}>
+          <TouchableOpacity style={styles.avatar} onPress={()=> this.props.navigation.navigate("ProfileScreen")}>
+              <Image style={styles.avatar} source={{uri: user.avatar}} />
+          </TouchableOpacity>
+          <Text style={styles.name}>{user.name}</Text>
+        </View>
+        <View style={{flexDirection: 'row', alignItems: 'center'}}>
+          <TextInput
+          style={{
+            width: '80%',
+            padding: 5,
+            borderRadius: 6,
+            borderWidth: 1,
+            borderColor: 'black',
+            marginLeft: 10,
+            marginTop: 10,
+          }}
+          placeholder="Email..."
+          placeholderTextColor="#F9A825"
+          onChangeText={text => this.email = text}
+          />
+          <TouchableOpacity onPress={()=>this.FindUser(this.email)} style={{marginLeft: 15}}>
+                <Icons name="search1" size={30} />
+          </TouchableOpacity>
+        </View>
+        <FlatList
           style={{ marginTop: 10, marginLeft: 10 }}
           data={this.state.arrMessenger}
           keyExtractor={ item => `user ${item.ID}`}
@@ -136,10 +136,11 @@ class Mess extends Component {
               <View style={{height: 10}} />
             )
           }}
-          />
-        <ModalFindUser ref="finduser" 
-        goChat={this.sendRequestLoadRoom}
-        arrMessenger={this.state.arrMessenger}
+        />
+        <ModalFindUser
+          ref="finduser" 
+          goChat={this.sendRequestLoadRoom}
+          arrMessenger={this.state.arrMessenger}
         />
       </View>   
     )

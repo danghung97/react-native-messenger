@@ -19,12 +19,12 @@ type FCMdata struct {
 	Results []map[string]interface{} `json:"results"`
 }
 
-func SendNotification(token, title, body, image string, auth *Account, screen string ) (bool, error) {
+func SendNotification(token, body, image string, auth *Account, screen string ) (bool, error) {
 	requestBody, err := json.Marshal(map[string]interface{}{
 		"to": token,
 		"notification": map[string]interface{}{
 			"body" : body,
-			"title" : title,
+			"title" : auth.Email,
 			"content_available" : true,
 			"priority" : "high",
 			"android_channel_id": "appfood",
@@ -32,7 +32,7 @@ func SendNotification(token, title, body, image string, auth *Account, screen st
 		},
 		"data" : map[string]interface{}{
 			"body" : body,
-			"title" : title,
+			"title" : auth.Email,
 			"content_available" : true,
 			"priority" : "high",
 			"author": auth,

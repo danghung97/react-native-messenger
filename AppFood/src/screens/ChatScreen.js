@@ -141,22 +141,23 @@ class InputMessage extends React.PureComponent{
       }
   }
   sendMessage=(type, msg)=>{
-      if(msg.trim()===''){
-          return
-      }
-      const { authId, rid } = this.props
-      const message = {
-        uid: authId,
-        rid,
-        type_message: type,
-        message: msg,
-      }
-      try{
-          global.socket.send(JSON.stringify(message));
-      } catch (error) {
-          alert('send message failed: ' + error)
-      }
-      this.setState({msg: ""})
+    let newMessage = msg.trim()
+    if(newMessage===''){
+        return
+    }
+    const { authId, rid } = this.props
+    const message = {
+      uid: authId,
+      rid,
+      type_message: type,
+      message: newMessage,
+    }
+    try{
+        global.socket.send(JSON.stringify(message));
+    } catch (error) {
+        alert('send message failed: ' + error)
+    }
+    this.setState({msg: ""})
   }
 
   openImage = () => {

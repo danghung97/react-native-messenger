@@ -102,7 +102,7 @@ func (account *Account) Create() map[string] interface{} {
 		return u.Message(false, "Failed to create account, connection error.")
 	}
 	
-	expirationTime := time.Now().Add(12 * time.Hour)
+	expirationTime := time.Now().Add(72 * time.Hour)
 	Jti := StoreRefreshToken()
 	tk := &Token{
 		UserId: account.ID,
@@ -147,7 +147,7 @@ func Login(email, password string) map[string]interface{} {
 	
 	account.Password = ""
 	
-	expirationTime := time.Now().Add(12 * time.Hour)
+	expirationTime := time.Now().Add(72 * time.Hour)
 	Jti := StoreRefreshToken()
 	tk := &Token{
 		UserId: account.ID,

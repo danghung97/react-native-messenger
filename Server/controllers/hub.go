@@ -55,7 +55,7 @@ func (h *Hub) Run() {
 						receiver := models.Account{}
 						auth := models.Account{}
 						var err error
-						if message.UserID == room.UserId1 {
+						if client.uid == room.UserId1 && message.UserID == client.uid {
 							err = models.GetDB().Table("accounts").Where("id = ?", room.UserId2).First(&receiver).Error
 							err = models.GetDB().Table("accounts").Where("id = ?", room.UserId1).First(&auth).Error
 							if err != nil {
@@ -63,7 +63,7 @@ func (h *Hub) Run() {
 							} else {
 								requestSend(&receiver, &auth, message)
 							}
-						} else if message.UserID == room.UserId2 {
+						} else if client.uid == room.UserId2 && message.UserID == client.uid {
 							err = models.GetDB().Table("accounts").Where("id = ?", room.UserId1).First(&receiver).Error
 							err = models.GetDB().Table("accounts").Where("id = ?", room.UserId2).First(&auth).Error
 							if err != nil {
@@ -95,7 +95,7 @@ func requestSend(receiver, auth *models.Account, message *models.Messages) {
 			auth.Code = ""
 			auth.FcmToken = pq.StringArray{}
 			auth.StatusFcmTokens = pq.BoolArray{}
-			_, err := models.SendNotification(arrayFcmTokens[i], receiver.Email, message.Message, "", auth, "ChatScreen")
+			_, err := models.SendNotification(arrayFcmTokens[i], message.Message, "", auth, "ChatScreen")
 			//if err == fmt.Errorf("NotRegistered") {
 			//	//arrayFcmTokens[i] = nil
 			//	fmt.Println("deleted")
