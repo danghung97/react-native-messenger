@@ -67,16 +67,16 @@ class SignUp extends Component {
   }
 
   shouldComponentUpdate(nextProps){
-    if(nextProps.user.isSucces) {
+    if (nextProps.user.isSucces) {
       this.refs['loading'].hideModal()
       this.refs['Modal'].hideModal()
 			this.props.navigation.navigate("bottomScreen")
 			return false;
-		}else{
-			if(nextProps.user.isLoadding) this.refs['loading'].showModal()
-			if(nextProps.user.error) {
+		} else {
+			if (nextProps.user.isLoadding) this.refs['loading'].showModal()
+			if (nextProps.user.error) {
         this.refs['loading'].hideModal()
-				this.refs['Modal'].showError(nextProps.user.error)        
+				this.refs['Modal'].showError(nextProps.user.error)
 			}
 			return true;
 		}

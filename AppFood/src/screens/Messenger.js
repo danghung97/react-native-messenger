@@ -126,7 +126,7 @@ class Mess extends Component {
             return(
               <TouchableOpacity style={{flexDirection: 'row', alignItems: 'center'}} 
               onPress={()=>this.sendRequestLoadRoom(item, this.state.arrMessenger)}>
-                <Image style={{width: 50, height: 50, borderRadius: 25}} source={{uri: item.avatar}} />
+                <Image style={{ width: 50, height: 50, borderRadius: 25 }} source={{uri: item.avatar}} />
                 <Text>{item.email}</Text>
               </TouchableOpacity>
             )

@@ -70,26 +70,33 @@ class Chat extends Component {
       const showAvatar = item.index === 0 || 
       _.get(this.state.message[item.index-1], 'uid', null) !== user.ID 
       return(
-        <View style={{flexDirection: 'row', justifyContent: 'flex-end', marginBottom: 10}}>
+        <View style={{flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'flex-end', marginBottom: 10}}>
           {item.item.type_message === 'image' ? 
           <Image style={{width: 200, height: 150}} source={{uri: item.item.message}} resizeMode="cover" /> :
-          <View style={[styles.box, {backgroundColor: "#C1EEF7"}]}>
+          <View style={[styles.box, {backgroundColor: "#C1EEF7", borderBottomRightRadius: showAvatar ? 0 : 4}]}>
             <Text style={{color: 'black'}}>{item.item.message}</Text>
           </View>}
-          {showAvatar ? <Image style={[styles.avatar, {marginLeft: 10}]}
-            source={{uri: user.avatar}} /> : <View style={{width: 30, height: 30, marginLeft: 10}} /> }
+          {showAvatar && <View style={[ styles.triangleCorner, {borderTopColor: '#C1EEF7'} ]} />}
+          {showAvatar && <Image style={[ styles.avatar ]}
+            source={{ uri: user.avatar }} />}
+          {!showAvatar && <View style={{ width: 30, height: 30, marginLeft: 10 }} />}
         </View>
       )
     }else {
       const showAvatar = item.index === 0 || 
       _.get(this.state.message[item.index-1], 'uid', null) === user.ID
       return(
-        <View style={{flexDirection: 'row', justifyContent: 'flex-start', marginBottom: 10}}>
-          {showAvatar ? <Image style={[styles.avatar, {marginRight: 10}]} 
-            source = {{ uri }} /> : <View style={{width: 30, height: 30, marginRight: 10}} /> }
+        <View style={{flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'flex-end', marginBottom: 10}}>
+          {showAvatar && <Image style={[ styles.avatar ]} 
+            source = {{ uri }} />}
+          {showAvatar && <View style={[ styles.triangleCorner, 
+            {borderTopColor: '#fff', transform: [
+              {rotate: '180deg'}
+            ]} ]} />}
+          {!showAvatar && <View style={{width: 30, height: 30, marginRight: 10}} /> }
           {item.item.type_message === 'image' ? 
           <Image style={{width: 200, height: 150}} source={{uri: item.item.message}} resizeMode="cover" /> :
-          <View style = {[styles.box, {backgroundColor: '#fff'}]} >
+          <View style = {[styles.box, {backgroundColor: '#fff', borderBottomLeftRadius: showAvatar ? 0 : 4}]} >
             <Text style={{color: 'black'}}> {item.item.message} </Text>
           </View>}
         </View>
@@ -263,76 +270,93 @@ class InputMessage extends React.PureComponent{
 }
 
 const styles = StyleSheet.create({
-    container : {
-        width: '100%',
-        height: '100%',
-        backgroundColor: '#fff'
+  container : {
+    width: '100%',
+    height: '100%',
+    backgroundColor: '#fff'
+  },
+  header: {
+    padding: 15,
+    width: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderBottomWidth: 0.5,
+    justifyContent: 'space-between',
+    shadowColor: "#000",
+    shadowOffset: {
+        width: 0,
+        height: 2,
     },
-    header: {
-        padding: 15,
-        width: '100%',
-        flexDirection: 'row',
-        alignItems: 'center',
-        borderBottomWidth: 0.5,
-        justifyContent: 'space-between',
-        shadowColor: "#000",
-        shadowOffset: {
-            width: 0,
-            height: 2,
-        },
-        shadowOpacity: 0.25,
-        shadowRadius: 3.84,
-        backgroundColor: '#FFFFFF',
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    backgroundColor: '#FFFFFF',
 
-        elevation: 5,
-    },
-    avatar: {
-        width: 30,
-        height: 30,
-        borderRadius: 15,
-        borderWidth: 0.5, 
-        borderColor: '#FFF',
-        alignSelf: 'flex-end'
-    },
-    name: {
-        fontSize: 10,
-        lineHeight: 12,
-        fontWeight: '800',
-        marginLeft: 20
-    },
-    content: {
-        width: '100%',
-        // height: 400,
-        // flex: 1,
-        backgroundColor: '#E5E5E5',
-    },
-    send: {
-        width: '100%',
-        padding: 10,
-        borderTopWidth: 0.5,
-        height: 70,
-        flexDirection: 'row',
-        alignItems: 'center'
-    },
-    input: {
-        height: 44,
-        width: "80%",
-        borderRadius: 10,
-        justifyContent: 'center',
-        alignItems: 'center',
-        borderWidth: 1,
-        borderColor: '#404040',
-        marginLeft: 10
-    },
-    box: {
-        borderWidth: 1,
-        borderColor: 'black', 
-        borderRadius: 4,
-        maxWidth: Dimensions.get('screen').width * 0.6, 
-        paddingHorizontal: 7,
-        paddingVertical: 10, 
-        minWidth: 20
-    }
+    elevation: 5,
+  },
+  avatar: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    borderWidth: 0.5, 
+    borderColor: '#FFF',
+    alignSelf: 'flex-end'
+  },
+  name: {
+    fontSize: 10,
+    lineHeight: 12,
+    fontWeight: '800',
+    marginLeft: 20
+  },
+  content: {
+    width: '100%',
+    // height: 400,
+    // flex: 1,
+    backgroundColor: '#E5E5E5',
+  },
+  send: {
+    width: '100%',
+    padding: 10,
+    borderTopWidth: 0.5,
+    height: 70,
+    flexDirection: 'row',
+    alignItems: 'center'
+  },
+  input: {
+    height: 44,
+    width: "80%",
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#404040',
+    marginLeft: 10
+  },
+  box: {
+    // borderWidth: 1,
+    // borderColor: 'black', 
+    // borderRadius: 4,
+    borderBottomLeftRadius: 4,
+    borderBottomRightRadius: 4,
+    borderTopLeftRadius: 4,
+    borderTopRightRadius: 4,
+    maxWidth: Dimensions.get('screen').width * 0.6, 
+    paddingHorizontal: 7,
+    paddingVertical: 10, 
+    minWidth: 20
+  }, 
+  triangleCorner: {
+    width: 0,
+    height: 0,
+    backgroundColor: 'transparent',
+    borderStyle: 'solid',
+    borderRightWidth: 10,
+    borderTopWidth: 10,
+    borderRightColor: 'transparent',
+    transform: [
+      {rotate: '270deg'}
+    ]
+    // borderTopColor: 'red'
+  },
 })
 
 const mapStateToProps = state => {

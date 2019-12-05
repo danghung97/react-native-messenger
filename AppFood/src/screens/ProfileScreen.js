@@ -37,34 +37,34 @@ class ProfileScreen extends Component{
         <View style={styles.part1} />
         <View style={styles.avatar}>
           <Avatar 
-          user={this.props.user.user} 
-          uri={avatar} 
-          navigation={this.props.navigation}
+            user={this.props.user.user} 
+            uri={avatar} 
+            navigation={this.props.navigation}
           />
         </View>
         <View style={styles.containerInput}>
           <View style={styles.rectangle}>
             <Text style={styles.Text}>Name: </Text>
             {!!name && <Text style={styles.Text}>
-                {name}
+              {name}
             </Text>}
           </View>
           <View style={styles.rectangle}>
             <Text style={styles.Text}>Address: </Text>
             {!!address && <Text style={styles.Text}>
-                {address}
+              {address}
             </Text>}
           </View>
           <View style={styles.rectangle}>
             <Text style={styles.Text}>Number phone: </Text>
             {!!phone && <Text style={styles.Text}>
-            {phone}
+              {phone}
             </Text>}
           </View>
           <View style={styles.rectangle}>
             <Text style={styles.Text}>Email: </Text>
             {!!email && <Text style={styles.Text}>
-            {email}
+              {email}
             </Text>}
           </View>
         </View>
