@@ -186,14 +186,15 @@ class InputMessage extends React.PureComponent{
           type: image.mime,
           uri: image.path,
           name,
+          filename :'imageName.jpg'
         })
         const response = await ApiService.post(PATH.UPLOADING, {
           data
         })
         if(response.data.status){
-          this.sendMessage('image', res.data.link)
+          this.sendMessage('image', response.data.link)
         }else{
-          alert(res.data.message)
+          alert(response.data.message)
         }
       }catch (error) {
         console.warn(error)
@@ -220,11 +221,13 @@ class InputMessage extends React.PureComponent{
 
           const response = await ApiService.post(PATH.UPLOADING, {
             data
-          })
+          }, {headers: {
+            'content-type': `multipart/form-data; boundary=${data._boundary}`,
+          }})
           if(response.data.status){
-            this.sendMessage('image', res.data.link)
+            this.sendMessage('image', response.data.link)
           }else{
-            alert(res.data.message)
+            alert(response.data.message)
           }
         }catch (error) {
           console.warn(error)
