@@ -80,7 +80,7 @@ func (sender *Sender) WritePlainEmail(dest []string, subject, bodyMessage string
 	return sender.WriteEmail(dest, "text/plain", subject, bodyMessage)
 }
 
-func email(receivers string, code string) (bool, string){
+func Email(receivers string, code string) (bool, string){
 	sender := NewSender(os.Getenv("email"), os.Getenv("pwemail"))
 
 	Receiver := []string{receivers}

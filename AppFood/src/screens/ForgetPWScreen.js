@@ -9,7 +9,6 @@ import{
     TouchableOpacity,
     TextInput
 } from 'react-native';
-// import Icons from 'react-native-vector-icons/AntDesign';
 import Modal from '../Component/SignUp/modal';
 
 export default class ForgetPW extends Component{
@@ -49,7 +48,7 @@ export default class ForgetPW extends Component{
       <View>
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <ImageBackground
-          source={require('../Image/background.png')}
+          source={require('../Assets/Image/background.png')}
           style={styles.container}
           >
             <View style={{ width: "90%" }}>

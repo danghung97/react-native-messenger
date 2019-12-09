@@ -9,7 +9,6 @@ import {
     FlatList,
     AsyncStorage
 } from 'react-native';
-// import Icons from "react-native-vector-icons/AntDesign";
 import ApiService from '../store/axios/AxiosInstance';
 import PATH from '../store/axios/Url';
 import { connect } from 'react-redux';

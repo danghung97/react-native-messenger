@@ -4,10 +4,10 @@ import (
 	"Server/app"
 	"Server/controllers"
 	"Server/models"
+	"Server/utils"
 	
-	//socketio "github.com/googollee/go-socket.io"
 	"github.com/gorilla/mux"
-	_ "github.com/jinzhu/gorm/dialects/postgres"
+	//_ "github.com/jinzhu/gorm/dialects/postgres"
 	"log"
 	"net/http"
 	"os"
@@ -25,7 +25,13 @@ func main(){
 	router.HandleFunc("/api/user/login", controllers.Authenticate).Methods("POST")
 	router.HandleFunc("/api/user/sendmail", controllers.SendEmail).Methods("POST")
 	router.HandleFunc("/api/user/logout", controllers.Logout).Methods("POST")
-	router.HandleFunc("/api/user/uploading", controllers.Uploads).Methods("POST")
+	router.HandleFunc("/api/user/update-avatar", controllers.UpdateAvatar).Methods("POST")
+	router.HandleFunc("/api/user/uploading", func(w http.ResponseWriter, r *http.Request){
+		isSuccess, link, message := controllers.Uploads(r)
+		resp := utils.Message(isSuccess, message)
+		resp["link"] = link
+		utils.Respond(w, resp)
+	}).Methods("POST")
 	router.HandleFunc("/api/user/taken", controllers.TakeInfoAccount).Methods("GET")
 	router.HandleFunc("/api/load-more-message", models.LoadMoreMessage).Methods("POST")
 	router.HandleFunc("/api/loadroom", controllers.LoadRoom).Methods("POST")

@@ -12,11 +12,14 @@ import {
 
 import Icons from 'react-native-vector-icons/Feather';
 import Icons1 from 'react-native-vector-icons/AntDesign';
+import Icons2 from 'react-native-vector-icons/FontAwesome';
+import Icons3 from 'react-native-vector-icons/Ionicons';
 import _ from 'lodash';
 import ImagePicker from 'react-native-image-crop-picker';
 import { connect } from 'react-redux';
 import ApiService from '../store/axios/AxiosInstance';
 import PATH from '../store/axios/Url';
+import SoundRecord from './ChatComponent/SoundPlayer';
 
 class Chat extends Component {
   constructor(props){
@@ -24,6 +27,7 @@ class Chat extends Component {
     this.state = {
       message: props.navigation.getParam('initMessage') || [],
       Offset: 2,
+      isRecord: false,
     }
     this.rid = props.navigation.getParam('roomId')
   }
@@ -183,7 +187,7 @@ class InputMessage extends React.PureComponent{
           uri: image.path,
           name,
         })
-        const response = await ApiService.post({
+        const response = await ApiService.post(PATH.UPLOADING, {
           data
         })
         if(response.data.status){
@@ -214,7 +218,7 @@ class InputMessage extends React.PureComponent{
           if(image.mime === "image/jpeg") name = "image.jpg"
           data.append('file', {type: image.mime, uri: image.path, name})
 
-          const response = await ApiService.post({
+          const response = await ApiService.post(PATH.UPLOADING, {
             data
           })
           if(response.data.status){
@@ -230,8 +234,12 @@ class InputMessage extends React.PureComponent{
           alert('picker image error: ' + err)
       })
   }
+  closeRecord = () => {
+    this.setState({ isRecord: false })
+  }
   render(){
     const { authId, rid } = this.props
+    const { isRecord } = this.state
     return(
       <View>
         <View style={{flexDirection: 'row', paddingHorizontal: 10, paddingVertical: 5}}>
@@ -241,29 +249,33 @@ class InputMessage extends React.PureComponent{
           <TouchableOpacity onPress={() => this.pickerImage()}>
             <Icons1 name="picture" size={25} style={{marginLeft: 10}} />
           </TouchableOpacity>
+          <TouchableOpacity onPress={() => this.setState({ isRecord: !isRecord })}>
+            <Icons2 name="microphone" size={25} style={{marginLeft: 10}} />
+          </TouchableOpacity>
           <TouchableOpacity onPress={() => this.requestCall()}>
             <Icons name="phone-call" size={25} style={{marginLeft: 10}} />
           </TouchableOpacity>
           <TouchableOpacity onPress={() => 
-          this.props.navigation.navigate('VideoCallScreen', {
-            userId: authId,
-            rid
+            this.props.navigation.navigate('VideoCallScreen', {
+              userId: authId,
+              rid
           })}>
             <Icons1 name="videocamera" size={25} style={{marginLeft: 10}} />
           </TouchableOpacity>
         </View>
         <View style={{borderWidth: 1, borderColor: '#9FF7EF'}} />
-        <View style={styles.send}>
+        {!isRecord ? <View style={styles.send}>
           <TextInput
-          value={this.state.msg}
-          placeholder="message"
-          onChangeText={text => this.setState({msg: text})}
-          style={styles.input}
+            value={this.state.msg}
+            placeholder="message"
+            onChangeText={text => this.setState({msg: text})}
+            style={styles.input}
           />
           <TouchableOpacity onPress={()=>this.sendMessage('text', this.state.msg)} style={{marginLeft: 15}}>
-            <Icons name="send" size={25} />
+            <Icons3 name="md-send" size={30} />
           </TouchableOpacity>
-        </View>
+        </View> 
+        : <SoundRecord closeRecord={this.closeRecord} />}
       </View>
     )
   }

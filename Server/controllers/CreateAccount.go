@@ -49,13 +49,17 @@ var SendEmail = func(w http.ResponseWriter, r *http.Request){
 	}
 
 	randomString := help.GenerateString(6)
-	check , message:= email(account.Email, randomString)
+	ok, msg := account.CreateFakeAccount(randomString)
+	if !ok {
+		utils.Respond(w, utils.Message(false, msg))
+		return
+	}
+	check, message:= Email(account.Email, randomString)
 	if !check {
 		utils.Respond(w, utils.Message(false, message))
 		return
 	}
-	resp := account.CreateFakeAccount(randomString)
-	utils.Respond(w, resp)
+	utils.Respond(w, utils.Message(true, "check your email to take your code"))
 }
 
 var TakeInfoAccount = func(w http.ResponseWriter, r *http.Request){

@@ -6,6 +6,7 @@ const LOG_OUT = "api/user/logout"
 const FIND_USER = "api/user/find"
 const LOAD_MORE_MSG = "api/load-more-message"
 const UPLOADING = "api/user/uploading"
+const UPDATE_AVATAR = "api/user/update-avatar"
 
 export default PATH = {
     SIGN_UP,
@@ -15,5 +16,6 @@ export default PATH = {
     LOG_OUT,
     FIND_USER,
     LOAD_MORE_MSG,
-    UPLOADING
+    UPLOADING,
+    UPDATE_AVATAR
 }
