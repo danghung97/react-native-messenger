@@ -41,8 +41,8 @@ class Login extends Component {
 	}
 	SendRequestLogin = ()=>{
 		this.props.login({
-			email: this.email,
-			password: this.password
+			email: this.email.trim(),
+			password: this.password.trim(),
 		})
 	}
 	

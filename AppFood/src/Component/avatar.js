@@ -52,7 +52,6 @@ export default class Avatar extends Component{
           data
         })
         if(response.data.status){
-          this.sendMessage('image', res.data.link)
         }else{
           alert(res.data.message)
         }
@@ -84,7 +83,6 @@ export default class Avatar extends Component{
           data
         })
         if(response.data.status){
-          this.sendMessage('image', res.data.link)
         }else{
           alert(res.data.message)
         }

@@ -73,6 +73,7 @@ class RecordAudio extends Component {
             alignItems: 'center' }}>
               <Icons2 name="microphone" size={50} />
           </View>}
+          {title === 'PLAY' && <Text>play</Text>}
         </TouchableOpacity>
       );
     }
@@ -145,7 +146,7 @@ class RecordAudio extends Component {
       // These timeouts are a hacky workaround for some issues with react-native-sound.
       // See https://github.com/zmxv/react-native-sound/issues/89.
       setTimeout(() => {
-        var sound = new Sound(this.state.audioPath, '', (error) => {
+        var sound = new Sound(require('./photograph.mp3'), '', (error) => {
           if (error) {
             console.warn('failed to load the sound', error);
           }
@@ -159,7 +160,7 @@ class RecordAudio extends Component {
               console.warn('playback failed due to audio decoding errors');
             }
           });
-        }, 100);f
+        }, 100);
       }, 100);
     }
 
@@ -202,6 +203,7 @@ class RecordAudio extends Component {
             alignItems: 'center',
             flexDirection: 'row',
           }}>
+            {this._renderButton("PLAY", () => {this._play()} )}
             {this._renderButton("STOP", () => {this._send()} )}
             {this._renderButton("RECORD", () => {this._record()}, this.state.recording )}
             {/* {this._renderButton("PAUSE", () => {this._pause()} )} */}

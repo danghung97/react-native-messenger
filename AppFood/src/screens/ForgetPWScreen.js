@@ -10,39 +10,54 @@ import{
     TextInput
 } from 'react-native';
 import Modal from '../Component/SignUp/modal';
+import ApiService from '../store/axios/AxiosInstance';
+import PATH from '../store/axios/Url';
 
 export default class ForgetPW extends Component{
-    constructor(props){
-        super(props);
-        this.state={
-            email: '',
-            new_password: '',
-            repeatNew_pw: '',
-        }
+  constructor(props){
+    super(props);
+    this.state={
+      email: '',
+      new_password: '',
+      repeatNew_pw: '',
     }
+  }
 
-    requestSendEmail=()=>{
-        //check email password roi moi gui request
-        //
-        axios.post(`https://serverappfood.herokuapp.com/api/user/sendemail`, {
-            email: this.state.email,
-        },
-        {
-        headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
-        },
-        })
-        .then(res=>{
-        if(res.data.status){
-            this.setState({isVisible: true})
-        }
-        })
-        .catch(err=>console.warn(err));
+  requestSendEmail= async() => {
+    try{
+      const { email, new_password, repeatNew_pw } = this.state
+      if (new_password.trim() !== repeatNew_pw.trim()) {
+        alert("your repeat password wrong")
+        return
+      }
+      const response = await ApiService.post(PATH.SEND_EMAIL, {
+        email: email.trim(),
+      })
+      this.refs['loading'].hideModal()
+      if( response.data && response.data.status){
+        this.refs['Modal'].showModal()
+      }else{
+        alert(response.data.message)
+      }
     }
-    requestRfPW=(code)=>{
-
+    catch(err) { console.warn(err) }
+  }
+  requestForgetPW= async(code) => {
+    try{
+      const { email, new_password } = this.state
+      const response = await ApiService.post(PATH.SEND_EMAIL, {
+        email: email.trim(),
+        password: new_password.trim(),
+        code,
+      })
+      if (response.data.status) {
+        alert("Your password has changed")
+        return
+      }
+      alert(response.data.message)
     }
+    catch(err) { console.warn(err) }
+  }
   render(){
     return(
       <View>
@@ -99,8 +114,8 @@ export default class ForgetPW extends Component{
           </ImageBackground>
         </TouchableWithoutFeedback>
         <Modal
-            ref="Modal"
-            request={this.requestRfPW}
+          ref="Modal"
+          request={this.requestForgetPW}
         />
       </View>
     )
@@ -108,51 +123,51 @@ export default class ForgetPW extends Component{
 }
 
 const styles = StyleSheet.create({
-    container: {
-        width: "100%",
-        height: "100%",
-        justifyContent: 'center',
-        alignItems: 'center'
-    },
-    block: {
-        width: '100%',
-        backgroundColor: "#4C4C4C",
-        borderRadius: 20,
-        alignItems: 'center',
-        marginTop: 25
-    },
-    input: {
-        height: 44,
-        width: '90%',
-        backgroundColor: '#fff',
-        borderRadius: 8,
-        justifyContent: "center",
-        alignItems: "center",
-        marginTop: 25
-    },
-    buttonsignin: {
-        width: "90%",
-        height: 44,
-        borderWidth: 1,
-        borderColor: "#F9A825",
-        borderRadius: 100,
-        justifyContent: "center",
-        alignItems: "center",
-        marginTop: 16,
-    },
-    textsignin: {
-        fontFamily: "Roboto",
-        fontStyle: "normal",
-        fontWeight: "500",
-        fontSize: 14,
-        lineHeight: 16,
-        color: '#F9A825'
-    },
-    group: {
-        width: '90%',
-        flexDirection: "row",
-        justifyContent: "space-between",
-        marginTop: 23,
-        marginBottom: 23,
-    },
+  container: {
+    width: "100%",
+    height: "100%",
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  block: {
+    width: '100%',
+    backgroundColor: "#4C4C4C",
+    borderRadius: 20,
+    alignItems: 'center',
+    marginTop: 25
+  },
+  input: {
+    height: 44,
+    width: '90%',
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 25
+  },
+  buttonsignin: {
+    width: "90%",
+    height: 44,
+    borderWidth: 1,
+    borderColor: "#F9A825",
+    borderRadius: 100,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 16,
+  },
+  textsignin: {
+    fontFamily: "Roboto",
+    fontStyle: "normal",
+    fontWeight: "500",
+    fontSize: 14,
+    lineHeight: 16,
+    color: '#F9A825'
+  },
+  group: {
+    width: '90%',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 23,
+    marginBottom: 23,
+  },
 })

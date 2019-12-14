@@ -11,6 +11,7 @@ import { createBottomTabNavigator } from 'react-navigation-tabs';
 import { createDrawerNavigator } from 'react-navigation-drawer'
 import ImageZoom from '../Component/ImageZoom';
 import FooterTab from '../Component/Footertab';
+import Caro from '../screens/Game/Caro'
 
 const BottomNavigator = createBottomTabNavigator(
   {
@@ -43,7 +44,8 @@ const stackNavigator = createStackNavigator(
     drawer: DrawerNavigator,
     ImageZoomScreen: ImageZoom,
     VideoCallScreen: VideoCall,
-    SoundPlayerScreen: SoundPlayer
+    SoundPlayerScreen: SoundPlayer,
+    CaroScreen: Caro,
   },
   { headerMode: 'none', navigationOptions: { headerVisible: false } }
 );

@@ -40,13 +40,13 @@ class SignUp extends Component {
         alert("you should fill your password")
         return
       }
-      if(password !== repeat_password) {
+      if(password.trim() !== repeat_password.trim()) {
         alert("your repeat password wrong")
         return
       }
-      this.refs['loading'].hideModal()
+      this.refs['loading'].showModal()
       const response = await ApiService.post(PATH.SEND_EMAIL, {
-        email: this.state.email,
+        email: email.trim(),
       })
       this.refs['loading'].hideModal()
       if(response.data.status){
@@ -62,12 +62,12 @@ class SignUp extends Component {
   requestSignUp=(code)=>{
     const { email, password, name, phone, address } = this.state
     this.props.signup({
-      email,
-      code,
-      password,
-      name,
-      phone,
-      address,
+      email: email.trim(),
+      code: code.trim(),
+      password: password.trim(),
+      name: name.trim(),
+      phone: phone.trim(),
+      address: address.trim(),
     })
   }
 
