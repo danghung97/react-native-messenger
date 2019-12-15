@@ -240,7 +240,7 @@ class Chat extends Component {
           showsVerticalScrollIndicator={false}
           removeClippedSubviews
           renderItem={item => this.renderItem(item, this.friend.avatar)}
-          onEndReached={this.loadMoreMessage()}
+          onEndReached={()=>this.loadMoreMessage()}
           onEndReachedThreshold={0.1}
         />
         <View>

@@ -3,9 +3,12 @@ package controllers
 import (
 	"Server/models"
 	"encoding/json"
+	"fmt"
 	"github.com/jinzhu/gorm"
 	"github.com/lib/pq"
 	"log"
+	"strconv"
+	"strings"
 )
 
 type Hub struct {
@@ -44,14 +47,44 @@ func (h *Hub) Run() {
 		case message := <-h.broadcast:
 			room := &models.Rooms{}
 			
+			// có nên gửi userId1, userId2 từ client lên ko? ko mất công giảm query, sendMessage nhanh hơn
 			err := models.GetDB().Table("rooms").Where("id = ?", message.RoomID).First(room).Error
 			if err != nil && err != gorm.ErrRecordNotFound {
 				//return u.Message(false, "Connection error. Please retry")
 			}
+			if message.TypeMessage == "playing" {
+				splited := strings.Split(message.Message, " ")
+				posX, err := strconv.Atoi(splited[0])
+				posY, err := strconv.Atoi(splited[1])
+				if err!= nil {
+					message.Message = "Undefined position"
+					return
+				}
+				var turn string
+				if message.UserID == room.UserId1 {
+					turn = "X"
+				} else {
+					turn = "O"
+				}
+				models.UpdateBoardChess(message.RoomID, posX, posY, turn)
+				isWin := CheckWin(posX, posY, models.GetBoarChess(message.RoomID))
+				if isWin {
+					models.DeleteBoardChess(message.RoomID)
+					message.Message = fmt.Sprintf("%s %s", message.Message, "win")
+				}else {
+					message.Message = fmt.Sprintf("%s %s", message.Message, "not_over")
+				}
+			} else if message.TypeMessage == "play_game" {
+				if message.Message == "Accept" {
+					models.CreateBoardChess(message.RoomID)
+				}
+			}
 			
 			for client := range h.clients {
 				if client.uid == room.UserId1 || client.uid == room.UserId2 {
-					if message.TypeMessage == "text" || message.TypeMessage == "image" {
+					switch message.TypeMessage {
+					case "text":
+					case "image":
 						receiver := models.Account{}
 						auth := models.Account{}
 						var err error
@@ -72,6 +105,9 @@ func (h *Hub) Run() {
 								requestSend(&receiver, &auth, message)
 							}
 						}
+						break
+					default:
+						break
 					}
 					m, _ := json.Marshal(message)
 					select {
@@ -107,5 +143,113 @@ func requestSend(receiver, auth *models.Account, message *models.Messages) {
 			}
 			
 		}
+	}
+}
+
+// check only in the latest position
+func CheckWin(posX, posY int, boardChess [20][15]string) (isWin bool) {
+	value := boardChess[posX][posY]
+	// check ngang
+	tempX := posX
+	tempY := posY
+	dem := 0
+	for tempY >= 0 { // dem qua trai
+		if boardChess[posX][tempY] != value {
+			break
+		}else{
+			dem++
+		}
+		tempY--
+	}
+	for tempY <= 15 { // check qua phai
+		if boardChess[posX][tempY] != value {
+			break
+		}else{
+			dem++
+		}
+		tempY++
+	}
+	if dem >=5 {
+		return true
+	} else {
+		tempY = posY
+		dem = 0
+	}
+	// check doc
+	for tempX >= 0 { // check len tren
+		if boardChess[tempX][posY] != value {
+			break
+		}else{
+			dem++
+		}
+		tempX--
+	}
+	for tempX <= 20 { // check xuong duoi
+		if boardChess[tempX][posY] != value {
+			break
+		}else{
+			dem++
+		}
+		tempX++
+	}
+	if dem >=5 {
+		return true
+	} else {
+		tempX = posX
+		dem = 0
+	}
+	// check cheo 1
+	for tempX >=0 && tempY >= 0 { //check cheo len ben trai
+		if boardChess[tempX][posY] != value {
+			break
+		} else {
+			dem++
+		}
+		tempX--
+		tempY--
+	}
+	tempX = posX
+	tempY = posY
+	for tempX <= 20 && tempY <=15 { //check cheo xuong ben phai
+		if boardChess[tempX][tempY] != value {
+			break
+		} else {
+			dem++
+		}
+		tempX++
+		tempY++
+	}
+	tempX = posX
+	tempY = posY
+	if dem >=5 {
+		return true
+	} else {
+		dem = 0
+	}
+	//check cheo 2
+	for tempX >= 0 && tempY <= 15 { // cheo len ben phai
+		if boardChess[tempX][tempY] != value {
+			break
+		} else {
+			dem++
+		}
+		tempX--
+		tempY++
+	}
+	tempX = posX
+	tempY = posY
+	for tempX <= 20 && tempY >= 0 {// cheo xuong ben trai
+		if boardChess[tempX][tempY] != value {
+			break
+		} else {
+			dem++
+		}
+		tempX++
+		tempY--
+	}
+	if dem >= 5 {
+		return true
+	} else {
+		return false
 	}
 }

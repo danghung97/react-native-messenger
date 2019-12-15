@@ -17,11 +17,11 @@ var CreateAccount = func(w http.ResponseWriter, r *http.Request){
 		return
 	}
 
-	//check, message := account.Verify(account.Code)
-	//if !check {
-	//	utils.Respond(w, utils.Message(false, message))
-	//	return
-	//}
+	check, message := account.Verify(account.Code)
+	if !check {
+		utils.Respond(w, utils.Message(false, message))
+		return
+	}
 
 	resp := account.Create()
 	utils.Respond(w, resp)
