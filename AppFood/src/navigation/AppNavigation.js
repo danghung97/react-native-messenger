@@ -4,12 +4,14 @@ import Profile from '../screens/ProfileScreen';
 import Mess from '../screens/Messenger';
 import Chat from '../screens/ChatScreen';
 import VideoCall from '../screens/ChatComponent/VideoCall';
+import SoundPlayer from '../screens/ChatComponent/SoundPlayer';
 import { createAppContainer } from 'react-navigation';
 import { createStackNavigator } from 'react-navigation-stack';
 import { createBottomTabNavigator } from 'react-navigation-tabs';
 import { createDrawerNavigator } from 'react-navigation-drawer'
 import ImageZoom from '../Component/ImageZoom';
 import FooterTab from '../Component/Footertab';
+import Caro from '../screens/Game/Caro'
 
 const BottomNavigator = createBottomTabNavigator(
   {
@@ -41,7 +43,9 @@ const stackNavigator = createStackNavigator(
     chatScreen: Chat,
     drawer: DrawerNavigator,
     ImageZoomScreen: ImageZoom,
-    VideoCallScreen: VideoCall
+    VideoCallScreen: VideoCall,
+    SoundPlayerScreen: SoundPlayer,
+    CaroScreen: Caro,
   },
   { headerMode: 'none', navigationOptions: { headerVisible: false } }
 );

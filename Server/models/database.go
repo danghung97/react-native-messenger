@@ -8,15 +8,25 @@ import (
 	"os"
 )
 
-var db *gorm.DB
-
+var db *gorm.DB // my db
+const (
+	row = 20
+	column = 15
+)
 var refreshTokens map[string]string
+var boardChessOfRoom map[uint]interface{} // save board Chess of rooms
+var boardChess = [row][column]string{} // board chess
 
 func init(){
 	//e := godotenv.Load()
 	//if e!=nil{
 	//	fmt.Print(e)
 	//}
+	for i := 0; i<20; i++ {
+		for j := 0; j< 15; j++ {
+			boardChess[i][j] = " "
+		}
+	}
 
 	username := os.Getenv("db_user")
 	password := os.Getenv("db_pass")
@@ -42,6 +52,31 @@ func init(){
 
 func GetDB() *gorm.DB{
 	return db
+}
+
+func CreateBoardChess(roomId uint) {
+	boardChessOfRoom[roomId] = boardChess
+}
+
+func GetBoarChess(roomId uint) [row][column]string{
+	return boardChessOfRoom[roomId].([row][column]string)
+}
+
+func UpdateBoardChess(roomId uint, posX, posY int, turn string) {
+	if boardChessOfRoom[roomId] == "" {
+		CreateBoardChess(roomId)
+	}
+	bc := boardChessOfRoom[roomId].([row][column]string)
+	bc[posX][posY] = turn
+	boardChessOfRoom[roomId] = bc
+}
+
+func DeleteBoardChess(roomId uint) {
+	delete(boardChessOfRoom, roomId)
+}
+
+func InitBoardChess() {
+	boardChessOfRoom = make(map[uint]interface{})
 }
 
 func InitDBToken() {

@@ -40,17 +40,19 @@ class SignUp extends Component {
         alert("you should fill your password")
         return
       }
-      if(password !== repeat_password) {
+      if(password.trim() !== repeat_password.trim()) {
         alert("your repeat password wrong")
         return
       }
+      this.refs['loading'].showModal()
       const response = await ApiService.post(PATH.SEND_EMAIL, {
-        email: this.state.email,
+        email: email.trim(),
       })
-      if(res.data.status){
+      this.refs['loading'].hideModal()
+      if(response.data.status){
         this.refs['Modal'].showModal()
       }else{
-        alert(res.data.message)
+        alert(response.data.message)
       }
     }catch (error) {
       console.warn('send mail failed: ', error)
@@ -58,11 +60,14 @@ class SignUp extends Component {
   }
 
   requestSignUp=(code)=>{
+    const { email, password, name, phone, address } = this.state
     this.props.signup({
-      email: this.state.email,
-      code,
-      password: this.state.password,
-      name: this.state.name,
+      email: email.trim(),
+      code: code.trim(),
+      password: password.trim(),
+      name: name.trim(),
+      phone: phone.trim(),
+      address: address.trim(),
     })
   }
 
@@ -88,7 +93,7 @@ class SignUp extends Component {
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <ImageBackground
             style={styles.container}
-            source={require("../Image/background.png")}
+            source={require("../Assets/Image/background.png")}
           >
             <View style={{ width: "90%" }}>
               <Text style={styles.title}>SIGN UP</Text>

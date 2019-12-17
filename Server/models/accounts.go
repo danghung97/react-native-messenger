@@ -59,24 +59,24 @@ func validateFunc(account *FakeAccount) error{
 	return nil
 }
 
-func (account *FakeAccount) CreateFakeAccount(code string) map[string] interface{} {
+func (account *FakeAccount) CreateFakeAccount(code string) (bool, string) {
 	temp := &FakeAccount{}
 	var err error
 	err = GetDB().Table("accounts").Where("email = ?", account.Email).First(temp).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
-		return u.Message(false, "Connection error. Please retry")
+		return false, "Connection error. Please retry"
 	}
 	if temp.Email != "" {
-		return u.Message(false, "Email address already in use by another user.")
+		return false, "Email address already in use by another user."
 	}
 	err = GetDB().Table("fake_accounts").Where("email = ?", account.Email).First(temp).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
-		return u.Message(false, "Connection error. Please retry")
+		return false, "Connection error. Please retry"
 	}
 	validate = validator.New()
 	err = validateFunc(account)
 	if err!=nil {
-		return u.Message(false, err.Error())
+		return false, err.Error()
 	}
 	if temp.Email != "" {
 		GetDB().Model(&account).Update("Code", code)
@@ -85,9 +85,9 @@ func (account *FakeAccount) CreateFakeAccount(code string) map[string] interface
 		account.Code = code
 		GetDB().Create(account)
 	}
-	resp := u.Message(true, "check your email to take your code")
+	//resp := u.Message(true, "check your email to take your code")
 	//resp["fake account"] = account
-	return resp
+	return true, ""
 }
 
 

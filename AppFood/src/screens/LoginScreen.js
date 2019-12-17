@@ -41,8 +41,8 @@ class Login extends Component {
 	}
 	SendRequestLogin = ()=>{
 		this.props.login({
-			email: this.email,
-			password: this.password
+			email: this.email.trim(),
+			password: this.password.trim(),
 		})
 	}
 	
@@ -51,7 +51,7 @@ class Login extends Component {
 			<View>
 			<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
 				<ImageBackground
-					source={require('../Image/background.png')}
+					source={require('../Assets/Image/background.png')}
 					style={styles.container}
 				>
 					<View style={{ width: "90%", alignSelf: "center", marginBottom: 30 }}>

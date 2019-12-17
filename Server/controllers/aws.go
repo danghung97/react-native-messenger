@@ -1,8 +1,6 @@
 package controllers
 
 import (
-	"Server/models"
-	"Server/utils"
 	"bytes"
 	"fmt"
 	"github.com/globalsign/mgo/bson"
@@ -11,28 +9,26 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-
+	
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 )
 
-var Uploads = func(w http.ResponseWriter, r *http.Request) {
+func Uploads(r *http.Request) (isSuccess bool, link, message string) {
 	maxSize := int64(1024000) // allow only 1MB of file size
 
 	err := r.ParseMultipartForm(maxSize)
 	if err != nil {
 		log.Println(err)
-		utils.Respond(w, utils.Message(false, fmt.Sprintf("Image too large. Max Size: %v %s", maxSize, err)))
-		return
+		return false, "", fmt.Sprintf("Image too large. Max Size: %v %s", maxSize, err)
 	}
 
 	file, fileHeader, err := r.FormFile("file")
 	if err != nil {
 		log.Println(err)
-		utils.Respond(w, utils.Message(false, fmt.Sprintf("Could not get uploaded file %s",  err)))
-		return
+		return false, "", fmt.Sprintf("Could not get uploaded file %s",  err)
 	}
 	defer file.Close()
 
@@ -46,33 +42,17 @@ var Uploads = func(w http.ResponseWriter, r *http.Request) {
 			""), // token can be left blank for now
 	})
 	if err != nil {
-		fmt.Println("1")
-		utils.Respond(w, utils.Message(false, "Could not upload file"))
-		return
+		return false, "", "Could not upload file"
 	}
 
 	fileName, err := UploadFileToS3(s, file, fileHeader)
 	if err != nil {
-		fmt.Println("2")
-		utils.Respond(w, utils.Message(false, "Could not upload file"))
-		return
+		return false, "", "Could not upload file"
 	}
 
-	link := "https://fileserverappfood.s3-ap-southeast-1.amazonaws.com/" + fileName
-	user := r.Context().Value("user")
-	account := &models.Account{}
-	err = models.GetDB().Table("accounts").Where("id = ?", user).First(account).Error
-	if err!=nil{
-		utils.Respond(w, utils.Message(false, "connection error"))
-		return
-	}
+	link = "https://fileserverappfood.s3-ap-southeast-1.amazonaws.com/" + fileName
 
-	models.GetDB().Model(&account).Update("Avatar", link)
-	fmt.Println(account)
-
-	resp := utils.Message(true, fmt.Sprintf("Image uploaded successfully: %s", fileName))
-	resp["link"] = link
-	utils.Respond(w, resp)
+	return true, link, fmt.Sprintf("Image uploaded successfully: %s", fileName)
 }
 
 func UploadFileToS3(s *session.Session, file multipart.File, fileHeader *multipart.FileHeader) (string, error) {

@@ -7,57 +7,61 @@ import PATH from '../axios/Url'
 import ApiService from '../axios/AxiosInstance';
 import axios from 'axios';
 function* login(action){
+  try{
     const response = yield instance.post(
         PATH.LOG_IN,
         action.data
-    ).then(res => res.data) // TODO: catch error
+    )
 
-    // console.log("aejfj")
-    if(response.status){
-        yield put({
-            type: LOGIN_SUCESS,
-            data: response.account
-        })
+    if( response && response.data.status){
+      yield put({
+        type: LOGIN_SUCESS,
+        data: response.data.account
+      })
 
-        ApiService.setHeader('Authorization', `Bearer ${response.account.token}`)
+      ApiService.setHeader('Authorization', `Bearer ${response.data.account.token}`)
 
-        axios.post('https://serverappfood.herokuapp.com/api/phone-device/push', {
-            fcm_token: global.fcmToken
-        },{
-            headers: {
-                "Content-Type": 'application/json',
-                'Authorization': `Bearer ${response.account.token}`
-            },
-        }).then(res => {
-            if(res.data.status){
-                console.warn('success', res.data.message)
-            }
-        })
+      axios.post('https://serverappfood.herokuapp.com/api/phone-device/push', {
+        fcm_token: global.fcmToken
+      },{
+        headers: {
+          "Content-Type": 'application/json',
+          'Authorization': `Bearer ${response.data.account.token}`
+        },
+      }).then(res => {
+          if(res.data.status){
+              console.warn('success', res.data.message)
+          }
+      })
     }else {
-        yield put({
-            type: LOGIN_FAIL,
-            message: response.message
-        })
+      yield put({
+        type: LOGIN_FAIL,
+        message: response.data.message
+      })
     }
+  }
+  catch {
+    err => console.warn(err)
+  }
 }
 
 function* loginWatcher(){
-    yield takeLatest('USER_LOGIN', login)
+  yield takeLatest('USER_LOGIN', login)
 }
 
 function *checkLogin() {
-    const user = yield AsyncStorage.getItem("account")
-    if (!user) {
-      return;
-    }
+  const user = yield AsyncStorage.getItem("account")
+  if (!user) {
+    return;
+  }
 
-    userData = JSON.parse(user)
-    let token = userData.token
-    ApiService.setHeader('Authorization', `Bearer ${token}`)
-    yield put({
-      type: CHECK_LOGIN_SUCCESS,
-      data: userData
-    })
+  userData = JSON.parse(user)
+  let token = userData.token
+  ApiService.setHeader('Authorization', `Bearer ${token}`)
+  yield put({
+    type: CHECK_LOGIN_SUCCESS,
+    data: userData
+  })
 }
 
 function* watchCheckLogin() {
@@ -100,34 +104,38 @@ function* sendMail(action){
 }
 
 function* signup(action){
+  try{
     const response = yield instance.post(
-        PATH.SIGN_UP,
-        action.data
-    ).then(res=>res.data)
-    .catch(err=>console.log(err))
+      PATH.SIGN_UP,
+      action.data
+    )
 
-    if(response.status){
-        yield put({
-            type: SIGN_UP_SUCCESS,
-            account: response.account,
-        })
+    if(response.data.status){
+      yield put({
+        type: SIGN_UP_SUCCESS,
+        account: response.data.account,
+      })
     }else {
-        yield put({
-            type: SIGN_UP_FAIL,
-            message: response.message
-        })
+      yield put({
+        type: SIGN_UP_FAIL,
+        message: response.data.message
+      })
     }
+  }
+  catch{
+    err => console.warn(err)
+  }
 }
 
 function* signupWatcher(){
-    yield takeLatest('SIGN_UP', signup)
+  yield takeLatest('SIGN_UP', signup)
 }
 
 export default function* userSaga(){
-    yield all([
-        loginWatcher(),
-        signupWatcher(),
-        watchCheckLogin(),
-        watcherLogout(),
-    ])
+  yield all([
+    loginWatcher(),
+    signupWatcher(),
+    watchCheckLogin(),
+    watcherLogout(),
+  ])
 }
