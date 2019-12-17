@@ -1,6 +1,6 @@
 import apisauce from 'apisauce';
 
-const URL = "https://serverappfood.herokuapp.com/"
+const URL = "https://serverappfood.herokuapp.com"
 
 // const isntance = Axios.create({
 //     baseURL: URL,

@@ -47,15 +47,15 @@ class CustomTabBar extends React.Component {
             authid: user.user.ID,
             received: received.ID
           })
-          if(res.data.status){
+          if(reponse.data.status){
             navigation.navigate("chatScreen", {
-            roomId: res.data.rid, 
+            roomId: reponse.data.rid, 
             user: received,
             authid: user.user.ID,
-            initMessage: res.data.arrayMessage})
+            initMessage: reponse.data.arrayMessage})
             this.props.removenotifi()
           }else {
-            alert(res.data.message)
+            alert(reponse.data.message)
           }
           this.refs['finduser'].hideModal()
         } catch(error) {

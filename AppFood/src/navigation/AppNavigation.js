@@ -4,6 +4,7 @@ import Profile from '../screens/ProfileScreen';
 import Mess from '../screens/Messenger';
 import Chat from '../screens/ChatScreen';
 import VideoCall from '../screens/ChatComponent/VideoCall';
+import SoundPlayer from '../screens/ChatComponent/SoundPlayer';
 import { createAppContainer } from 'react-navigation';
 import { createStackNavigator } from 'react-navigation-stack';
 import { createBottomTabNavigator } from 'react-navigation-tabs';
@@ -12,6 +13,7 @@ import ImageZoom from '../Component/ImageZoom';
 import FooterTab from '../Component/Footertab';
 import Caro from '../screens/Game/Caro';
 import ChessBoard from '../screens/Game/Chess/ChessBoard';
+
 
 const BottomNavigator = createBottomTabNavigator(
   {

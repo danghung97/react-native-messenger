@@ -208,6 +208,7 @@ dependencies {
     compile 'com.android.support:appcompat-v7:21.0.0'
 
     compile project(':WebRTCModule')
+    compile project(':react-native-audio')
 
     if (enableHermes) {
         def hermesPath = "../../node_modules/hermes-engine/android/";

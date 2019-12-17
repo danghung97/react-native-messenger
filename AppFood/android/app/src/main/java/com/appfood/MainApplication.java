@@ -13,6 +13,7 @@ import com.facebook.react.ReactApplication; //<- Dòng này
 import io.invertase.firebase.messaging.RNFirebaseMessagingPackage;//<- Dòng này
 import io.invertase.firebase.notifications.RNFirebaseNotificationsPackage;//<- Dòng này
 import org.devio.rn.splashscreen.SplashScreenReactPackage;
+// import com.rnim.rn.audio.ReactNativeAudioPackage;
 
 public class MainApplication extends Application implements ReactApplication {
 
@@ -32,6 +33,7 @@ public class MainApplication extends Application implements ReactApplication {
           // packages.add(new SplashScreenReactPackage());
           packages.add(new RNFirebaseMessagingPackage());//<- Dòng này
           packages.add(new RNFirebaseNotificationsPackage());//<- Dòng này
+          // packages.add(new ReactNativeAudioPackage());
           // packages.add(new WebRTCModulePackage()); // <-- Add this line
           return packages;
         }
