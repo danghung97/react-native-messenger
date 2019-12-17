@@ -1,11 +1,15 @@
 package controllers
 
 import (
+	controllers2 "Server/controllers/Caro"
 	"Server/models"
 	"encoding/json"
+	"fmt"
 	"github.com/jinzhu/gorm"
 	"github.com/lib/pq"
 	"log"
+	"strconv"
+	"strings"
 )
 
 type Hub struct {
@@ -47,6 +51,34 @@ func (h *Hub) Run() {
 			err := models.GetDB().Table("rooms").Where("id = ?", message.RoomID).First(room).Error
 			if err != nil && err != gorm.ErrRecordNotFound {
 				//return u.Message(false, "Connection error. Please retry")
+			}
+
+			if message.TypeMessage == "playing" {
+				splited := strings.Split(message.Message, " ")
+				posX, err := strconv.Atoi(splited[0])
+				posY, err := strconv.Atoi(splited[1])
+				if err!= nil {
+					message.Message = "Undefined position"
+					return
+				}
+				var turn string
+				if message.UserID == room.UserId1 {
+					turn = "X"
+				} else {
+					turn = "O"
+				}
+				models.UpdateBoardChess(message.RoomID, posX, posY, turn)
+				isWin := controllers2.CheckWin(posX, posY, models.GetBoarChess(message.RoomID))
+				if isWin {
+					models.DeleteBoardChess(message.RoomID)
+					message.Message = fmt.Sprintf("%s %s", message.Message, "win")
+				}else {
+					message.Message = fmt.Sprintf("%s %s", message.Message, "not_over")
+				}
+			} else if message.TypeMessage == "play_game" {
+				if message.Message == "Accept" {
+					models.CreateBoardChess(message.RoomID)
+				}
 			}
 			
 			for client := range h.clients {

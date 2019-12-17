@@ -10,6 +10,8 @@ import { createBottomTabNavigator } from 'react-navigation-tabs';
 import { createDrawerNavigator } from 'react-navigation-drawer'
 import ImageZoom from '../Component/ImageZoom';
 import FooterTab from '../Component/Footertab';
+import Caro from '../screens/Game/Caro';
+import ChessBoard from '../screens/Game/Chess/ChessBoard';
 
 const BottomNavigator = createBottomTabNavigator(
   {
@@ -20,7 +22,7 @@ const BottomNavigator = createBottomTabNavigator(
       screen: Profile,
     },
     MessScreen: {
-      screen: Mess,
+      screen: ChessBoard,
     }
   },
   {
@@ -41,7 +43,10 @@ const stackNavigator = createStackNavigator(
     chatScreen: Chat,
     drawer: DrawerNavigator,
     ImageZoomScreen: ImageZoom,
-    VideoCallScreen: VideoCall
+    VideoCallScreen: VideoCall,
+    SoundPlayerScreen: SoundPlayer,
+    CaroScreen: Caro,
+    // ChessScreen: ChessBoard,
   },
   { headerMode: 'none', navigationOptions: { headerVisible: false } }
 );
