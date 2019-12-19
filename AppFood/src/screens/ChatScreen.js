@@ -239,6 +239,9 @@ class Chat extends Component {
           inverted
           showsVerticalScrollIndicator={false}
           removeClippedSubviews
+          // getItemLayout={(data, index) => ({
+          //   length: , offset:  * index, index
+          // })}
           renderItem={item => this.renderItem(item, this.friend.avatar)}
           onEndReached={()=>this.loadMoreMessage()}
           onEndReachedThreshold={0.1}

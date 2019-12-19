@@ -18,13 +18,13 @@ import ChessBoard from '../screens/Game/Chess/ChessBoard';
 const BottomNavigator = createBottomTabNavigator(
   {
     HomeScreen: {
-      screen: Home,
+      screen: ChessBoard,
     },
     ProfileScreen: {
       screen: Profile,
     },
     MessScreen: {
-      screen: ChessBoard,
+      screen: Mess,
     }
   },
   {

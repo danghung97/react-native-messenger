@@ -1,5 +1,12 @@
 import React, {Component} from 'react';
-import {View, Image, StyleSheet, Dimensions, TouchableOpacity} from 'react-native';
+import {
+  View, 
+  Image, 
+  StyleSheet, 
+  Dimensions, 
+  TouchableOpacity, 
+  Text
+} from 'react-native';
 import { FindValidRoad, UpdateChessBoard } from './Chess'
 
 export default class ChessBoard extends Component {
@@ -11,6 +18,9 @@ export default class ChessBoard extends Component {
       size: Dimensions.get('window').width / 8, // ChessBoard: 8x8
       updateColorBoard: null,
       turn: 'w',
+      checkmate: false,
+      wkingCurPos: {'posX': 7, 'posY': 3}, // white King's current position
+      bkingCurPos: {'posX': 0, 'posY': 3}, // black king's current position
       ChessBoard: [
         ['bR', 'bN', 'bB', 'bK', 'bQ', 'bB', 'bN', 'bR'],
         ['bP', 'bP', 'bP', 'bP', 'bP', 'bP', 'bP', 'bP'],
@@ -51,8 +61,12 @@ export default class ChessBoard extends Component {
   }
 
   pressSquare = (posX, posY) => {
-    const {pieceChoosed, ChessBoard, turn, validMoves} = this.state
+    const {pieceChoosed, ChessBoard, turn, validMoves, wkingCurPos, bkingCurPos} = this.state
     const value = ChessBoard[posX][posY]
+    let tempColor = new Array(8).fill(null)
+    for (let i = 0; i < 8; i++) {
+      tempColor[i] = [...this.ColorBoard[i]]
+    }
     if (!value && !pieceChoosed) { // bấm lung tung
       return
     } else if (!!value) { // press piece
@@ -62,16 +76,38 @@ export default class ChessBoard extends Component {
         const fromValue = ChessBoard[fromPosX][fromPosY]
         const fromColor = fromValue[0]
         const fromPiece = fromValue[1]
+        let KingColor = 'w'
+        let KingPos = wkingCurPos
+        if (value[0] === 'b') {
+          KingColor = 'b'
+          KingPos = bkingCurPos
+        }
         if (fromColor !== value[0]){
           const valid = validMoves.find(item => {
             return item.posX === posX && item.posY === posY
           })
           if (!!valid) { // check enermy on valid moves of piecechoosed
-            let c = UpdateChessBoard(pieceChoosed, {posX, posY}, fromColor, fromPiece, ChessBoard)
+            if (value === 'wK') {
+              this.setState({wkingCurPos: {posX, posY}})
+            } else if (value === 'bK') {
+              this.setState({bkingCurPos: {posX, posY}})
+            }
+            
+            let c = UpdateChessBoard(KingPos, KingColor, pieceChoosed, {posX, posY}, fromColor, fromPiece, ChessBoard)
+            const checkmate = c.checkmate
+            if (checkmate.length !== 0) {
+              this.setState({checkmate: true})
+              checkmate.push(KingPos)
+            } else {
+              this.setState({checkmate: false})
+            }
+            for (let i = 0; i < checkmate.length; i++) {
+              tempColor[checkmate[i].posX][checkmate[i].posY] = '#FE4444'
+            }
             this.setState({
               pieceChoosed: null,
-              ChessBoard: c,
-              updateColorBoard: null,
+              ChessBoard: c.chessBoard,
+              updateColorBoard: tempColor,
               turn: this.state.turn === 'w' ? 'b' : 'w'
             })
             return
@@ -82,11 +118,7 @@ export default class ChessBoard extends Component {
       const color = value[0]
       const piece = value[1]
       this.setState({pieceChoosed: {posX, posY}})
-      let tempColor = new Array(8).fill(null)
-      for (let i = 0; i < 8; i++) {
-        tempColor[i] = [...this.ColorBoard[i]]
-      }
-      const finded = FindValidRoad(piece, {posX, posY}, tempColor, ChessBoard, color)
+      const finded = FindValidRoad({posX, posY}, tempColor, ChessBoard)
       this.setState({ validMoves: finded.valid, updateColorBoard: finded.ColorBoard })
     } else { // move piece
       const fromPosX = pieceChoosed.posX
@@ -94,16 +126,37 @@ export default class ChessBoard extends Component {
       const value = ChessBoard[fromPosX][fromPosY]
       const color = value[0]
       const piece = value[1]
+      let KingColor = 'w'
+      let KingPos = wkingCurPos
+      if (value[0] === 'w') {
+        KingColor = 'b'
+        KingPos = bkingCurPos
+      }
       if (turn === color) { // move piece if piecechoosed is your turn
         const valid = validMoves.find(item => {
           return item.posX === posX && item.posY === posY
         })
         if (!!valid) {
-          let c = UpdateChessBoard(pieceChoosed, {posX, posY}, color, piece, ChessBoard)
+          if (valid === 'wK') {
+            this.setState({wkingCurPos: {posX, posY}})
+          } else if (valid === 'bK') {
+            this.setState({bkingCurPos: {posX, posY}})
+          }
+          let c = UpdateChessBoard(KingPos, KingColor, pieceChoosed, {posX, posY}, color, piece, ChessBoard)
+          const checkmate = c.checkmate
+          if (checkmate.length !== 0) {
+            this.setState({checkmate: true})
+            checkmate.push(KingPos)
+          } else {
+            this.setState({checkmate: false})
+          }
+          for (let i = 0; i < checkmate.length; i++) {
+            tempColor[checkmate[i].posX][checkmate[i].posY] = '#FE4444'
+          }
           this.setState({
             pieceChoosed: null,
-            ChessBoard: c,
-            updateColorBoard: null,
+            ChessBoard: c.chessBoard,
+            updateColorBoard: tempColor,
             turn: this.state.turn === 'w' ? 'b' : 'w'
           })
           return
@@ -114,10 +167,21 @@ export default class ChessBoard extends Component {
   }
 
   render() {
-    const {size, ChessBoard, updateColorBoard} = this.state;
+    const {size, ChessBoard, updateColorBoard, checkmate} = this.state;
     const color = !updateColorBoard ? this.ColorBoard : updateColorBoard
     return (
       <View style={styles.container}>
+        {checkmate && 
+          <Text style = {{
+            fontSize: 22,
+            lineHeight: 24,
+            fontWeight: '700',
+            fontStyle: 'normal',
+            marginBottom: 20,
+            color: '#FE4444',
+          }}>
+            Checkmate
+          </Text>}
         {this.row.map((r, idx_row) => {
           return (
             <View key={idx_row} style={{flexDirection: 'row'}}>
