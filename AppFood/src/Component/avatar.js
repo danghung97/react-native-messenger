@@ -83,7 +83,7 @@ export default class Avatar extends Component{
           data
         })
         if(response.data.status){
-        }else{
+        }else {
           alert(res.data.message)
         }
       }catch (error) {

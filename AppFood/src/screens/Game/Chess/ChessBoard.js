@@ -7,7 +7,7 @@ import {
   TouchableOpacity, 
   Text
 } from 'react-native';
-import { FindValidRoad, UpdateChessBoard } from './Chess'
+import { FindValidRoad, UpdateChessBoard, takeKingPos, NegativeKingColor } from './Chess'
 
 export default class ChessBoard extends Component {
   constructor(props) {
@@ -18,7 +18,7 @@ export default class ChessBoard extends Component {
       size: Dimensions.get('window').width / 8, // ChessBoard: 8x8
       updateColorBoard: null,
       turn: 'w',
-      checkmate: false,
+      check: [],
       wkingCurPos: {'posX': 7, 'posY': 3}, // white King's current position
       bkingCurPos: {'posX': 0, 'posY': 3}, // black king's current position
       ChessBoard: [
@@ -30,7 +30,7 @@ export default class ChessBoard extends Component {
         [null, null, null, null, null, null, null, null],
         ['wP', 'wP', 'wP', 'wP', 'wP', 'wP', 'wP', 'wP'],
         ['wR', 'wN', 'wB', 'wK', 'wQ', 'wB', 'wN', 'wR'],
-      ]
+      ],
     };
     this.ColorBoard = [
       ['#f0d9b5', '#b58863', '#f0d9b5', '#b58863', '#f0d9b5', '#b58863', '#f0d9b5', '#b58863'],
@@ -67,21 +67,23 @@ export default class ChessBoard extends Component {
     for (let i = 0; i < 8; i++) {
       tempColor[i] = [...this.ColorBoard[i]]
     }
+    let tempBoard = new Array(8).fill(null)
+    for (let i = 0; i < 8; i++) {
+      tempBoard[i] = [...ChessBoard[i]]
+    }
     if (!value && !pieceChoosed) { // bấm lung tung
       return
     } else if (!!value) { // press piece
-      if (!!pieceChoosed) { // if !!picechoosed and your turn will eat enermey ( if value is enermy )
+      if (!!pieceChoosed) { // if !!picechoosed and your turn will eat enermey ( if value is enemy )
         const fromPosX = pieceChoosed.posX
         const fromPosY = pieceChoosed.posY
         const fromValue = ChessBoard[fromPosX][fromPosY]
         const fromColor = fromValue[0]
         const fromPiece = fromValue[1]
-        let KingColor = 'w'
-        let KingPos = wkingCurPos
-        if (value[0] === 'b') {
-          KingColor = 'b'
-          KingPos = bkingCurPos
-        }
+        let enemyKingColor = value[0]
+        let enemyKingPos = takeKingPos(enemyKingColor, wkingCurPos, bkingCurPos)
+        let curKingColor = NegativeKingColor(enemyKingColor)
+        let curKingPos = takeKingPos(curKingColor, wkingCurPos, bkingCurPos)
         if (fromColor !== value[0]){
           const valid = validMoves.find(item => {
             return item.posX === posX && item.posY === posY
@@ -93,30 +95,41 @@ export default class ChessBoard extends Component {
               this.setState({bkingCurPos: {posX, posY}})
             }
             
-            let c = UpdateChessBoard(KingPos, KingColor, pieceChoosed, {posX, posY}, fromColor, fromPiece, ChessBoard)
-            const checkmate = c.checkmate
-            if (checkmate.length !== 0) {
-              this.setState({checkmate: true})
-              checkmate.push(KingPos)
+            let c = UpdateChessBoard(
+              curKingColor, curKingPos,
+              enemyKingColor, enemyKingPos, 
+              pieceChoosed, {posX, posY}, 
+              fromColor, fromPiece, tempBoard)
+            const check = c.check
+            const allowToMove = c.allowToMove
+            if (allowToMove.length > 0) { // check safe your king when you have intent eat enemny
+              this.setState({
+                pieceChoosed: null, 
+                updateColorBoard: null
+              })
+              return
             } else {
-              this.setState({checkmate: false})
+              if (check.length !== 0) {
+                this.setState({ check })
+                check.push(enemyKingPos)
+              } else {
+                this.setState({check: []})
+              }
+              // for (let i = 0; i < check.length; i++) {
+              //   tempColor[check[i].posX][check[i].posY] = '#FE4444'
+              // }
+              this.setState({
+                pieceChoosed: null,
+                ChessBoard: c.chessBoard,
+                updateColorBoard: null,
+                turn: this.state.turn === 'w' ? 'b' : 'w'
+              })
+              return
             }
-            for (let i = 0; i < checkmate.length; i++) {
-              tempColor[checkmate[i].posX][checkmate[i].posY] = '#FE4444'
-            }
-            this.setState({
-              pieceChoosed: null,
-              ChessBoard: c.chessBoard,
-              updateColorBoard: tempColor,
-              turn: this.state.turn === 'w' ? 'b' : 'w'
-            })
-            return
           }
         }
       }
       // if not eats, so show valid moves
-      const color = value[0]
-      const piece = value[1]
       this.setState({pieceChoosed: {posX, posY}})
       const finded = FindValidRoad({posX, posY}, tempColor, ChessBoard)
       this.setState({ validMoves: finded.valid, updateColorBoard: finded.ColorBoard })
@@ -126,12 +139,10 @@ export default class ChessBoard extends Component {
       const value = ChessBoard[fromPosX][fromPosY]
       const color = value[0]
       const piece = value[1]
-      let KingColor = 'w'
-      let KingPos = wkingCurPos
-      if (value[0] === 'w') {
-        KingColor = 'b'
-        KingPos = bkingCurPos
-      }
+      let enemyKingColor = NegativeKingColor(color)
+      let enemyKingPos = takeKingPos(enemyKingColor, wkingCurPos, bkingCurPos)
+      let curKingColor = color
+      let curKingPos = takeKingPos(color, wkingCurPos, bkingCurPos)
       if (turn === color) { // move piece if piecechoosed is your turn
         const valid = validMoves.find(item => {
           return item.posX === posX && item.posY === posY
@@ -142,36 +153,64 @@ export default class ChessBoard extends Component {
           } else if (valid === 'bK') {
             this.setState({bkingCurPos: {posX, posY}})
           }
-          let c = UpdateChessBoard(KingPos, KingColor, pieceChoosed, {posX, posY}, color, piece, ChessBoard)
-          const checkmate = c.checkmate
-          if (checkmate.length !== 0) {
-            this.setState({checkmate: true})
-            checkmate.push(KingPos)
+          let c = UpdateChessBoard(
+            curKingColor, curKingPos,
+            enemyKingColor, enemyKingPos, 
+            pieceChoosed, {posX, posY}, 
+            color, piece, tempBoard)
+          const check = c.check
+          const allowToMove = c.allowToMove
+          // console.warn(allowToMove)
+          if (allowToMove.length > 0) {
+            this.setState({
+              pieceChoosed: null, 
+              updateColorBoard: null
+            })
+            return
           } else {
-            this.setState({checkmate: false})
+            if (check.length !== 0) {
+              this.setState({ check })
+              check.push(enemyKingPos)
+            } else {
+              this.setState({check: []})
+            }
+            // for (let i = 0; i < check.length; i++) {
+            //   tempColor[check[i].posX][check[i].posY] = '#FE4444'
+            // }
+            this.setState({
+              pieceChoosed: null,
+              ChessBoard: c.chessBoard,
+              updateColorBoard: null,
+              turn: this.state.turn === 'w' ? 'b' : 'w'
+            })
+            return
           }
-          for (let i = 0; i < checkmate.length; i++) {
-            tempColor[checkmate[i].posX][checkmate[i].posY] = '#FE4444'
-          }
-          this.setState({
-            pieceChoosed: null,
-            ChessBoard: c.chessBoard,
-            updateColorBoard: tempColor,
-            turn: this.state.turn === 'w' ? 'b' : 'w'
-          })
-          return
         }
       }
-      this.setState({updateColorBoard: null, validMoves: []})
+      this.setState({
+        updateColorBoard: null, 
+        validMoves: [],
+      })
     }
   }
 
+  isHighlightCheck = (posX, posY) => { // highlight chieu tuong
+    const { check } = this.state
+    const temp = check.find(item => {
+      return item.posX === posX && item.posY === posY
+    })
+    if (temp) {
+      return true
+    }
+    return false
+  }
+
   render() {
-    const {size, ChessBoard, updateColorBoard, checkmate} = this.state;
+    const {size, ChessBoard, updateColorBoard, check} = this.state;
     const color = !updateColorBoard ? this.ColorBoard : updateColorBoard
     return (
       <View style={styles.container}>
-        {checkmate && 
+        {check && 
           <Text style = {{
             fontSize: 22,
             lineHeight: 24,
@@ -180,7 +219,7 @@ export default class ChessBoard extends Component {
             marginBottom: 20,
             color: '#FE4444',
           }}>
-            Checkmate
+            check
           </Text>}
         {this.row.map((r, idx_row) => {
           return (
@@ -191,7 +230,8 @@ export default class ChessBoard extends Component {
                     onPress={() => this.pressSquare(idx_row, idx_column)}
                     key={idx_column}
                     style={{
-                      backgroundColor: color[idx_row][idx_column],
+                      backgroundColor: 
+                        this.isHighlightCheck(idx_row, idx_column) ? '#FE4444' : color[idx_row][idx_column],
                       width: size,
                       justifyContent: 'center',
                       alignItems: 'center',

@@ -18,7 +18,7 @@ import ChessBoard from '../screens/Game/Chess/ChessBoard';
 const BottomNavigator = createBottomTabNavigator(
   {
     HomeScreen: {
-      screen: ChessBoard,
+      screen: Home,
     },
     ProfileScreen: {
       screen: Profile,
@@ -48,7 +48,7 @@ const stackNavigator = createStackNavigator(
     VideoCallScreen: VideoCall,
     SoundPlayerScreen: SoundPlayer,
     CaroScreen: Caro,
-    // ChessScreen: ChessBoard,
+    ChessScreen: ChessBoard,
   },
   { headerMode: 'none', navigationOptions: { headerVisible: false } }
 );

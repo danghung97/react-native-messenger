@@ -150,7 +150,7 @@ func (c *Client) dispatchRaw(raw []byte) {
 		log.Println("connection error")
 		return
 	}
-	if msg.TypeMessage == "text" || msg.TypeMessage == "image" {
+	if msg.TypeMessage == "TEXT" || msg.TypeMessage == "IMAGE" {
 		models.GetDB().Create(&msg)
 		models.GetDB().Model(&msg).Update("created_at", time.Now())
 	}

@@ -54,10 +54,10 @@ func (h *Hub) Run() {
 				//return u.Message(false, "Connection error. Please retry")
 			}
 
-			if message.TypeMessage == "playing" {
-				splited := strings.Split(message.Message, " ")
-				posX, err := strconv.Atoi(splited[0])
-				posY, err := strconv.Atoi(splited[1])
+			if message.TypeMessage == "PLAYING" {
+				splitted := strings.Split(message.Message, " ")
+				posX, err := strconv.Atoi(splitted[0])
+				posY, err := strconv.Atoi(splitted[1])
 				if err!= nil {
 					message.Message = "Undefined position"
 					return
@@ -73,12 +73,12 @@ func (h *Hub) Run() {
 
 				if isWin {
 					models.DeleteBoardChess(message.RoomID)
-					message.Message = fmt.Sprintf("%s %s", message.Message, "win")
+					message.Message = fmt.Sprintf("%s %s", message.Message, "WIN")
 				}else {
-					message.Message = fmt.Sprintf("%s %s", message.Message, "not_over")
+					message.Message = fmt.Sprintf("%s %s", message.Message, "NOT_OVER")
 				}
-			} else if message.TypeMessage == "play_game" {
-				if message.Message == "Accept" {
+			} else if message.TypeMessage == "PLAY_GAME" {
+				if message.Message == "ACCEPT" {
 					models.CreateBoardChess(message.RoomID)
 				}
 			}
@@ -86,8 +86,8 @@ func (h *Hub) Run() {
 			for client := range h.clients {
 				if client.uid == room.UserId1 || client.uid == room.UserId2 {
 					switch message.TypeMessage {
-					case "text":
-					case "image":
+					case "TEXT":
+					case "IMAGE":
 						receiver := models.Account{}
 						auth := models.Account{}
 						var err error

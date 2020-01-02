@@ -1,38 +1,41 @@
 import React from 'react';
 import {View, Text, Image, TouchableOpacity} from 'react-native';
 import Modal from 'react-native-modal';
+import TypeMessage from '../common/typeMessage';
+import listGame from '../common/listGame';
 
 export default class GameModal extends React.PureComponent {
   state = {
     isVisible: false,
-    responsePlayGame: null,
+    game: null,
   };
-  showModal = () => {
-    this.setState({isVisible: true});
+  showModal = (game) => {
+    this.setState({isVisible: true, game});
   };
 
   hideModal = () => {
-    this.setState({isVisible: false});
+    this.setState({isVisible: false, game: null});
   };
 
   Accept = () => {
-    this.props.sendMessage('play_game', 'Accept');
+    this.props.sendMessage(TypeMessage.PLAY_GAME, 'ACCEPT');
   }
 
   Decline = () => {
-    this.props.sendMessage('play_game', 'Decline');
+    this.props.sendMessage(TypeMessage.PLAY_GAME, 'DECLINE');
     this.hideModal();
   }
 
   render() {
-    if (!this.state.isVisible) {
+    const {isVisible, game} = this.state
+    if (!isVisible) {
       return null;
     }
     return (
       <Modal isVisible>
         <View style={{padding: 20, width: '80%', backgroundColor: '#fff', alignSelf: 'center'}}>
           <Text>
-              {`Your friend invite you play game`}
+              {`Your friend invite you play game ${!game ? '' : game}`}
           </Text>
           <View style={{flexDirection: 'row', marginTop: 20, justifyContent: 'space-between'}}>
             <TouchableOpacity

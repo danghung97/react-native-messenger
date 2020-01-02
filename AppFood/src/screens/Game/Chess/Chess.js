@@ -1,4 +1,18 @@
 
+export const NegativeKingColor = color => {
+  if (color === 'b') {
+    return 'w'
+  }
+  return 'b'
+}
+
+export const takeKingPos = (color, wPos, bPos) => {
+  if (color === 'b') {
+    return bPos
+  }
+  return wPos
+}
+
 export const FindValidRoad = (from, ColorBoard, chessBoard) => {
   const posX = from.posX
   const posY = from.posY
@@ -9,8 +23,7 @@ export const FindValidRoad = (from, ColorBoard, chessBoard) => {
   const piece = chessBoard[posX][posY][1]
   // con thieu truong hop thăng cấp của pawn 
   // thieu swap queen va rook
-  // thieu check chieu tuong,
-  // thieu check het co
+  // thieu check chieu tuong hết cờ
   switch (piece) {
     case 'P': // Pawn
       let maxMoves = 1 // max number of pawn moves
@@ -70,7 +83,7 @@ export const FindValidRoad = (from, ColorBoard, chessBoard) => {
       // Knight has max 8 position can moves
 
       //Left
-      if (posX - 2 >= 0 && posY - 1 >=0) { // 1
+      if (posX - 2 >= 0 && posY - 1 >= 0) { // 1
         if (!chessBoard[posX - 2][posY - 1]) {
           ColorBoard[posX - 2][posY - 1] = '#696969'
           valid.push({'posX': posX - 2, 'posY': posY - 1})
@@ -266,7 +279,7 @@ export const FindValidRoad = (from, ColorBoard, chessBoard) => {
           }
         }
       }
-      if ( posX + 1 < 8 && posY - 1 >= 8) {
+      if ( posX + 1 < 8 && posY - 1 >= 0) {
         if (!chessBoard[posX + 1][posY - 1]) {
           ColorBoard[posX + 1][posY - 1] = '#696969'
           valid.push({'posX': posX + 1, 'posY': posY - 1})
@@ -425,20 +438,27 @@ const findDiagonal = (posX, posY, ColorBoard, chessBoard, canEats) => {
   return {canEats, valid, ColorBoard}
 }
 
-export const UpdateChessBoard = (KingPos, KingColor, from, to, color, piece, chessBoard) => {
+export const UpdateChessBoard = (curKingColor, curKingPos, enemyKingColor, enemyKingPos, from, to, color, piece, chessBoard) => {
   const fromPosX = from.posX
   const fromPosY = from.posY
   const toPosX = to.posX
   const toPosY = to.posY
   chessBoard[fromPosX][fromPosY] = null
   chessBoard[toPosX][toPosY] = `${color}${piece}`
-  const checkmate = CheckCheckmate(chessBoard, KingPos.posX, KingPos.posY, KingColor)
-  return {checkmate, chessBoard}
+  let curKingPosX = curKingPos.posX
+  let curKingPosY = curKingPos.posY
+  if (piece === 'K') {
+    curKingPosX = toPosX
+    curKingPosY = toPosY
+  }
+  const check = Check(chessBoard, enemyKingPos.posX, enemyKingPos.posY, enemyKingColor) //kiem tra chieu tuong
+  const allowToMove = Check(chessBoard, curKingPosX, curKingPosY, curKingColor) // kiem tra sự an toàn tướng của bạn khi ban đi nước đó
+  return {allowToMove, check, chessBoard}
 }
 
-export const CheckCheckmate = (chessBoard, kingPosX, kingPosY, KingColor) => {
-  let checkmate = []
-  // check straight, just rock and queen can checkmate on straight
+export const Check = (chessBoard, kingPosX, kingPosY, KingColor) => { // kiểm tra chiếu tướng
+  let check = []
+  // check straight, just rock and queen can check on straight
   // check len tren
   let tempX = kingPosX - 1
   let tempY = kingPosY
@@ -448,7 +468,7 @@ export const CheckCheckmate = (chessBoard, kingPosX, kingPosY, KingColor) => {
       if (value[0] !== KingColor
         && (value[1] === 'R' || value[1] === 'Q')) { 
           for (let i = kingPosX - 1; i >= tempX; i--) {
-            checkmate.push({'posX': i, 'posY': tempY})
+            check.push({'posX': i, 'posY': tempY})
           }
         }
       break
@@ -465,7 +485,7 @@ export const CheckCheckmate = (chessBoard, kingPosX, kingPosY, KingColor) => {
       if (value[0] !== KingColor
         && (value[1] === 'R' || value[1] === 'Q')) {
           for (let i = kingPosX + 1; i <= tempX; i++) {
-            checkmate.push({'posX': i, 'posY': tempY})
+            check.push({'posX': i, 'posY': tempY})
           }
         }
       break
@@ -481,7 +501,7 @@ export const CheckCheckmate = (chessBoard, kingPosX, kingPosY, KingColor) => {
       if (value[0] !== KingColor
         && (value[1] === 'R' || value[1] === 'Q')) {
           for (let i = kingPosY - 1; i >= tempY; i--) {
-            checkmate.push({'posX': tempX, 'posY': i})
+            check.push({'posX': tempX, 'posY': i})
           }
         }
       break
@@ -497,7 +517,7 @@ export const CheckCheckmate = (chessBoard, kingPosX, kingPosY, KingColor) => {
       if (value[0] !== KingColor
         && (value[1] === 'R' || value[1] === 'Q')) {
           for (let i = kingPosY + 1; i <= tempY; i++) {
-            checkmate.push({'posX': tempX, 'posY': i})
+            check.push({'posX': tempX, 'posY': i})
           }
         }
       break
@@ -513,21 +533,21 @@ export const CheckCheckmate = (chessBoard, kingPosX, kingPosY, KingColor) => {
     if (!!value) {
       if (value[0] !== KingColor) {
         if (value[1] === 'Q'|| value[1] === 'B') { // queen or bishop
-          const max = kingPosX - temp
+          const max = kingPosX - tempX
           for (let i = 1; i <= max; i++) {
-            checkmate.push({'posX': kingPosX - i, 'posY': kingPosY - i})
+            check.push({'posX': kingPosX - i, 'posY': kingPosY - i})
           }
         } else if (value[1] === 'K') { // king
-          if (kingPosX-tempX === 1) { // king1 just can checkmate king2 in range around one square
-            checkmate.push({'posX': tempX, 'posY': tempY})
+          if (kingPosX-tempX === 1) { // king1 just can check king2 in range around one square
+            check.push({'posX': tempX, 'posY': tempY})
           }
         } else if (value[1] === 'P') {
           // in case if value is white pawn, 
-          // it can't checkmate, because pawn just can go ahead and in case x-- y--
+          // it can't check, because pawn just can go ahead and in case x-- y--
           // pawn is definitely in the back
           // if value is black pawn
-          if (kingPosX-tempX === 1 && value[0] === 'b') { // king1 just can checkmate king2 in range around one square
-            checkmate.push({'posX': tempX, 'posY': tempY})
+          if (kingPosX-tempX === 1 && value[0] === 'b') { // king1 just can check king2 in range around one square
+            check.push({'posX': tempX, 'posY': tempY})
           }
         } else {}
       }
@@ -546,19 +566,19 @@ export const CheckCheckmate = (chessBoard, kingPosX, kingPosY, KingColor) => {
         if (value[1] === 'Q'|| value[1] === 'B') { // queen or bishop
           const max = tempX - kingPosY
           for (let i = 1; i <= max; i++) {
-            checkmate.push({'posX': kingPosX + i, 'posY': kingPosY + i})
+            check.push({'posX': kingPosX + i, 'posY': kingPosY + i})
           }
         } else if (value[1] === 'K') { // king
-          if (tempX-kingPosX === 1) { // king1 just can checkmate king2 in range around one square
-            checkmate.push({'posX': tempX, 'posY': tempY})
+          if (tempX-kingPosX === 1) { // king1 just can check king2 in range around one square
+            check.push({'posX': tempX, 'posY': tempY})
           }
         } else if (value[1] === 'P') {
           // in case if value is black pawn, 
-          // it can't checkmate, because pawn just can go ahead and in case x-- y--
+          // it can't check, because pawn just can go ahead and in case x-- y--
           // pawn is definitely in the back
           // if value is white pawn
-          if (tempX-kingPosX === 1 && value[0] === 'w') { // king1 just can checkmate king2 in range around one square
-            checkmate.push({'posX': tempX, 'posY': tempY})
+          if (tempX-kingPosX === 1 && value[0] === 'w') { // king1 just can check king2 in range around one square
+            check.push({'posX': tempX, 'posY': tempY})
           }
         } else {}
       }
@@ -577,16 +597,16 @@ export const CheckCheckmate = (chessBoard, kingPosX, kingPosY, KingColor) => {
         if (value[1] === 'Q'|| value[1] === 'B') {
           const max = kingPosX - tempX
           for (let i = 1; i <= max; i++) {
-            checkmate.push({'posX': kingPosX - i, 'posY': kingPosY + i})
+            check.push({'posX': kingPosX - i, 'posY': kingPosY + i})
           }
         } else if (value[1] === 'K') { // king
-          if (tempX-kingPosX === 1) { // king1 just can checkmate king2 in range around one square
-            checkmate.push({'posX': tempX, 'posY': tempY})
+          if (tempX-kingPosX === 1) { // king1 just can check king2 in range around one square
+            check.push({'posX': tempX, 'posY': tempY})
           }
         } else if (value[1] === 'P') {
           // explain the same as above 2 cases
-          if (tempX-kingPosX === 1 && value[0] === 'b') { // king1 just can checkmate king2 in range around one square
-            checkmate.push({'posX': tempX, 'posY': tempY})
+          if (tempX-kingPosX === 1 && value[0] === 'b') { // king1 just can check king2 in range around one square
+            check.push({'posX': tempX, 'posY': tempY})
           }
         } else {}
       }
@@ -605,16 +625,16 @@ export const CheckCheckmate = (chessBoard, kingPosX, kingPosY, KingColor) => {
         if (value[1] === 'Q'|| value[1] === 'B') {
           const max = kingPosY - tempY
           for (let i = 1; i <= max; i++) {
-            checkmate.push({'posX': kingPosX + i, 'posY': kingPosY - i})
+            check.push({'posX': kingPosX + i, 'posY': kingPosY - i})
           }
         } else if (value[1] === 'K') { // king
-          if (tempY-kingPosY === 1) { // king1 just can checkmate king2 in range around one square
-            checkmate.push({'posX': tempX, 'posY': tempY})
+          if (tempY-kingPosY === 1) { // king1 just can check king2 in range around one square
+            check.push({'posX': tempX, 'posY': tempY})
           }
         } else if (value[1] === 'P') {
           // explain the same as above 2 cases
-          if (tempX-kingPosX === 1 && value[0] === 'w') { // king1 just can checkmate king2 in range around one square
-            checkmate.push({'posX': tempX, 'posY': tempY})
+          if (tempX-kingPosX === 1 && value[0] === 'w') { // king1 just can check king2 in range around one square
+            check.push({'posX': tempX, 'posY': tempY})
           }
         } else {}
       }
@@ -623,5 +643,23 @@ export const CheckCheckmate = (chessBoard, kingPosX, kingPosY, KingColor) => {
     tempX++
     tempY--
   }
-  return checkmate
+  return check
+}
+
+export const checkmate = ( kingCheckedPos, chessBoard, ColorBoard, KingColor ) => { // kiem tra chieu bi
+  // check that the checker can not be stopped?
+  // check that the king can go to any position
+  // if neither of the above two cases sastifies, so checkmate
+
+  // case 1: check the king
+  let from = kingCheckedPos;
+  const validMove = FindValidRoad(from, ColorBoard, chessBoard)
+  for (let i = 0;i < validMove.length; i++) {
+    let allowToMove = Check(chessBoard, from.posX, from.posY, KingColor)
+    if (allowToMove.length > 0) {
+      return false
+    }
+  }
+
+  // case 2: check that the checker can not be stopped?
 }

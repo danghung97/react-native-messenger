@@ -56,19 +56,18 @@ class Caro extends Component {
       let posX = !!Number(splited[0]) || Number(splited[0]) === 0 ? Number(splited[0]) : null
       let posY = !!Number(splited[1]) || Number(splited[1]) === 0 ? Number(splited[1]) : null
       let isWin = splited[2]
-      console.warn(splited) 
       let boardChess = this.state.boardChess
       if ((!posX && posX !== 0) || (!posY && posY !== 0)) {
         return;
       }
       else if(_.get(messageOfRoom[0], 'uid', 0) === this.user.ID) {
-        if(isWin === 'win') {
+        if(isWin === 'WIN') {
           alert('You win');
         }
         boardChess[posX*this.row.length+posY] = 'X'
         this.setState({boardChess, myTurn: false})
       } else {
-        if(isWin === 'win') {
+        if(isWin === 'WIN') {
           alert('You lose');
         }
         boardChess[posX*this.row.length+posY] = 'O'
