@@ -11,7 +11,9 @@ import { createBottomTabNavigator } from 'react-navigation-tabs';
 import { createDrawerNavigator } from 'react-navigation-drawer'
 import ImageZoom from '../Component/ImageZoom';
 import FooterTab from '../Component/Footertab';
-import Caro from '../screens/Game/Caro'
+import Caro from '../screens/Game/Caro';
+import ChessBoard from '../screens/Game/Chess/ChessBoard';
+
 
 const BottomNavigator = createBottomTabNavigator(
   {
@@ -46,6 +48,7 @@ const stackNavigator = createStackNavigator(
     VideoCallScreen: VideoCall,
     SoundPlayerScreen: SoundPlayer,
     CaroScreen: Caro,
+    ChessScreen: ChessBoard,
   },
   { headerMode: 'none', navigationOptions: { headerVisible: false } }
 );

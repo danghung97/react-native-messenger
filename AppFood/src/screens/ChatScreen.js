@@ -22,6 +22,7 @@ import PATH from '../store/axios/Url';
 import SoundRecord from './ChatComponent/SoundPlayer';
 import GameModal from './ChatComponent/Gamemodal';
 import ResponseGameModal from './ChatComponent/responseGame';
+import { TypeMessage } from './common/typeMessage';
 
 class Chat extends Component {
   constructor(props) {
@@ -47,28 +48,32 @@ class Chat extends Component {
     const messageOfRoom = props.socket.message.filter(
       msg => msg.rid === this.rid,
     );
+    console.warn(_.get(messageOfRoom[0], 'type_message', ''));
+
     if(messageOfRoom.length === 0){
       return
     }
-    else if (_.get(messageOfRoom[0], 'type_message', '') === 'play_game'){
-      if (_.get(messageOfRoom[0], 'message', '') === 'Invite') {
+    else if (_.get(messageOfRoom[0], 'type_message', '') === TypeMessage.PLAY_GAME){
+      const splited = _.get(messageOfRoom[0], 'message', '').split(' ')
+      const Game = !splited[1] ? {} : splited[1] 
+      if (splited[0] === 'INVITE') {
         // waiting response from your friend
         if(_.get(messageOfRoom[0], 'uid', 0) === this.user.ID){
           this.refs['GameModal'].setResponsePlayGame('Waiting response from your Friend', true)
           this.refs['GameModal'].countDown()
         } else { // if request from your friend show ResponseGameModal
-          this.refs['ResponseGameModal'].showModal()
+          this.refs['ResponseGameModal'].showModal(_.get(Game, 'game', ''))
         }
-      } else if (_.get(messageOfRoom[0], 'message', '') === 'Accept') {
+      } else if (splited[0] === 'ACCEPT') {
         this.refs['GameModal'].hideModal();
         this.refs['ResponseGameModal'].hideModal();
         this.refs['GameModal'].clearTime();
-        this.props.navigation.navigate('CaroScreen', {
+        this.props.navigation.navigate(_.get(Game, 'screen', ''), {
           roomId: this.rid, 
           user: this.user,
           myTurn: _.get(messageOfRoom[0], 'uid', 0) !== this.user.ID, // who invited to play first, The recipient is the one who agrees
         })
-      } else if (_.get(messageOfRoom[0], 'message', '') === 'Decline') {
+      } else if (splited[0] === 'DECLINE') {
         this.refs['GameModal'].setResponsePlayGame('Your Friend decline', false)
       } else {
         // friend cancel request invite play game
@@ -239,6 +244,9 @@ class Chat extends Component {
           inverted
           showsVerticalScrollIndicator={false}
           removeClippedSubviews
+          // getItemLayout={(data, index) => ({
+          //   length: , offset:  * index, index
+          // })}
           renderItem={item => this.renderItem(item, this.friend.avatar)}
           onEndReached={()=>this.loadMoreMessage()}
           onEndReachedThreshold={0.1}

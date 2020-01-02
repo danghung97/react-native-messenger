@@ -1,6 +1,8 @@
 import React from 'react';
-import {View, Text, Image, TouchableOpacity} from 'react-native';
+import {View, Text, Image, TouchableOpacity, StyleSheet} from 'react-native';
 import Modal from 'react-native-modal';
+import TypeMessage from '../common/typeMessage';
+import listGame from '../common/listGame';
 
 export default class GameModal extends React.PureComponent {
   state = {
@@ -9,6 +11,7 @@ export default class GameModal extends React.PureComponent {
     disableCancle: false,
     timing: 20,
   };
+
   showModal = () => {
     this.setState({isVisible: true});
   };
@@ -36,7 +39,7 @@ export default class GameModal extends React.PureComponent {
         clearInterval(this.timer)
         this.timer = null
         this.hideModal();
-        this.props.sendMessage('play_game', 'Cancle')
+        this.props.sendMessage(TypeMessage.PLAY_GAME, 'CANCEL')
       }
     }, 1000)
   }
@@ -51,9 +54,10 @@ export default class GameModal extends React.PureComponent {
     this.clearTime()
   }
 
-  InvitePlayGame = () => {
-    this.props.sendMessage('play_game', 'Invite')
+  InvitePlayGame = (item) => {
+    this.props.sendMessage(TypeMessage.PLAY_GAME, `INVITE ${JSON.stringify(item)}`)
   }
+
   render() {
     const {disableCancle, timing} = this.state;
 
@@ -63,33 +67,26 @@ export default class GameModal extends React.PureComponent {
     return (
       <Modal isVisible>
         <View style={{padding: 20, width: '80%', backgroundColor: '#fff', alignSelf: 'center'}}>
-          {!this.state.responsePlayGame ? <View >
-            <TouchableOpacity style={{flexDirection: 'row', alignItems: 'center'}} onPress={()=>this.InvitePlayGame()}>
-              <Image
-                style={{
-                  width: 50,
-                  height: 50,
-                  borderRadius: 25,
-                  borderWidth: 0.5,
-                  borderColor: '#fff',
-                }}
-                source={require('./caro.png')}
-              />
-              <Text
-                style={{
-                  marginLeft: 20,
-                  fontWeight: '500',
-                  fontSize: 14,
-                  lineHeight: 16,
-                  fontStyle: 'normal',
-                }}>
-                Game Caro
-              </Text>
-            </TouchableOpacity>
-          </View> :
-          <View>
-            <Text>{this.state.responsePlayGame}</Text>
-          </View>}
+          {!this.state.responsePlayGame ? 
+            <View>
+              {listGame.map((item, index) => {
+                return (
+                  <TouchableOpacity key={item.id} style={{flexDirection: 'row', alignItems: 'center'}} onPress={()=>this.InvitePlayGame(item)}>
+                    <Image
+                      style={styles.icon}
+                      source={item.icon}
+                    />
+                    <Text
+                      style={styles.game}>
+                      {item.game}
+                    </Text>
+                  </TouchableOpacity>
+                )
+              })}
+            </View> :
+            <View>
+              <Text>{this.state.responsePlayGame}</Text>
+            </View>}
           {disableCancle ? <Text style={{
             marginTop: 15,
             alignSelf: 'center',
@@ -114,3 +111,20 @@ export default class GameModal extends React.PureComponent {
     );
   }
 }
+
+const styles = StyleSheet.create({
+  icon: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    borderWidth: 0.5,
+    borderColor: '#fff',
+  },
+  game: {
+    marginLeft: 20,
+    fontWeight: '500',
+    fontSize: 14,
+    lineHeight: 16,
+    fontStyle: 'normal',
+  }
+})

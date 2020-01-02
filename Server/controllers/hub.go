@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	controllers2 "Server/controllers/Caro"
 	"Server/models"
 	"encoding/json"
 	"fmt"
@@ -52,10 +53,11 @@ func (h *Hub) Run() {
 			if err != nil && err != gorm.ErrRecordNotFound {
 				//return u.Message(false, "Connection error. Please retry")
 			}
-			if message.TypeMessage == "playing" {
-				splited := strings.Split(message.Message, " ")
-				posX, err := strconv.Atoi(splited[0])
-				posY, err := strconv.Atoi(splited[1])
+
+			if message.TypeMessage == "PLAYING" {
+				splitted := strings.Split(message.Message, " ")
+				posX, err := strconv.Atoi(splitted[0])
+				posY, err := strconv.Atoi(splitted[1])
 				if err!= nil {
 					message.Message = "Undefined position"
 					return
@@ -67,15 +69,16 @@ func (h *Hub) Run() {
 					turn = "O"
 				}
 				models.UpdateBoardChess(message.RoomID, posX, posY, turn)
-				isWin := CheckWin(posX, posY, models.GetBoarChess(message.RoomID))
+				isWin := controllers2.CheckWin(posX, posY, models.GetBoarChess(message.RoomID))
+
 				if isWin {
 					models.DeleteBoardChess(message.RoomID)
-					message.Message = fmt.Sprintf("%s %s", message.Message, "win")
+					message.Message = fmt.Sprintf("%s %s", message.Message, "WIN")
 				}else {
-					message.Message = fmt.Sprintf("%s %s", message.Message, "not_over")
+					message.Message = fmt.Sprintf("%s %s", message.Message, "NOT_OVER")
 				}
-			} else if message.TypeMessage == "play_game" {
-				if message.Message == "Accept" {
+			} else if message.TypeMessage == "PLAY_GAME" {
+				if message.Message == "ACCEPT" {
 					models.CreateBoardChess(message.RoomID)
 				}
 			}
@@ -83,8 +86,8 @@ func (h *Hub) Run() {
 			for client := range h.clients {
 				if client.uid == room.UserId1 || client.uid == room.UserId2 {
 					switch message.TypeMessage {
-					case "text":
-					case "image":
+					case "TEXT":
+					case "IMAGE":
 						receiver := models.Account{}
 						auth := models.Account{}
 						var err error
@@ -143,113 +146,5 @@ func requestSend(receiver, auth *models.Account, message *models.Messages) {
 			}
 			
 		}
-	}
-}
-
-// check only in the latest position
-func CheckWin(posX, posY int, boardChess [20][15]string) (isWin bool) {
-	value := boardChess[posX][posY]
-	// check ngang
-	tempX := posX
-	tempY := posY
-	dem := 0
-	for tempY >= 0 { // dem qua trai
-		if boardChess[posX][tempY] != value {
-			break
-		}else{
-			dem++
-		}
-		tempY--
-	}
-	for tempY <= 15 { // check qua phai
-		if boardChess[posX][tempY] != value {
-			break
-		}else{
-			dem++
-		}
-		tempY++
-	}
-	if dem >=5 {
-		return true
-	} else {
-		tempY = posY
-		dem = 0
-	}
-	// check doc
-	for tempX >= 0 { // check len tren
-		if boardChess[tempX][posY] != value {
-			break
-		}else{
-			dem++
-		}
-		tempX--
-	}
-	for tempX <= 20 { // check xuong duoi
-		if boardChess[tempX][posY] != value {
-			break
-		}else{
-			dem++
-		}
-		tempX++
-	}
-	if dem >=5 {
-		return true
-	} else {
-		tempX = posX
-		dem = 0
-	}
-	// check cheo 1
-	for tempX >=0 && tempY >= 0 { //check cheo len ben trai
-		if boardChess[tempX][posY] != value {
-			break
-		} else {
-			dem++
-		}
-		tempX--
-		tempY--
-	}
-	tempX = posX
-	tempY = posY
-	for tempX <= 20 && tempY <=15 { //check cheo xuong ben phai
-		if boardChess[tempX][tempY] != value {
-			break
-		} else {
-			dem++
-		}
-		tempX++
-		tempY++
-	}
-	tempX = posX
-	tempY = posY
-	if dem >=5 {
-		return true
-	} else {
-		dem = 0
-	}
-	//check cheo 2
-	for tempX >= 0 && tempY <= 15 { // cheo len ben phai
-		if boardChess[tempX][tempY] != value {
-			break
-		} else {
-			dem++
-		}
-		tempX--
-		tempY++
-	}
-	tempX = posX
-	tempY = posY
-	for tempX <= 20 && tempY >= 0 {// cheo xuong ben trai
-		if boardChess[tempX][tempY] != value {
-			break
-		} else {
-			dem++
-		}
-		tempX++
-		tempY--
-	}
-	if dem >= 5 {
-		return true
-	} else {
-		return false
 	}
 }

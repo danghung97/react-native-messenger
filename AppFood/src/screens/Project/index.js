@@ -33,7 +33,7 @@ class Project extends Component {
     };
 
     global.socket.onclose = e => {
-      alert('Websocket closed');
+      // alert('Websocket closed');
       if (global.isLogging) {
         connectInterval = setTimeout(this.check, 3000);
       }
