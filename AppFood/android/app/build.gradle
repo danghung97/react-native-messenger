@@ -207,8 +207,9 @@ dependencies {
 
     compile 'com.android.support:appcompat-v7:21.0.0'
 
-    compile project(':WebRTCModule')
+    // compile project(':WebRTCModule')
     compile project(':react-native-audio')
+    compile project(':react-native-twilio-video-webrtc')
 
     if (enableHermes) {
         def hermesPath = "../../node_modules/hermes-engine/android/";
