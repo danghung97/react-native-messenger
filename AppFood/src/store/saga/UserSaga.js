@@ -45,7 +45,7 @@ function* login(action){
   }
 }
 
-function* loginWatcher(){
+export function* watcherLogin(){
   yield takeLatest(USER_LOGIN, login)
 }
 
@@ -64,7 +64,7 @@ function *checkLogin() {
   })
 }
 
-function* watchCheckLogin() {
+export function* watcherCheckLogin() {
   yield takeLatest(CHECK_LOGIN, checkLogin);
 }
 
@@ -81,7 +81,7 @@ function* logout() {
   })
 }
 
-function* watcherLogout() {
+export function* watcherLogout() {
   yield takeLatest(USER_LOGOUT, logout)
 }
 
@@ -126,46 +126,46 @@ function* signup(action){
   }
 }
 
-function* signupWatcher(){
+export function* watcherSignup(){
   yield takeLatest(SIGN_UP, signup)
 }
 
-function* addPost(action) {
-  // try {
-    console.warn('1212')
-    const response = yield ApiService.post(
-      PATH.ADD_POST,
-      action.data
-    )
+// function* addPost(action) {
+//   // try {
+//     console.warn('1212')
+//     const response = yield ApiService.post(
+//       PATH.ADD_POST,
+//       action.data
+//     )
 
-    console.warn('res', response)
-    if (response && _.get(response, 'data.status', false)) {
-      yield put({
-        type: ADD_POST_SUCCESS,
-        data: response.data
-      })
-    } else {
-      yield put({
-        type: ADD_POST_FAIL,
-        data: response.data
-      })
-    }
-  // }
-  // catch {
-  //   err => console.warn(err)
-  // }
-}
+//     console.warn('res', response)
+//     if (response && _.get(response, 'data.status', false)) {
+//       yield put({
+//         type: ADD_POST_SUCCESS,
+//         data: response.data
+//       })
+//     } else {
+//       yield put({
+//         type: ADD_POST_FAIL,
+//         data: response.data
+//       })
+//     }
+//   // }
+//   // catch {
+//   //   err => console.warn(err)
+//   // }
+// }
 
-function* AddPostWatcher() {
-  yield takeLatest(ADD_POST, addPost)
-}
+// export function* watcherAddPost() {
+//   yield takeLatest(ADD_POST, addPost)
+// }
 
-export default function* userSaga(){
-  yield all([
-    AddPostWatcher(),
-    loginWatcher(),
-    signupWatcher(),
-    watchCheckLogin(),
-    watcherLogout(),
-  ])
-}
+// export default function* userSaga(){
+//   yield all([
+//     AddPostWatcher(),
+//     loginWatcher(),
+//     signupWatcher(),
+//     watchCheckLogin(),
+//     watcherLogout(),
+//   ])
+// }
