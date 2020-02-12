@@ -1,14 +1,14 @@
-import instance from '../axios/AxiosInstance'
 import { AsyncStorage } from 'react-native';
-import { put, takeLatest, all } from 'redux-saga/effects'
-import {CHECK_LOGIN_SUCCESS, CHECK_LOGIN, USER_LOGIN, USER_LOGOUT, LOGIN_SUCESS, 
-  LOGIN_FAIL, SIGN_UP_SUCCESS, SIGN_UP_FAIL, SIGN_UP, LOGOUT_SUCCESS} from '../actions/UseAction'
-import PATH from '../axios/Url'
+import { put, takeLatest, all } from 'redux-saga/effects';
+import {CHECK_LOGIN_SUCCESS, CHECK_LOGIN, USER_LOGIN, USER_LOGOUT, LOGIN_SUCESS, ADD_POST, 
+  LOGIN_FAIL, SIGN_UP_SUCCESS, SIGN_UP_FAIL, SIGN_UP, LOGOUT_SUCCESS, ADD_POST_SUCCESS, ADD_POST_FAIL} from '../actions/UseAction';
+import PATH from '../axios/Url';
 import ApiService from '../axios/AxiosInstance';
 import axios from 'axios';
+
 function* login(action){
   try{
-    const response = yield instance.post(
+    const response = yield ApiService.post(
         PATH.LOG_IN,
         action.data
     )
@@ -46,7 +46,7 @@ function* login(action){
 }
 
 function* loginWatcher(){
-  yield takeLatest('USER_LOGIN', login)
+  yield takeLatest(USER_LOGIN, login)
 }
 
 function *checkLogin() {
@@ -65,14 +65,13 @@ function *checkLogin() {
 }
 
 function* watchCheckLogin() {
-  yield takeLatest('CHECK_LOGIN', checkLogin);
+  yield takeLatest(CHECK_LOGIN, checkLogin);
 }
 
 function* logout() {
   yield reponse =  ApiService.post(PATH.LOG_OUT, {
     fcm_token: global.fcmToken
   })
-  console.warn(reponse)
   delete ApiService.headers['Authorization']
   global.isLogging = false;
   global.socket.close();
@@ -83,11 +82,11 @@ function* logout() {
 }
 
 function* watcherLogout() {
-  yield takeLatest('USER_LOGOUT', logout)
+  yield takeLatest(USER_LOGOUT, logout)
 }
 
 function* sendMail(action){
-    const response = yield instance.post(
+    const response = yield ApiService.post(
         "api/user/sendemail",
         action.email
     ).then(res => res.data)
@@ -105,7 +104,7 @@ function* sendMail(action){
 
 function* signup(action){
   try{
-    const response = yield instance.post(
+    const response = yield ApiService.post(
       PATH.SIGN_UP,
       action.data
     )
@@ -128,11 +127,42 @@ function* signup(action){
 }
 
 function* signupWatcher(){
-  yield takeLatest('SIGN_UP', signup)
+  yield takeLatest(SIGN_UP, signup)
+}
+
+function* addPost(action) {
+  // try {
+    console.warn('1212')
+    const response = yield ApiService.post(
+      PATH.ADD_POST,
+      action.data
+    )
+
+    console.warn('res', response)
+    if (response && _.get(response, 'data.status', false)) {
+      yield put({
+        type: ADD_POST_SUCCESS,
+        data: response.data
+      })
+    } else {
+      yield put({
+        type: ADD_POST_FAIL,
+        data: response.data
+      })
+    }
+  // }
+  // catch {
+  //   err => console.warn(err)
+  // }
+}
+
+function* AddPostWatcher() {
+  yield takeLatest(ADD_POST, addPost)
 }
 
 export default function* userSaga(){
   yield all([
+    AddPostWatcher(),
     loginWatcher(),
     signupWatcher(),
     watchCheckLogin(),

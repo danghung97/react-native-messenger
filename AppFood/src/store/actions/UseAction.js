@@ -1,23 +1,27 @@
-export const USER_LOGIN = "USER_LOGIN"
-export const LOGIN_SUCESS = "LOGIN_SUCCESS"
-export const LOGIN_FAIL = "LOGIN_FAIL"
-export const SIGN_UP = "SIGN_UP"
-export const SIGN_UP_SUCCESS = "SIGN_UP_SUCCESS"
-export const SIGN_UP_FAIL = "SIGN_UP_FAIL"
-export const LOAD_ROOM = "LOAD_ROOM"
-export const RECEIVE_MESSAGE = "RECEIVE_MESSAGE"
-export const CHECK_LOGIN = "CHECK_LOGIN"
-export const NOTIFICATION = "NOTIFICATION"
-export const REMOVE_NOTIFICATION = "REMOVE_NOTIFICATION"
-export const CHECK_LOGIN_SUCCESS = "CHECK_LOGIN_SUCCESS"
+export const USER_LOGIN = "USER_LOGIN";
+export const LOGIN_SUCESS = "LOGIN_SUCCESS";
+export const LOGIN_FAIL = "LOGIN_FAIL";
+export const SIGN_UP = "SIGN_UP";
+export const SIGN_UP_SUCCESS = "SIGN_UP_SUCCESS";
+export const SIGN_UP_FAIL = "SIGN_UP_FAIL";
+export const LOAD_ROOM = "LOAD_ROOM";
+export const RECEIVE_MESSAGE = "RECEIVE_MESSAGE";
+export const CHECK_LOGIN = "CHECK_LOGIN";
+export const NOTIFICATION = "NOTIFICATION";
+export const REMOVE_NOTIFICATION = "REMOVE_NOTIFICATION";
+export const CHECK_LOGIN_SUCCESS = "CHECK_LOGIN_SUCCESS";
 
-export const USER_LOGOUT = "USER_LOGOUT"
-export const LOGOUT_SUCCESS = "LOGOUT_SUCCESS"
+export const USER_LOGOUT = "USER_LOGOUT";
+export const LOGOUT_SUCCESS = "LOGOUT_SUCCESS";
+
+export const ADD_POST = "ADD_POST";
+export const ADD_POST_SUCCESS = "ADD_POST_SUCCESS";
+export const ADD_POST_FAIL = "ADD_POST_FAIL";
 
 export const login = (data) => {
     return{
         type: USER_LOGIN,
-        data: data    
+        data,
     }
 }
 
@@ -78,5 +82,12 @@ export const savenotifi = (data) => {
 export const removenotifi = () => {
     return {
         type: REMOVE_NOTIFICATION,
+    }
+}
+
+export const AddPost = (data) => {
+    return {
+        type: ADD_POST,
+        data
     }
 }

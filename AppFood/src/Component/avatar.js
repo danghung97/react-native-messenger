@@ -98,6 +98,7 @@ export default class Avatar extends Component{
 
   render(){
     const { isVisible, link } = this.state;
+    const { style } = this.props
     let uri = !this.props.uri ? require('../Assets/Image/avatar.jpg') : {uri: this.props.uri};
     if(!!link) uri = {uri: link}
     return(
@@ -105,7 +106,7 @@ export default class Avatar extends Component{
         <TouchableOpacity style={styles.avatar} onPress={()=>this.props.navigation.navigate("ImageZoomScreen", {
           uri: uri
         })}>
-          <Image style={styles.avatar} source={uri} />
+          <Image style={style} source={uri} />
         </TouchableOpacity>
         <TouchableOpacity onPress={()=>this.openPicker()} style={styles.camera}>
           <Icons name="camerao" size={30}/>
@@ -123,13 +124,6 @@ export default class Avatar extends Component{
 const styles=StyleSheet.create({
     container:{
         flexDirection: "row"
-    },
-    avatar:{
-        width: 120,
-        height: 120,
-        borderRadius: 75,
-        borderWidth: 1,
-        borderColor: 'black'
     },
     camera: {
         justifyContent: "flex-end"
