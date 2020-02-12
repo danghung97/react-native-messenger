@@ -8,11 +8,12 @@ import com.facebook.react.ReactPackage;
 import com.facebook.soloader.SoLoader;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
-import com.oney.WebRTCModule.WebRTCModulePackage;
+// import com.oney.WebRTCModule.WebRTCModulePackage;
 import com.facebook.react.ReactApplication; //<- Dòng này
 import io.invertase.firebase.messaging.RNFirebaseMessagingPackage;//<- Dòng này
 import io.invertase.firebase.notifications.RNFirebaseNotificationsPackage;//<- Dòng này
 import org.devio.rn.splashscreen.SplashScreenReactPackage;
+// import com.twiliorn.library.TwilioPackage;
 // import com.rnim.rn.audio.ReactNativeAudioPackage;
 
 public class MainApplication extends Application implements ReactApplication {
@@ -33,6 +34,7 @@ public class MainApplication extends Application implements ReactApplication {
           // packages.add(new SplashScreenReactPackage());
           packages.add(new RNFirebaseMessagingPackage());//<- Dòng này
           packages.add(new RNFirebaseNotificationsPackage());//<- Dòng này
+          // packages.add(new TwilioPackage());//<- Dòng này
           // packages.add(new ReactNativeAudioPackage());
           // packages.add(new WebRTCModulePackage()); // <-- Add this line
           return packages;

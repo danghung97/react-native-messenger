@@ -1,213 +1,239 @@
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 import {
-    View,
-    Text,
-    Platform,
-    TouchableOpacity
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+  Button,
+  TouchableOpacity,
+  Dimensions
 } from 'react-native';
+
 import {
-    RTCPeerConnection,
-    RTCMediaStream,
-    RTCIceCandidate,
-    RTCSessionDescription,
-    RTCView,
-    MediaStreamTrack,
-    mediaDevices,
-  } from 'react-native-webrtc';
-import { connect } from 'react-redux';
+  TwilioVideoLocalView,
+  TwilioVideoParticipantView,
+  TwilioVideo
+} from 'react-native-twilio-video-webrtc'
 
-const configuration = {"iceServers": [{"url": "stun:stun.l.google.com:19302"}]};
-const pcPeers = {}
-let localStream;
-let pc;
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: 'white'
+  },
+  callContainer: {
+    flex: 1,
+    position: "absolute",
+    bottom: 0,
+    top: 0,
+    left: 0,
+    right: 0
+  },
+  welcome: {
+    fontSize: 30,
+    textAlign: 'center',
+    paddingTop: 40
+  },
+  input: {
+    height: 50,
+    borderWidth: 1,
+    marginRight: 70,
+    marginLeft: 70,
+    marginTop: 50,
+    textAlign: 'center',
+    backgroundColor: 'white'
+  },
+  button: {
+    marginTop: 100
+  },
+  localVideo: {
+    flex: 1,
+    width: 150,
+    height: 250,
+    position: "absolute",
+    right: 10,
+    bottom: 10
+  },
+  remoteGrid: {
+    flex: 1,
+    flexDirection: "row",
+    flexWrap: 'wrap'
+  },
+  remoteVideo: {
+    marginTop: 20,
+    marginLeft: 10,
+    marginRight: 10,
+    width: 100,
+    height: 120,
+  },
+  optionsContainer: {
+    position: "absolute",
+    left: 0,
+    bottom: 0,
+    right: 0,
+    height: 100,
+    backgroundColor: 'blue',
+    flexDirection: "row",
+    alignItems: "center"
+  },
+  optionButton: {
+    width: 60,
+    height: 60,
+    marginLeft: 10,
+    marginRight: 10,
+    borderRadius: 100 / 2,
+    backgroundColor: 'grey',
+    justifyContent: 'center',
+    alignItems: "center"
+  }
+});
 
-class VideoCall extends Component {
-  constructor(props){
-    super(props);
-    this.state = {
-      isFront: true,
-      selfViewSrc: null,
-      remoteList: {},
-    }
-    this.userId = props.navigation.getParam('userId')
-    this.rid = props.navigation.getParam('rid')
+export default class VideoCall extends Component {
+  state = {
+    isAudioEnabled: true,
+    isVideoEnabled: true,
+    status: 'disconnected',
+    participants: new Map(),
+    videoTracks: new Map(),
+    roomName: '',
+    token: ''
   }
 
-  getLocalStream = (isFront, callback) => {
-  
-    mediaDevices.enumerateDevices().then(sourceInfos => {
-      let videoSourceId;
-      for (let i = 0; i < sourceInfos.length; i++) {
-        const sourceInfo = sourceInfos[i];
-        if(sourceInfo.kind == "videoinput" && sourceInfo.facing == (isFront ? "front" : "back")) {
-          videoSourceId = sourceInfo.deviceId;
-        }
-      }
-      mediaDevices.getUserMedia({
-        audio: true,
-        video: {
-          mandatory: {
-            minWidth: 500, // Provide your own width, height and frame rate here
-            minHeight: 300,
-            minFrameRate: 30
-          },
-          facingMode: (isFront ? "user" : "environment"),
-          optional: (videoSourceId ? [{sourceId: videoSourceId}] : [])
-        }
-      })
-      .then(stream => {
-        // Got stream!
-        callback(stream);
-      })
-      .catch(error => {
-        // Log error
-        alert('error stream: ', error)
-      })
-    })
-  }
-  sendMessage = (type_message, msg) => {
-    const message = {
-      uid: this.userId,
-      rid: this.rid,
-      type_message,
-      message: msg,
-    }
-    try{
-      global.socket.send(JSON.stringify(message));
-    } catch (error) {
-      alert('send message failed: ' + error)
-    }
-  }
-  logError = (error) => {
-    console.log("logError", error);
+  _onConnectButtonPress = () => {
+    this.refs.twilioVideo.connect({ roomName: this.state.roomName, accessToken: this.state.token })
+    this.setState({status: 'connecting'})
   }
 
-  componentDidMount() {
-    this.getLocalStream(true, (stream) => {
-      localStream = stream
-      pc = new RTCPeerConnection(configuration)
-
-      pc.addStream(stream)
-      pc.onaddstream = (event) => {
-        const remoteList = this.state.remoteList
-        remoteList = event.stream.toURL()
-        this.setState({ remoteList })
-      }
-      pc.onicecandidate = (event) => {
-        if (event.candidate) {
-          this.sendMessage('WebRTC-candidate', JSON.stringify(event.candidate))
-        }
-      }
-      setTimeout(() => {
-        pc.createOffer().then(desc => {
-          pc.setLocalDescription(desc).then(() => {
-            this.sendMessage('WebRTC-offer', JSON.stringify(pc.localDescription.sdp))
-          }, this.logError)
-        }, this.logError)
-      }, 1000)
-      this.setState({ selfViewSrc: stream.toURL() })
-    })
-  }
-  componentWillReceiveProps(nextProps) {
-    console.log('nextProps', nextProps.data)
-    if (nextProps.data.message === 'leave') {
-      this.leave(nextProps.data.uid)
-    }
-    if (nextProps.data) {
-      const data = JSON.parse(nextProps.data.message)
-      const type = nextProps.data.type_message
-      if (type === 'WebRTC-offer') {
-        pc.setRemoteDescription(new RTCSessionDescription(data))
-        pc.createAnswer().then(desc => {
-          pc.setLocalDescription(desc).then(() => {
-            this.sendMessage('WebRTC-answer', JSON.stringify(pc.localDescription.sdp))
-          }, this.logError);
-        }, this.logError);
-      } else if (type === 'WebRTC-candidate') {
-        console.log('exchange candidate', data);
-        pc.addIceCandidate(new RTCIceCandidate(data));
-      } else if (type === 'WebRTC-answer') {
-        pc.setRemoteDescription(new RTCSessionDescription(data))
-      }
-    }
+  _onEndButtonPress = () => {
+    this.refs.twilioVideo.disconnect()
   }
 
-  mapHash = (hash, func) => {
-    const array = [];
-    for (const key in hash) {
-      const obj = hash[key];
-      array.push(func(obj, key));
-    }
-    return array;
+  _onMuteButtonPress = () => {
+    this.refs.twilioVideo.setLocalAudioEnabled(!this.state.isAudioEnabled)
+      .then(isEnabled => this.setState({isAudioEnabled: isEnabled}))
   }
 
-  leave = (userId) => {
-    const pc = pcPeers[userId]
-    // pc.close()
-    delete pcPeers[userId]
-    const remoteList = this.state.remoteList
-    delete remoteList[userId]
-    this.setState({remoteList})
+  _onFlipButtonPress = () => {
+    this.refs.twilioVideo.flipCamera()
   }
 
-  handleLeave = () => {
-    this.sendMessage('WebRTC-leave', 'leave')
-    this.props.navigation.goBack()
-  }
-  _switchVideoType = () => {
-    const isFront = !this.state.isFront
-    this.setState({isFront});
-    this.getLocalStream(isFront, (stream) => {
-      if(localStream) {
-        for (const id in pcPeers) {
-          const pc = pcPeers[id]
-          pc && pc.removeStream(localStream)
-        }
-        localStream.release()
-      }
-      localStream = stream
-      this.setState({selfViewSrc: stream.toURL()})
-
-      for (const id in pcPeers) {
-        const pc = pcPeers[id]
-        pc && pc.addStream(localStream)
-      }
-    })
+  _onRoomDidConnect = () => {
+    this.setState({status: 'connected'})
   }
 
-  render(){
-    return(
-      <View style={{width: '100%', height: '100%', justifyContent: 'space-between'}}>
-        <RTCView streamURL={this.state.selfViewSrc} style={{width: '100%', height: '45%'}} />
-        <View style={{flexDirection: 'row', justifyContent: 'center'}}>
-          <Text>
-            {this.state.isFront ? "Use front camera" : "Use back camera"}
-          </Text>
-          <TouchableOpacity
-            style={{borderWidth: 1, borderColor: 'black', marginLeft: 15}}
-            onPress={this._switchVideoType}>
-            <Text>Switch camera</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={{borderWidth: 1, borderColor: 'black', marginLeft: 15}}
-            onPress={this.handleLeave}>
-            <Text>LEAVE</Text>
-          </TouchableOpacity>
-        </View>
+  _onRoomDidDisconnect = ({roomName, error}) => {
+    console.log("ERROR: ", error)
+
+    this.setState({status: 'disconnected'})
+  }
+
+  _onRoomDidFailToConnect = (error) => {
+    console.log("ERROR: ", error)
+
+    this.setState({status: 'disconnected'})
+  }
+
+  _onParticipantAddedVideoTrack = ({participant, track}) => {
+    console.log("onParticipantAddedVideoTrack: ", participant, track)
+
+    this.setState({
+      videoTracks: new Map([
+        ...this.state.videoTracks,
+        [track.trackSid, { participantSid: participant.sid, videoTrackSid: track.trackSid }]
+      ]),
+    });
+  }
+
+  _onParticipantRemovedVideoTrack = ({participant, track}) => {
+    console.log("onParticipantRemovedVideoTrack: ", participant, track)
+
+    const videoTracks = this.state.videoTracks
+    videoTracks.delete(track.trackSid)
+
+    this.setState({ videoTracks: new Map([ ...videoTracks ]) });
+  }
+
+  render() {
+    return (
+      <View style={styles.container}>
         {
-          this.mapHash(this.state.remoteList, function(remote, index) {
-            return <RTCView key={index} streamURL={remote} style={styles.remoteView}/>
-          })
+          this.state.status === 'disconnected' &&
+          <View>
+            <Text style={styles.welcome}>
+              React Native Twilio Video
+            </Text>
+            <TextInput
+              style={styles.input}
+              autoCapitalize='none'
+              value={this.state.roomName}
+              onChangeText={(text) => this.setState({roomName: text})}>
+            </TextInput>
+            <TextInput
+              style={styles.input}
+              autoCapitalize='none'
+              value={this.state.token}
+              onChangeText={(text) => this.setState({token: text})}>
+            </TextInput>
+            <Button
+              title="Connect"
+              style={styles.button}
+              onPress={this._onConnectButtonPress}>
+            </Button>
+          </View>
         }
+
+        {
+          (this.state.status === 'connected' || this.state.status === 'connecting') &&
+            <View style={styles.callContainer}>
+            {
+              this.state.status === 'connected' &&
+              <View style={styles.remoteGrid}>
+                {
+                  Array.from(this.state.videoTracks, ([trackSid, trackIdentifier]) => {
+                    return (
+                      <TwilioVideoParticipantView
+                        style={styles.remoteVideo}
+                        key={trackSid}
+                        trackIdentifier={trackIdentifier}
+                      />
+                    )
+                  })
+                }
+              </View>
+            }
+            <View
+              style={styles.optionsContainer}>
+              <TouchableOpacity
+                style={styles.optionButton}
+                onPress={this._onEndButtonPress}>
+                <Text style={{fontSize: 12}}>End</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.optionButton}
+                onPress={this._onMuteButtonPress}>
+                <Text style={{fontSize: 12}}>{ this.state.isAudioEnabled ? "Mute" : "Unmute" }</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.optionButton}
+                onPress={this._onFlipButtonPress}>
+                <Text style={{fontSize: 12}}>Flip</Text>
+              </TouchableOpacity>
+              <TwilioVideoLocalView
+                enabled={true}
+                style={styles.localVideo}
+              />
+            </View>
+          </View>
+        }
+
+        <TwilioVideo
+          ref="twilioVideo"
+          onRoomDidConnect={ this._onRoomDidConnect }
+          onRoomDidDisconnect={ this._onRoomDidDisconnect }
+          onRoomDidFailToConnect= { this._onRoomDidFailToConnect }
+          onParticipantAddedVideoTrack={ this._onParticipantAddedVideoTrack }
+          onParticipantRemovedVideoTrack= { this._onParticipantRemovedVideoTrack }
+        />
       </View>
-    )
+    );
   }
 }
-
-const mapStateToProps = state => {
-  return {
-    data: state.socket.data_webrtc
-  }
-}
-
-export default connect(mapStateToProps, null)(VideoCall)
