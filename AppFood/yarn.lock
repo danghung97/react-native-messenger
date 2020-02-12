@@ -2543,11 +2543,6 @@ event-stream@^4.0.1:
     stream-combiner "^0.2.2"
     through "^2.3.8"
 
-event-target-shim@^1.0.5:
-  version "1.1.1"
-  resolved "https://registry.yarnpkg.com/event-target-shim/-/event-target-shim-1.1.1.tgz#a86e5ee6bdaa16054475da797ccddf0c55698491"
-  integrity sha1-qG5e5r2qFgVEddp5fM3fDFVphJE=
-
 event-target-shim@^5.0.0, event-target-shim@^5.0.1:
   version "5.0.1"
   resolved "https://registry.yarnpkg.com/event-target-shim/-/event-target-shim-5.0.1.tgz#5d4d3ebdf9583d63a5333ce2deb7480ab2b05789"
@@ -5554,16 +5549,6 @@ react-native-vector-icons@^6.6.0:
     lodash "^4.0.0"
     prop-types "^15.6.2"
     yargs "^13.2.2"
-
-react-native-webrtc@^1.75.2:
-  version "1.75.2"
-  resolved "https://registry.yarnpkg.com/react-native-webrtc/-/react-native-webrtc-1.75.2.tgz#c479c6d85d2f21e4082ded9a5fc28d710384077f"
-  integrity sha512-mdEukmHNhiyVIiwdooxk4kVXWG83OOENFV9YIkC7dtGU/sOdL81vDzynqd6Af9YbGMeOr0xdpFuEGsc1OFnKZg==
-  dependencies:
-    base64-js "^1.1.2"
-    event-target-shim "^1.0.5"
-    prop-types "^15.5.10"
-    uuid "^3.3.2"
 
 react-native@0.61.2:
   version "0.61.2"
