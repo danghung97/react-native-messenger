@@ -7,9 +7,13 @@ const FIND_USER = "/api/user/find";
 const LOAD_MORE_MSG = "/api/load-more-message";
 const UPLOADING = "/api/user/uploading";
 const UPDATE_AVATAR = "/api/user/update-avatar";
+
 const FORGET_PASSWORD = "/api/user/forget-password";
 const CHANGE_PASSWORD = "/api/user/change-password";
+
 const ADD_POST = "/api/user/addPost";
+const REMOVE_POST = "/api/user/removePost"
+const FETCH_POST = "/api/user/fetchPost"
 
 export default PATH = {
   SIGN_UP,
@@ -24,4 +28,6 @@ export default PATH = {
   FORGET_PASSWORD,
   CHANGE_PASSWORD,
   ADD_POST,
+  REMOVE_POST,
+  FETCH_POST,
 }

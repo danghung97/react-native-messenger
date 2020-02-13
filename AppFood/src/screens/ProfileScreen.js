@@ -13,6 +13,9 @@ import Avatar from '../Component/avatar'
 import { connect } from 'react-redux';
 import Icons from 'react-native-vector-icons/AntDesign'
 import { AddPost } from '../store/actions/UseAction';
+import ApiService from '../store/axios/AxiosInstance';
+import PATH from '../store/axios/Url';
+import _ from 'lodash';
 
 class ProfileScreen extends Component{
   constructor(props){
@@ -20,9 +23,16 @@ class ProfileScreen extends Component{
     this.state={
       refreshing: false
     }
+    this.posts = [..._.get(this.props.user, 'user.posts', [])]
     this.content_text = "";
     this.content_image = "";
   }
+
+  async componentDidMount() {
+    const loadPosts = this.posts.splice(0,6)
+
+  }
+
   onRefresh = () => {
     this.setState({refreshing: true})
     // axios.get("https://serverappfood.herokuapp.com/api/user/login",{
@@ -44,7 +54,6 @@ class ProfileScreen extends Component{
     const {refreshing} = this.state
     
     const {email, name, address, phone, avatar} = this.props.user.user
-    console.warn(this.props.user.user)
     return(
       <ScrollView
         refreshControl={
@@ -52,16 +61,13 @@ class ProfileScreen extends Component{
         }
         showsVerticalScrollIndicator={false}
         style={styles.container}>
-        <View style={{ backgroundColor: '#FFFFFF' }}>
-          <View style={styles.part1} />
-          <View style={[styles.avatar, { position: 'absolute', marginTop: 160 }]} >
-            <Avatar
-              style={styles.avatar}
-              user={this.props.user.user} 
-              uri={avatar} 
-              navigation={this.props.navigation}
-            />
-          </View>
+        <View style={styles.part1} />
+        <View style={{alignSelf: 'center', position: 'absolute', marginTop: 160 }} >
+          <Avatar
+            user={this.props.user.user} 
+            uri={avatar} 
+            navigation={this.props.navigation}
+          />
         </View>
         <View style={styles.containerInFo}>
           <View style={styles.rectangle}>
@@ -125,14 +131,6 @@ const styles = StyleSheet.create({
     height: 220,
     backgroundColor: 'skyblue',
     width: '100%',
-  },
-  avatar:{
-    alignSelf: 'center',
-    width: 120,
-    height: 120,
-    borderRadius: 75,
-    borderWidth: 1,
-    borderColor: '#FFFFFF'
   },
   containerInFo:{
     backgroundColor: '#FFFFFF',

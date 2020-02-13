@@ -16,9 +16,9 @@ import LoadingModal from '../Component/loading';
 
 class Login extends Component {
 	constructor(props){
-    super(props);
-    this.email = "";
-    this.password = "";
+		super(props);
+		this.email = "";
+		this.password = "";
 	}
 
 	async componentDidMount() {
