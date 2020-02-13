@@ -13,7 +13,7 @@ function* AddPost(action) {
       action.data
     )
 
-    console.warn('res', response)
+    console.warn('res', response.data)
     if (response && _.get(response, 'data.status', false)) {
       yield put({
         type: ADD_POST_SUCCESS,
@@ -31,8 +31,8 @@ function* AddPost(action) {
   }
 }
 
-export default function* AddPostWatcher() {
-  yield takeLatest('ADD_POST', AddPost)
+export function* watcherAddPost() {
+  yield takeLatest(ADD_POST, AddPost)
 }
 
 // export default function* PostSaga(){

@@ -33,10 +33,10 @@ class ProfileScreen extends Component{
   }
 
   ToPost = () => {
-    AddPost({
+    this.props.AddPost({
       content_text: this.content_text,
       content_image: this.content_image,
-      Public: true,
+      public: true,
     })
   }
 
@@ -44,7 +44,7 @@ class ProfileScreen extends Component{
     const {refreshing} = this.state
     
     const {email, name, address, phone, avatar} = this.props.user.user
-    console.warn(this.props.posts)
+    console.warn(this.props.user.user)
     return(
       <ScrollView
         refreshControl={
@@ -173,7 +173,11 @@ const mapStateToProps =  state => {
 	}
 }
 
+const mapDispatchToProps = {
+  AddPost: AddPost,
+}
+ 
 export default connect(
 	mapStateToProps,
-	null
+	mapDispatchToProps
 )(ProfileScreen)

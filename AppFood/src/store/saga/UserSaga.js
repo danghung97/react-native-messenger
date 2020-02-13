@@ -1,7 +1,7 @@
 import { AsyncStorage } from 'react-native';
 import { put, takeLatest, all } from 'redux-saga/effects';
-import {CHECK_LOGIN_SUCCESS, CHECK_LOGIN, USER_LOGIN, USER_LOGOUT, LOGIN_SUCESS, ADD_POST, 
-  LOGIN_FAIL, SIGN_UP_SUCCESS, SIGN_UP_FAIL, SIGN_UP, LOGOUT_SUCCESS, ADD_POST_SUCCESS, ADD_POST_FAIL} from '../actions/UseAction';
+import {CHECK_LOGIN_SUCCESS, CHECK_LOGIN, USER_LOGIN, USER_LOGOUT, LOGIN_SUCESS, 
+  LOGIN_FAIL, SIGN_UP_SUCCESS, SIGN_UP_FAIL, SIGN_UP, LOGOUT_SUCCESS } from '../actions/UseAction';
 import PATH from '../axios/Url';
 import ApiService from '../axios/AxiosInstance';
 import axios from 'axios';
