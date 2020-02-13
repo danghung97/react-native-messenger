@@ -8,7 +8,6 @@ import {
   TouchableOpacity,
   TouchableWithoutFeedback,
   Keyboard,
-  AsyncStorage
 } from "react-native";
 import { connect } from 'react-redux'
 import { signup } from '../store/actions/UseAction';

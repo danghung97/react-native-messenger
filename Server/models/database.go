@@ -42,7 +42,7 @@ func init(){
 		fmt.Print(err)
 	}
 
-	db.Debug().AutoMigrate(&Account{}, &FakeAccount{}, &Messages{}, &Rooms{})
+	db.Debug().AutoMigrate(&Account{}, &FakeAccount{}, &Messages{}, &Rooms{}, &Posts{})
 	//db.DropTable("friends")
 	//err = db.Model(&Account{}).DropColumn("fcm_token").Error
 	//if err != nil {

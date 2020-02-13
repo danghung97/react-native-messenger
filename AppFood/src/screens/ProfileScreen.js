@@ -5,17 +5,23 @@ import{
     StyleSheet,
     Text,
     RefreshControl,
+    TouchableOpacity,
+    Image,
+    TextInput
 } from 'react-native';
 import Avatar from '../Component/avatar'
 import { connect } from 'react-redux';
-// import axios from 'axios';
+import Icons from 'react-native-vector-icons/AntDesign'
+import { AddPost } from '../store/actions/UseAction';
 
 class ProfileScreen extends Component{
   constructor(props){
     super(props);
     this.state={
-        refreshing: false
+      refreshing: false
     }
+    this.content_text = "";
+    this.content_image = "";
   }
   onRefresh = () => {
     this.setState({refreshing: true})
@@ -25,48 +31,84 @@ class ProfileScreen extends Component{
     //     }
     // }).then(res=>console.log(res))
   }
+
+  ToPost = () => {
+    this.props.AddPost({
+      content_text: this.content_text,
+      content_image: this.content_image,
+      public: true,
+    })
+  }
+
   render(){
     const {refreshing} = this.state
     
     const {email, name, address, phone, avatar} = this.props.user.user
+    console.warn(this.props.user.user)
     return(
-      <ScrollView refreshControl={
+      <ScrollView
+        refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={()=>this.onRefresh()} />
-      }
-      style={{width: '100%', display: "flex"}}>
-        <View style={styles.part1} />
-        <View style={styles.avatar}>
-          <Avatar 
-            user={this.props.user.user} 
-            uri={avatar} 
-            navigation={this.props.navigation}
-          />
+        }
+        showsVerticalScrollIndicator={false}
+        style={styles.container}>
+        <View style={{ backgroundColor: '#FFFFFF' }}>
+          <View style={styles.part1} />
+          <View style={[styles.avatar, { position: 'absolute', marginTop: 160 }]} >
+            <Avatar
+              style={styles.avatar}
+              user={this.props.user.user} 
+              uri={avatar} 
+              navigation={this.props.navigation}
+            />
+          </View>
         </View>
-        <View style={styles.containerInput}>
+        <View style={styles.containerInFo}>
           <View style={styles.rectangle}>
             <Text style={styles.Text}>Name: </Text>
             {!!name && <Text style={styles.Text}>
               {name}
             </Text>}
           </View>
-          <View style={styles.rectangle}>
+          <View style={[styles.rectangle, { marginTop: 15 }]}>
             <Text style={styles.Text}>Address: </Text>
             {!!address && <Text style={styles.Text}>
               {address}
             </Text>}
           </View>
-          <View style={styles.rectangle}>
+          <View style={[styles.rectangle, { marginTop: 15 }]}>
             <Text style={styles.Text}>Number phone: </Text>
             {!!phone && <Text style={styles.Text}>
               {phone}
             </Text>}
           </View>
-          <View style={styles.rectangle}>
+          <View style={[styles.rectangle, { marginTop: 15 }]}>
             <Text style={styles.Text}>Email: </Text>
             {!!email && <Text style={styles.Text}>
               {email}
             </Text>}
           </View>
+        </View>
+        <View style={styles.AddPost}>
+          <Text style={styles.Post}>
+            Post
+          </Text>
+          <View style={{ marginTop: 10 }}>
+            <Image source={{uri: avatar}} style={{ width: 40, height: 40, borderRadius: 20 }} />
+            <TextInput
+              multiline
+              placeholder="what do you think?"
+              style={{ width: '80%', marginTop: 5 }}
+              onChangeText={text => this.content_text = text}
+            />
+          </View>
+          <TouchableOpacity style={{ flexDirection: 'row', marginTop: 10, alignItems: 'center' }}>
+            <Icons name="picture" style={{ color: '#18EC18', fontSize: 15 }} />
+            <Text style={[styles.Text, { marginLeft: 5 }]}> Picture </Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={()=>this.ToPost()}>
+            <Text style={[styles.Post, { marginTop: 10 }]}>To Post</Text>
+          </TouchableOpacity>
         </View>
       </ScrollView>
     )
@@ -74,42 +116,68 @@ class ProfileScreen extends Component{
 }
 
 const styles = StyleSheet.create({
-    part1:{
-        height: 220,
-        backgroundColor: 'skyblue',
-        width: '100%',
-    },
-    avatar:{
-        alignSelf: 'center',
-        position: "absolute",
-        marginTop: 160
-    },
-    containerInput:{
-        width: '100%',
-        marginLeft: 40,
-        marginTop: 60,
-        paddingTop: 25
-    },
-    rectangle: {
-        marginTop: 20,
-        flexDirection: 'row'
-    },
-    Text: {
-        height: 44,
-        borderColor: 'black',
-        fontSize: 16,
-        lineHeight: 18,
-        fontWeight: '500'
-    }
+  container: {
+    width: '100%', 
+    display: "flex", 
+    backgroundColor: '#E0E0E0', 
+  },
+  part1:{
+    height: 220,
+    backgroundColor: 'skyblue',
+    width: '100%',
+  },
+  avatar:{
+    alignSelf: 'center',
+    width: 120,
+    height: 120,
+    borderRadius: 75,
+    borderWidth: 1,
+    borderColor: '#FFFFFF'
+  },
+  containerInFo:{
+    backgroundColor: '#FFFFFF',
+    paddingLeft: 20,
+    marginTop: 70,
+    paddingVertical : 15,
+    borderRadius: 14,
+    marginHorizontal: 8,
+  },
+  rectangle: {
+    flexDirection: 'row'
+  },
+  Text: {
+    fontSize: 16,
+    lineHeight: 18,
+    fontWeight: '500',
+    fontStyle: 'normal',
+  },
+  AddPost: {
+    backgroundColor: '#FFFFFF',
+    marginTop: 10,
+    padding: 15,
+    marginBottom: 10
+  },
+  Post: {
+    fontWeight: '900',
+    fontSize: 20,
+    lineHeight: 22,
+    fontStyle: 'normal',
+    color: 'black'
+  },
 })
 
 const mapStateToProps =  state => {
 	return {
-		user: state.user,
+    user: state.user,
+    posts: state.Posts,
 	}
 }
 
+const mapDispatchToProps = {
+  AddPost: AddPost,
+}
+ 
 export default connect(
 	mapStateToProps,
-	null
+	mapDispatchToProps
 )(ProfileScreen)

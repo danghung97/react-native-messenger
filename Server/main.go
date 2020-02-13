@@ -58,6 +58,8 @@ func main(){
 	router.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request){
 		controllers.ServeWs(hub, w, r)
 	})
+	router.HandleFunc("/api/user/addPost", controllers.AddPost).Methods("POST")
+	router.HandleFunc("/api/user/removePost", controllers.RemovePost).Methods("POST")
 	
 	router.Use(app.JwtAuthentication)
 

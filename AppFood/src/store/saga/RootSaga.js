@@ -1,9 +1,15 @@
 import { all } from 'redux-saga/effects'
-import userSaga from './UserSaga'
+import { watcherLogin, watcherCheckLogin, watcherLogout, watcherSignup } from './UserSaga'
+import { watcherAddPost } from './PostSaga'
 
 function* rootSaga(){
     yield all([
-        userSaga()
+        watcherLogin(),
+        watcherCheckLogin(),
+        watcherLogout(),
+        watcherSignup(),
+        watcherAddPost(),
+        // PostSaga(),
     ])
 }
 

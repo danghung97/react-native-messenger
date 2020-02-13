@@ -31,6 +31,7 @@ type Account struct{
 	Avatar string `json:"avatar"`
 	FcmToken pq.StringArray `gorm:"type:varchar(500)[];default:array[]::varchar[]" json:"fcm_tokens"`
 	StatusFcmTokens pq.BoolArray `gorm:"type:boolean[];default:array[]::boolean[]" json:"status_fcm_tokens"`
+	Posts pq.Int64Array `gorm:"type:integer[];default:array[]::integer[]" json:"posts"`
 	//ListFriends []*Friend `json:"list_friends"`
 }
 
