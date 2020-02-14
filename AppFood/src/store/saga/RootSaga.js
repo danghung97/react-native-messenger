@@ -1,6 +1,6 @@
 import { all } from 'redux-saga/effects'
 import { watcherLogin, watcherCheckLogin, watcherLogout, watcherSignup } from './UserSaga'
-import { watcherAddPost } from './PostSaga'
+import { watcherAddPost, watcherFetchPost } from './PostSaga'
 
 function* rootSaga(){
     yield all([
@@ -9,6 +9,7 @@ function* rootSaga(){
         watcherLogout(),
         watcherSignup(),
         watcherAddPost(),
+        watcherFetchPost(),
         // PostSaga(),
     ])
 }

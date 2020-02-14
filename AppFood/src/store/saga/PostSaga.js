@@ -1,27 +1,24 @@
-import { ADD_POST_SUCCESS, ADD_POST_FAIL, ADD_POST } from '../actions/UseAction';
+import * as UseAction from '../actions/UseAction';
 import { put, takeLatest, all } from 'redux-saga/effects';
 import PATH from '../axios/Url';
 import ApiService from '../axios/AxiosInstance';
 import _ from 'lodash'
 
 function* AddPost(action) {
-  console.warn('1')
   try {
-    console.warn('1212')
     const response = yield ApiService.post(
       PATH.ADD_POST,
       action.data
     )
 
-    console.warn('res', response.data)
     if (response && _.get(response, 'data.status', false)) {
       yield put({
-        type: ADD_POST_SUCCESS,
+        type: UseAction.ADD_POST_SUCCESS,
         data: response.data
       })
     } else {
       yield put({
-        type: ADD_POST_FAIL,
+        type: UseAction.ADD_POST_FAIL,
         data: response.data
       })
     }
@@ -31,8 +28,40 @@ function* AddPost(action) {
   }
 }
 
+function *RemovePost(action) {
+
+}
+
+export function* watcherRemovePost() {
+  yield takeLatest(UseAction.REMOVE_POST, RemovePost)
+}
+
+function *FetchPost(action) {
+  try {
+    const response = yield ApiService.get(PATH.FETCH_POST+`?offset=${action.offset}`)
+
+    if(response && _.get(response, 'data.status', false)) {
+      yield put({
+        type: UseAction.FETCH_POST_SUCCESS,
+        data: response.data
+      })
+    } else {
+      yield put({
+        type: UseAction.FETCH_POST_FAIL,
+        data: response.data
+      })
+    }
+  } catch {
+
+  }
+}
+
+export function* watcherFetchPost() {
+  yield takeLatest(UseAction.FETCH_POST, FetchPost)
+}
+
 export function* watcherAddPost() {
-  yield takeLatest(ADD_POST, AddPost)
+  yield takeLatest(UseAction.ADD_POST, AddPost)
 }
 
 // export default function* PostSaga(){

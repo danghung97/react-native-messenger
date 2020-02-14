@@ -1,4 +1,4 @@
-import { ADD_POST_FAIL, ADD_POST, ADD_POST_SUCCESS } from '../actions/UseAction';
+import * as UseAction from '../actions/UseAction';
 
 const initPost = {
   data: [],
@@ -7,10 +7,17 @@ const initPost = {
 
 const PostReducer = (state = initPost, action) => {
   // console.warn(action.type, action.data)
+  const data = [...state.data];
   switch (action.type) {
-    case ADD_POST_SUCCESS:
-      return {...state, data: action.data.posts};
-    case ADD_POST_FAIL:
+    case UseAction.ADD_POST_SUCCESS:
+      data.push(action.data.post)
+      return {...state, data, error: null};
+    case UseAction.ADD_POST_FAIL:
+      return {...state, error: action.data.message}
+    case UseAction.FETCH_POST_SUCCESS:
+      data.push(...action.data.listPosts)
+      return {...state, data, error: null}
+    case UseAction.FETCH_POST_FAIL:
       return {...state, error: action.data.message}
     default:
       return state;
