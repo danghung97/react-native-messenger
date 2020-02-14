@@ -31,7 +31,18 @@ var RemovePost = func(w http.ResponseWriter, r *http.Request) {
 		utils.Respond(w, utils.Message(false, "Param 'id' is missing"))
 	}
 	Post.ID = uint(id)
+	resp := Post.RemovePost()
+	utils.Respond(w, resp)
+}
+
+var FetchPost = func(w http.ResponseWriter, r *http.Request) {
+	Param := r.URL.Query().Get("offset")
+	offset, err := strconv.Atoi(Param)
+	if err != nil {
+		utils.Respond(w, utils.Message(false, "Param 'amount' is missing"))
+	}
+	
 	authorId := r.Context().Value("user")
-	resp := Post.RemovePost(authorId.(uint))
+	resp := models.FetchPost(authorId.(uint), uint(offset))
 	utils.Respond(w, resp)
 }

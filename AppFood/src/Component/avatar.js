@@ -1,9 +1,9 @@
 import React, {Component} from 'react';
 import{
-    View,
-    StyleSheet,
-    Image,
-    TouchableOpacity,
+  View,
+  StyleSheet,
+  Image,
+  TouchableOpacity,
 } from 'react-native'
 import Icons from 'react-native-vector-icons/AntDesign';
 import BottomSheetDialog from './popUpPicker';
@@ -106,10 +106,10 @@ export default class Avatar extends Component{
         <TouchableOpacity style={styles.avatar} onPress={()=>this.props.navigation.navigate("ImageZoomScreen", {
           uri: uri
         })}>
-          <Image style={style} source={uri} />
+          <Image style={{ width: 120, height: 120 }} source={uri} />
         </TouchableOpacity>
-        <TouchableOpacity onPress={()=>this.openPicker()} style={styles.camera}>
-          <Icons name="camerao" size={30}/>
+        <TouchableOpacity onPress={()=>this.openPicker()} style={styles.camera} >
+          <Icons name="camerao" size={30} />
         </TouchableOpacity>
         <BottomSheetDialog
           isVisible={isVisible} 
@@ -122,10 +122,20 @@ export default class Avatar extends Component{
 }
 
 const styles=StyleSheet.create({
-    container:{
-        flexDirection: "row"
-    },
-    camera: {
-        justifyContent: "flex-end"
-    }
+  container:{
+    flexDirection: "row",
+  },
+  camera: {
+    justifyContent: "flex-end",
+
+  },
+  avatar:{
+    width: 120,
+    height: 120,
+    borderRadius: 75,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: '#FFFFFF'
+  },
+
 })

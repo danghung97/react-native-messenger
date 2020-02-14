@@ -17,6 +17,12 @@ export const LOGOUT_SUCCESS = "LOGOUT_SUCCESS";
 export const ADD_POST = "ADD_POST";
 export const ADD_POST_SUCCESS = "ADD_POST_SUCCESS";
 export const ADD_POST_FAIL = "ADD_POST_FAIL";
+export const REMOVE_POST = "REMOVE_POST";
+export const REMOVE_POST_SUCCESS = "REMOVE_POST_SUCCESS";
+export const REMOVE_POST_FAIL = "REMOVE_POST_FAIL";
+export const FETCH_POST = "FETCH_POST";
+export const FETCH_POST_SUCCESS = "FETCH_POST_SUCCESS";
+export const FETCH_POST_FAIL = "FETCH_POST_FAIL";
 
 export const login = (data) => {
     return{
@@ -90,4 +96,11 @@ export const AddPost = (data) => {
         type: ADD_POST,
         data
     }
+}
+
+export const FetchPost = (offset) => {
+  return {
+    type: FETCH_POST,
+    offset
+  }
 }

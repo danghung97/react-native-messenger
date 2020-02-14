@@ -59,7 +59,8 @@ func main(){
 		controllers.ServeWs(hub, w, r)
 	})
 	router.HandleFunc("/api/user/addPost", controllers.AddPost).Methods("POST")
-	router.HandleFunc("/api/user/removePost", controllers.RemovePost).Methods("POST")
+	router.HandleFunc("/api/user/removePost", controllers.RemovePost).Methods("DELETE")
+	router.HandleFunc("/api/user/fetchPost", controllers.FetchPost).Methods("GET")
 	
 	router.Use(app.JwtAuthentication)
 

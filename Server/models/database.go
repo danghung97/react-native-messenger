@@ -44,9 +44,9 @@ func init(){
 
 	db.Debug().AutoMigrate(&Account{}, &FakeAccount{}, &Messages{}, &Rooms{}, &Posts{})
 	//db.DropTable("friends")
-	//err = db.Model(&Account{}).DropColumn("fcm_token").Error
+	//err = db.Model(&Account{}).DropColumn("posts").Error
 	//if err != nil {
-	//	log.Print("ERROR: We expect the receiver_id column to be drop-able")
+	//	log.Print("ERROR: We expect the posts column to be drop-able")
 	//}
 }
 

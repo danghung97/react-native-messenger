@@ -7,22 +7,32 @@ import{
     RefreshControl,
     TouchableOpacity,
     Image,
+    FlatList,
     TextInput
 } from 'react-native';
 import Avatar from '../Component/avatar'
 import { connect } from 'react-redux';
 import Icons from 'react-native-vector-icons/AntDesign'
-import { AddPost } from '../store/actions/UseAction';
+import { AddPost, FetchPost } from '../store/actions/UseAction';
+import _ from 'lodash';
 
 class ProfileScreen extends Component{
   constructor(props){
     super(props);
     this.state={
-      refreshing: false
+      refreshing: false,
+      isLoading: true,
     }
+    this.offset= 1;
     this.content_text = "";
     this.content_image = "";
   }
+
+  componentDidMount() {
+    this.props.FetchPost(this.offset)
+    this.offset += 1
+  }
+
   onRefresh = () => {
     this.setState({refreshing: true})
     // axios.get("https://serverappfood.herokuapp.com/api/user/login",{
@@ -40,11 +50,30 @@ class ProfileScreen extends Component{
     })
   }
 
+  renderPost = (post) => {
+    const { name, avatar } = this.props.user.user
+    return (
+      <View style={{ backgroundColor: '#FFFFFF', padding: 10 }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <View style={styles.avatar}>
+            <Image style={{ width: 40, height: 40 }} source={{uri: avatar}} />
+          </View>
+          <View style={{ marginLeft: 10 }}>
+            <Text>{name}</Text>
+          </View>
+        </View>
+      <Text style={{ marginTop: 10 }}>{post.content_text}</Text>
+      {!!post.content_image &&
+       <Image style={{ width: '100%', height: 150, marginTop: 10 }} source={{uri: post.content_image}} />}
+       <View style={{ marginTop: 10, borderWidth: 0.5, borderColor: '#E0E0E0' }} />
+      </View>
+    )
+  }
+
   render(){
+    // console.warn('123', this.props.posts.data)
     const {refreshing} = this.state
-    
     const {email, name, address, phone, avatar} = this.props.user.user
-    console.warn(this.props.user.user)
     return(
       <ScrollView
         refreshControl={
@@ -52,16 +81,13 @@ class ProfileScreen extends Component{
         }
         showsVerticalScrollIndicator={false}
         style={styles.container}>
-        <View style={{ backgroundColor: '#FFFFFF' }}>
-          <View style={styles.part1} />
-          <View style={[styles.avatar, { position: 'absolute', marginTop: 160 }]} >
-            <Avatar
-              style={styles.avatar}
-              user={this.props.user.user} 
-              uri={avatar} 
-              navigation={this.props.navigation}
-            />
-          </View>
+        <View style={styles.part1} />
+        <View style={{alignSelf: 'center', position: 'absolute', marginTop: 160 }} >
+          <Avatar
+            user={this.props.user.user}
+            uri={avatar}
+            navigation={this.props.navigation}
+          />
         </View>
         <View style={styles.containerInFo}>
           <View style={styles.rectangle}>
@@ -94,7 +120,9 @@ class ProfileScreen extends Component{
             Post
           </Text>
           <View style={{ marginTop: 10 }}>
-            <Image source={{uri: avatar}} style={{ width: 40, height: 40, borderRadius: 20 }} />
+            <View style={styles.avatar}>
+              <Image source={{uri: avatar}} style={{ width: 40, height: 40 }} />
+            </View>
             <TextInput
               multiline
               placeholder="what do you think?"
@@ -110,6 +138,15 @@ class ProfileScreen extends Component{
             <Text style={[styles.Post, { marginTop: 10 }]}>To Post</Text>
           </TouchableOpacity>
         </View>
+        <FlatList
+          data={this.props.posts.data}
+          style={styles.containerPost}
+          keyExtractor={(item) => `${item.ID}`}
+          renderItem={({item}) => this.renderPost(item)}
+          ItemSeparatorComponent={() => (
+            <View style={{ height: 10 }} />
+          )}
+        />
       </ScrollView>
     )
   }
@@ -117,7 +154,7 @@ class ProfileScreen extends Component{
 
 const styles = StyleSheet.create({
   container: {
-    width: '100%', 
+    width: '100%',
     display: "flex", 
     backgroundColor: '#E0E0E0', 
   },
@@ -125,14 +162,6 @@ const styles = StyleSheet.create({
     height: 220,
     backgroundColor: 'skyblue',
     width: '100%',
-  },
-  avatar:{
-    alignSelf: 'center',
-    width: 120,
-    height: 120,
-    borderRadius: 75,
-    borderWidth: 1,
-    borderColor: '#FFFFFF'
   },
   containerInFo:{
     backgroundColor: '#FFFFFF',
@@ -144,6 +173,12 @@ const styles = StyleSheet.create({
   },
   rectangle: {
     flexDirection: 'row'
+  },
+  avatar: {
+    width: 40, 
+    height: 40, 
+    borderRadius: 20,
+    overflow: 'hidden'
   },
   Text: {
     fontSize: 16,
@@ -164,6 +199,9 @@ const styles = StyleSheet.create({
     fontStyle: 'normal',
     color: 'black'
   },
+  containerPost: {
+    marginVertical: 10,
+  }
 })
 
 const mapStateToProps =  state => {
@@ -175,6 +213,7 @@ const mapStateToProps =  state => {
 
 const mapDispatchToProps = {
   AddPost: AddPost,
+  FetchPost: FetchPost,
 }
  
 export default connect(
