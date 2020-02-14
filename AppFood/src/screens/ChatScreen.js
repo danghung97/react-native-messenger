@@ -8,6 +8,7 @@ import {
   Image,
   FlatList,
   Dimensions,
+  ActivityIndicator
 } from 'react-native';
 
 import Icons from 'react-native-vector-icons/Feather';
@@ -31,6 +32,7 @@ class Chat extends Component {
       message: props.navigation.getParam('initMessage') || [],
       Offset: 2,
       isRecord: false,
+      isLoading: false,
     };
     this.rid = props.navigation.getParam('roomId');
     this.friend = props.navigation.getParam('friend');
@@ -48,7 +50,6 @@ class Chat extends Component {
     const messageOfRoom = props.socket.message.filter(
       msg => msg.rid === this.rid,
     );
-    console.warn(_.get(messageOfRoom[0], 'type_message', ''));
 
     if(messageOfRoom.length === 0){
       return
@@ -93,16 +94,18 @@ class Chat extends Component {
 
   loadMoreMessage = async () => {
     try {
+      this.setState({ isLoading: true })
       const response = await ApiService.post(PATH.LOAD_MORE_MSG, {
         offset: this.state.Offset,
         room_id: this.rid,
       });
       if (response.data.status) {
         if (response.data.arrayMessage.length === 0) {
+          this.setState({isLoading: false})
           return;
         } else {
           const temp = this.state.message.concat(response.data.arrayMessage);
-          this.setState({message: temp, Offset: this.state.Offset + 1});
+          this.setState({ message: temp, Offset: this.state.Offset + 1, isLoading: false });
         }
       }
     } catch (error) {
@@ -227,6 +230,7 @@ class Chat extends Component {
   }
 
   render() {
+    console.warn('rerender')
     return (
       <View style={styles.container}>
         <View style={styles.header}>
@@ -250,6 +254,7 @@ class Chat extends Component {
           renderItem={item => this.renderItem(item, this.friend.avatar)}
           onEndReached={()=>this.loadMoreMessage()}
           onEndReachedThreshold={0.1}
+          ListFooterComponent={() => <ActivityIndicator size="large" color="#0000ff" />}
         />
         <View>
           <InputMessage

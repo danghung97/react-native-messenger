@@ -21,7 +21,7 @@ class ProfileScreen extends Component{
     super(props);
     this.state={
       refreshing: false,
-      isLoading: true,
+      // isLoading: false,
     }
     this.offset= 1;
     this.content_text = "";
