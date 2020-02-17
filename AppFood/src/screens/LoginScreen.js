@@ -25,19 +25,28 @@ class Login extends Component {
 		this.props.checkLogin();
 	}
 
-	shouldComponentUpdate(nextProps){
-		if(nextProps.user.isSucces) {
-			this.refs['loading'].hideModal()
-			this.props.navigation.navigate("bottomScreen")
-			return false;
-		}else{
-			if(nextProps.user.isLoadding) this.refs['loading'].showModal()
-			if(nextProps.user.error) {
-				this.refs['loading'].hideModal()
-				alert(nextProps.user.error)
-			}
-			return true;
-		}
+	componentWillReceiveProps(nextProps){
+		// if(nextProps.user.isSucces) {
+		// 	this.refs['loading'].hideModal()
+		// 	this.props.navigation.navigate("bottomScreen")
+		// 	return false;
+		// } else {
+		// 	if(nextProps.user.isLoadding) this.refs['loading'].showModal()
+		// 	if(nextProps.user.error) {
+		// 		this.refs['loading'].hideModal()
+		// 		alert(nextProps.user.error)
+		// 	}
+		// 	return true;
+    // }
+    if(nextProps.user.isLoadding) this.refs['loading'].showModal()
+    else {
+      this.refs['loading'].hideModal()
+      if(nextProps.user.isSucces) {
+        this.props.navigation.navigate("bottomScreen")
+      } else {
+        alert(nextProps.user.error)
+      }
+    }
 	}
 	SendRequestLogin = ()=>{
 		this.props.login({

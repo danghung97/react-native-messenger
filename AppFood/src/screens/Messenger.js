@@ -7,8 +7,8 @@ import {
   TouchableOpacity,
   TextInput,
   FlatList,
-  AsyncStorage,
 } from 'react-native';
+import AsyncStorage from '@react-native-community/async-storage';
 import ApiService from '../store/axios/AxiosInstance';
 import PATH from '../store/axios/Url';
 import {connect} from 'react-redux';

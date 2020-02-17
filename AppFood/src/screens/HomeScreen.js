@@ -1,8 +1,9 @@
 import React, {Component} from 'react';
-import {View, Text, TouchableOpacity, AsyncStorage} from 'react-native';
+import { View, TouchableOpacity } from 'react-native';
+import AsyncStorage from '@react-native-community/async-storage';
 import Icons from 'react-native-vector-icons/AntDesign';
-import {connect} from 'react-redux';
-import {logout} from '../store/actions/UseAction';
+import { connect } from 'react-redux';
+import { logout } from '../store/actions/UseAction';
 
 class HomeScreen extends Component {
   LogOut = () => {
