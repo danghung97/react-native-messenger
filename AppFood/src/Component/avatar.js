@@ -48,13 +48,17 @@ export default class Avatar extends Component{
           uri: image.path,
           name,
         })
-        const response = await ApiService.post(PATH.UPDATE_AVATAR, {
-          data
+        ApiService.post(PATH.UPDATE_AVATAR, data, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
         })
-        if(response.data.status){
-        }else{
-          alert(res.data.message)
-        }
+          .then(res => {
+            if (res.data) alert(res.data.message);
+          })
+          .catch(err => {
+            console.warn(err);
+          });
       } catch (error){
         console.warn(error)
       }
@@ -79,13 +83,15 @@ export default class Avatar extends Component{
         if(image.mime === "image/jpeg") name = "image.jpg"
         data.append('file', {type: image.mime, uri: image.path, name})
 
-        const response = await ApiService.post(PATH.UPDATE_AVATAR, {
-          data
-        })
-        if(response.data.status){
-        }else {
-          alert(res.data.message)
-        }
+        ApiService.post(PATH.UPDATE_AVATAR, data, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        }).then(res=>{
+            if (res.data) alert(res.data.message);
+        }).catch(err=> {
+          console.warn(err)
+        });
       }catch (error) {
         console.warn(error)
       }

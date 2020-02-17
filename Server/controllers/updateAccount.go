@@ -15,37 +15,37 @@ var UpdateAvatar = func(w http.ResponseWriter, r *http.Request) {
 	account := &models.Account{}
 	err := models.GetDB().Table("accounts").Where("id = ?", user).First(account).Error
 	if err!=nil{
-		utils.Respond(w, utils.Message(false, "connection error"))
+		utils.Respond(w, 503, utils.Message(false, "connection error"))
 		return
 	}
-	isSuccess, link, message := Uploads(r)
-	if isSuccess {
-		models.GetDB().Model(&account).Update("avatar", link)
-		utils.Respond(w, utils.Message(isSuccess, "Update avatar successfully!"))
+	resp, status := Uploads(r)
+	if status == 200 {
+		models.GetDB().Model(&account).Update("avatar", resp["link"])
+		utils.Respond(w, 200, utils.Message(true, "Update avatar successfully!"))
 		return
 	}
-	utils.Respond(w, utils.Message(isSuccess, message))
+	utils.Respond(w, 503, resp)
 }
 
-func CreateNewPassword(r *http.Request, reason string) (isSuccess bool, message string) {
+func CreateNewPassword(r *http.Request, reason string) (map[string]interface{}, int) {
 	accountRequest := &models.Account{}
 	err := json.NewDecoder(r.Body).Decode(accountRequest)
 	if err!=nil {
-		return false, "Invalid Request"
+		return utils.Message(false, "Invalid Request"), 400
 	}
 	check, message := accountRequest.Verify(accountRequest.Code)
 	if !check {
-		return false, message
+		return utils.Message(false, message), 400
 	}
 	account := &models.Account{}
 	err = models.GetDB().Table("accounts").Where("email = ?", accountRequest.Email).First(account).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
-			return false, "Account does not exist"
+			return utils.Message(false, "Account does not exist"), 404
 		}
-		return false, "Connection error. Please retry"
+		return utils.Message(false, "Connection error. Please retry"), 503
 	}
 	hashPassword, _ := bcrypt.GenerateFromPassword([]byte(accountRequest.Password), bcrypt.DefaultCost)
 	models.GetDB().Model(&account).Update("password", string(hashPassword))
-	return true, fmt.Sprintf("%s successfully", reason)
+	return utils.Message(true, fmt.Sprintf("%s successfully", reason)), 200
 }

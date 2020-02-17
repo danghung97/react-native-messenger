@@ -28,26 +28,16 @@ func main(){
 	router.HandleFunc("/api/user/logout", controllers.Logout).Methods("POST")
 	router.HandleFunc("/api/user/update-avatar", controllers.UpdateAvatar).Methods("POST")
 	router.HandleFunc("/api/user/change-password",func(w http.ResponseWriter, r *http.Request){
-		isSuccess, message := controllers.CreateNewPassword(r, "Change password")
-		if !isSuccess {
-			utils.Respond(w, utils.Message(isSuccess, message))
-			return
-		}
-		utils.Respond(w, utils.Message(isSuccess, message))
+		resp, status := controllers.CreateNewPassword(r, "Change password")
+		utils.Respond(w, status, resp)
 	}).Methods("POST")
 	router.HandleFunc("/api/user/forget-password", func(w http.ResponseWriter, r *http.Request){
-		isSuccess, message := controllers.CreateNewPassword(r, "Forget password")
-		if !isSuccess {
-			utils.Respond(w, utils.Message(isSuccess, message))
-			return
-		}
-		utils.Respond(w, utils.Message(isSuccess, message))
+		resp, status := controllers.CreateNewPassword(r, "Forget password")
+		utils.Respond(w, status, resp)
 	}).Methods("POST")
 	router.HandleFunc("/api/user/uploading", func(w http.ResponseWriter, r *http.Request){
-		isSuccess, link, message := controllers.Uploads(r)
-		resp := utils.Message(isSuccess, message)
-		resp["link"] = link
-		utils.Respond(w, resp)
+		resp, status := controllers.Uploads(r)
+		utils.Respond(w, status, resp)
 	}).Methods("POST")
 	router.HandleFunc("/api/user/taken", controllers.TakeInfoAccount).Methods("GET")
 	router.HandleFunc("/api/load-more-message", models.LoadMoreMessage).Methods("POST")

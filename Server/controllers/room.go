@@ -21,13 +21,13 @@ var LoadRoom = func(w http.ResponseWriter, r *http.Request){
 	id := &Id{}
 	err := json.NewDecoder(r.Body).Decode(id)
 	if err!=nil{
-		utils.Respond(w, utils.Message(false, "Invalid request"))
+		utils.Respond(w, 400, utils.Message(false, "Invalid request"))
 		return
 	}
 
 	rid, err := models.GetRoomId(id.AuthorID, id.ReceiverID)
 	if err != nil {
-		utils.Respond(w, utils.Message(false, fmt.Sprintf("error: %s", 0)))
+		utils.Respond(w, 404, utils.Message(false, fmt.Sprintf("error: %s", 0)))
 		return
 	}else{
 		if rid == 0 {
@@ -40,13 +40,13 @@ var LoadRoom = func(w http.ResponseWriter, r *http.Request){
 			models.GetDB().Model(&room).Update("created_at", time.Now())
 			resp := utils.Message(true, "created room")
 			resp["rid"] = room.ID
-			utils.Respond(w, resp)
+			utils.Respond(w, 200, resp)
 		}else{
 			resp := utils.Message(true, "found room")
 			resp["rid"] = rid-1
 			arrayMessage := models.GetMessageForUser(rid - 1, 1)
 			resp["arrayMessage"] = arrayMessage
-			utils.Respond(w, resp)
+			utils.Respond(w, 200, resp)
 		}
 	}
 }

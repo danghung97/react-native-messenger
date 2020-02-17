@@ -60,24 +60,24 @@ func validateFunc(account *FakeAccount) error{
 	return nil
 }
 
-func (account *FakeAccount) CreateFakeAccount(code string) (bool, string) {
+func (account *FakeAccount) CreateFakeAccount(code string) (map[string]interface{}, int) {
 	temp := &FakeAccount{}
 	var err error
 	err = GetDB().Table("accounts").Where("email = ?", account.Email).First(temp).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
-		return false, "Connection error. Please retry"
+		return u.Message(false, "Connection error. Please retry"), 503
 	}
 	if temp.Email != "" {
-		return false, "Email address already in use by another user."
+		return u.Message(false, "Email address already in use by another user."), 400
 	}
 	err = GetDB().Table("fake_accounts").Where("email = ?", account.Email).First(temp).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
-		return false, "Connection error. Please retry"
+		return u.Message(false, "Connection error. Please retry"), 503
 	}
 	validate = validator.New()
 	err = validateFunc(account)
 	if err!=nil {
-		return false, err.Error()
+		return u.Message(false, err.Error()), 400
 	}
 	if temp.Email != "" {
 		GetDB().Model(&account).Update("Code", code)
@@ -88,11 +88,11 @@ func (account *FakeAccount) CreateFakeAccount(code string) (bool, string) {
 	}
 	//resp := u.Message(true, "check your email to take your code")
 	//resp["fake account"] = account
-	return true, ""
+	return u.Message(true, "Create fake account success"), 200
 }
 
 
-func (account *Account) Create() map[string] interface{} {
+func (account *Account) Create() (map[string] interface{}, int) {
 
 	hashedPassword, _:= bcrypt.GenerateFromPassword([]byte(account.Password), bcrypt.DefaultCost)
 	account.Password = string(hashedPassword)
@@ -100,7 +100,7 @@ func (account *Account) Create() map[string] interface{} {
 	GetDB().Create(account)
 
 	if account.ID<0{
-		return u.Message(false, "Failed to create account, connection error.")
+		return u.Message(false, "Failed to create account, connection error."), 503
 	}
 	
 	expirationTime := time.Now().Add(72 * time.Hour)
@@ -126,24 +126,24 @@ func (account *Account) Create() map[string] interface{} {
 	account.StatusFcmTokens = pq.BoolArray{}
 	reponse := u.Message(true, "Account has been created")
 	reponse["account"]= account
-	return reponse
+	return reponse, 200
 }
 
 
-func Login(email, password string) map[string]interface{} {
+func Login(email, password string) (map[string]interface{}, int) {
 	account := &Account{}
 	var err error
 	err = GetDB().Table("accounts").Where("email = ?", email).First(account).Error
 	if err!=nil{
 		if err == gorm.ErrRecordNotFound{
-			return u.Message(false, "Email address not found")
+			return u.Message(false, "Email address not found"), 404
 		}
-		return u.Message(false, "Connection error. Please retry")
+		return u.Message(false, "Connection error. Please retry"), 503
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(account.Password), []byte(password))
 	if err!=nil && err==bcrypt.ErrMismatchedHashAndPassword{ //Password does not match!
-		return u.Message(false, "Invalid login credentials. Please try again")
+		return u.Message(false, "Invalid login credentials. Please try again"), 400
 	}
 	
 	account.Password = ""
@@ -170,7 +170,7 @@ func Login(email, password string) map[string]interface{} {
 	account.FcmToken = pq.StringArray{}
 	account.StatusFcmTokens = pq.BoolArray{}
 	resp["account"] = account
-	return resp
+	return resp, 200
 }
 
 func (account *Account) Verify(code string) (bool, string){
