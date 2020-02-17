@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import { AsyncStorage } from 'react-native';
+import AsyncStorage from '@react-native-community/async-storage';
 import Project from './src/screens/Project';
 import Wrapper from './src/navigation/WrapperNavigation'
 import { connect } from 'react-redux';

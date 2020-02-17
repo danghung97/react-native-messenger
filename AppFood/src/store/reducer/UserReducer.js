@@ -1,6 +1,6 @@
 import {CHECK_LOGIN_SUCCESS, USER_LOGIN, LOGIN_SUCESS, LOGIN_FAIL, 
     SIGN_UP_FAIL, SIGN_UP_SUCCESS, LOGOUT_SUCCESS} from '../actions/UseAction'
-import { AsyncStorage } from 'react-native';
+import AsyncStorage from '@react-native-community/async-storage';
 
 const initial = {
     isSucces: false,
