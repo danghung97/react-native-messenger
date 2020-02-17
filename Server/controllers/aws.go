@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"Server/utils"
 	"bytes"
 	"fmt"
 	"github.com/globalsign/mgo/bson"
@@ -16,19 +17,19 @@ import (
 	"github.com/aws/aws-sdk-go/service/s3"
 )
 
-func Uploads(r *http.Request) (isSuccess bool, link, message string) {
-	maxSize := int64(1024000) // allow only 1MB of file size
-
-	err := r.ParseMultipartForm(maxSize)
-	if err != nil {
-		log.Println(err)
-		return false, "", fmt.Sprintf("Image too large. Max Size: %v %s", maxSize, err)
-	}
+func Uploads(r *http.Request) (map[string]interface{}, int) {
+	//maxSize := int64(1024000) // allow only 1MB of file size
+	//
+	//err := r.ParseMultipartForm(maxSize)
+	//if err != nil {
+	//	log.Println(err)
+	//	return false, "", fmt.Sprintf("Image too large. Max Size: %v %s", maxSize, err)
+	//}
 
 	file, fileHeader, err := r.FormFile("file")
 	if err != nil {
 		log.Println(err)
-		return false, "", fmt.Sprintf("Could not get uploaded file %s",  err)
+		return utils.Message(false, fmt.Sprintf("Could not get uploaded file %s",  err)), 503
 	}
 	defer file.Close()
 
@@ -42,17 +43,18 @@ func Uploads(r *http.Request) (isSuccess bool, link, message string) {
 			""), // token can be left blank for now
 	})
 	if err != nil {
-		return false, "", "Could not upload file"
+		return utils.Message(false, "Could not upload file"), 503
 	}
 
 	fileName, err := UploadFileToS3(s, file, fileHeader)
 	if err != nil {
-		return false, "", "Could not upload file"
+		return utils.Message(false, "Could not upload file"), 503
 	}
 
-	link = "https://fileserverappfood.s3-ap-southeast-1.amazonaws.com/" + fileName
-
-	return true, link, fmt.Sprintf("Image uploaded successfully: %s", fileName)
+	link := "https://fileserverappfood.s3-ap-southeast-1.amazonaws.com/" + fileName
+	resp := utils.Message(true, fmt.Sprintf("Image uploaded successfully: %s", fileName))
+	resp["link"] = link
+	return resp, 200
 }
 
 func UploadFileToS3(s *session.Session, file multipart.File, fileHeader *multipart.FileHeader) (string, error) {

@@ -97,14 +97,14 @@ var FcmToken = func(w http.ResponseWriter, r *http.Request) {
 	FcmToken := &FCMTokens{}
 	err := json.NewDecoder(r.Body).Decode(FcmToken)
 	if err!=nil {
-		utils.Respond(w, utils.Message(false, "Invalid Request"))
+		utils.Respond(w, 400, utils.Message(false, "Invalid Request"))
 		return
 	}
 
 	account := &Account{}
 	err = GetDB().Table("accounts").Where("id = ?",userid.(uint)).First(account).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
-		utils.Respond(w, utils.Message(false, "connection error. Please retry"))
+		utils.Respond(w, 503, utils.Message(false, "connection error. Please retry"))
 		return
 	}
 	arrayFcmTokens := account.FcmToken
@@ -115,7 +115,7 @@ var FcmToken = func(w http.ResponseWriter, r *http.Request) {
 			check = true
 			arrayStatusFcmTokens[index] = true
 			GetDB().Model(&account).Update("status_fcm_tokens", arrayStatusFcmTokens)
-			utils.Respond(w, utils.Message(true, "token already available"))
+			utils.Respond(w, 400, utils.Message(true, "token already available"))
 			return
 		}
 	}
@@ -124,6 +124,6 @@ var FcmToken = func(w http.ResponseWriter, r *http.Request) {
 		arrayStatusFcmTokens = append(arrayStatusFcmTokens, true)
 		//GetDB().Model(&account).Update("fcm_token", arrayFcmTokens)
 		GetDB().Model(&account).Update(map[string]interface{}{"fcm_token": arrayFcmTokens, "status_fcm_tokens": arrayStatusFcmTokens})
-		utils.Respond(w, utils.Message(true, "saved token successfully!"))
+		utils.Respond(w, 200, utils.Message(true, "saved token successfully!"))
 	}
 }

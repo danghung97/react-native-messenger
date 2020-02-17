@@ -98,7 +98,7 @@ var FindUser = func(w http.ResponseWriter, r *http.Request) {
 	account := &Account{}
 	err := json.NewDecoder(r.Body).Decode(account)
 	if err != nil {
-		utils.Respond(w, utils.Message(false, "Invalid request"))
+		utils.Respond(w, 400, utils.Message(false, "Invalid request"))
 		return
 	}
 	
@@ -106,10 +106,10 @@ var FindUser = func(w http.ResponseWriter, r *http.Request) {
 	err = GetDB().Table("accounts").Where("email = ?", account.Email).First(account2).Error
 	if err!=nil{
 		if err == gorm.ErrRecordNotFound{
-			utils.Respond(w, utils.Message(false, "Email address not found"))
+			utils.Respond(w, 404, utils.Message(false, "Email address not found"))
 			return
 		}
-		utils.Respond(w, utils.Message(false, "Connection error. Please retry"))
+		utils.Respond(w, 503, utils.Message(false, "Connection error. Please retry"))
 		return
 	}
 	
@@ -122,19 +122,19 @@ var FindUser = func(w http.ResponseWriter, r *http.Request) {
 	account2.FcmToken = pq.StringArray{}
 	account2.StatusFcmTokens = pq.BoolArray{}
 	resp["user"] = account2
-	utils.Respond(w, resp)
+	utils.Respond(w, 200, resp)
 }
 
 var LoadMoreMessage = func(w http.ResponseWriter, r *http.Request) {
 	info := &LoadMoreMsg{}
 	err := json.NewDecoder(r.Body).Decode(info)
 	if err!=nil {
-		utils.Respond(w, utils.Message(false, "Invalid Request"))
+		utils.Respond(w, 400, utils.Message(false, "Invalid Request"))
 		return
 	}
 	
 	arrayMessage := GetMessageForUser(info.RoomID, info.Offset)
 	resp := utils.Message(true, "load more success")
 	resp["arrayMessage"] = arrayMessage
-	utils.Respond(w, resp)
+	utils.Respond(w, 200, resp)
 }
