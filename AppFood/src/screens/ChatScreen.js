@@ -39,7 +39,7 @@ class Chat extends Component {
     this.user = props.navigation.getParam('user');
   }
 
-  componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     this.receiveMessage(nextProps);
   }
   componentDidMount() {
