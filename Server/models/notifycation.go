@@ -109,21 +109,17 @@ var FcmToken = func(w http.ResponseWriter, r *http.Request) {
 	}
 	arrayFcmTokens := account.FcmToken
 	arrayStatusFcmTokens := account.StatusFcmTokens
-	check := false
 	for index, value := range arrayFcmTokens {
 		if value == FcmToken.Token {
-			check = true
 			arrayStatusFcmTokens[index] = true
 			GetDB().Model(&account).Update("status_fcm_tokens", arrayStatusFcmTokens)
-			utils.Respond(w, 400, utils.Message(true, "token already available"))
+			utils.Respond(w, 200, utils.Message(true, "token already available"))
 			return
 		}
 	}
-	if !check {
-		arrayFcmTokens = append(arrayFcmTokens, FcmToken.Token)
-		arrayStatusFcmTokens = append(arrayStatusFcmTokens, true)
-		//GetDB().Model(&account).Update("fcm_token", arrayFcmTokens)
-		GetDB().Model(&account).Update(map[string]interface{}{"fcm_token": arrayFcmTokens, "status_fcm_tokens": arrayStatusFcmTokens})
-		utils.Respond(w, 200, utils.Message(true, "saved token successfully!"))
-	}
+	arrayFcmTokens = append(arrayFcmTokens, FcmToken.Token)
+	arrayStatusFcmTokens = append(arrayStatusFcmTokens, true)
+	//GetDB().Model(&account).Update("fcm_token", arrayFcmTokens)
+	GetDB().Model(&account).Update(map[string]interface{}{"fcm_token": arrayFcmTokens, "status_fcm_tokens": arrayStatusFcmTokens})
+	utils.Respond(w, 200, utils.Message(true, "saved token successfully!"))
 }

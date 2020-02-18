@@ -25,7 +25,7 @@ class Login extends Component {
 		this.props.checkLogin();
 	}
 
-	componentWillReceiveProps(nextProps){
+	UNSAFE_componentWillReceiveProps(nextProps){
 		// if(nextProps.user.isSucces) {
 		// 	this.refs['loading'].hideModal()
 		// 	this.props.navigation.navigate("bottomScreen")

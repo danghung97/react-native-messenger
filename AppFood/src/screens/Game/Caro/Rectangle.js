@@ -1,7 +1,7 @@
 import React from 'react';
 import {View, Text, Dimensions} from 'react-native';
 
-export default class Rectangle extends React.Component {
+export default class Rectangle extends React.PureComponent {
   constructor(props){
     super(props);
     this.state = {

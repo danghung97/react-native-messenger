@@ -41,7 +41,7 @@ class Caro extends Component {
     this.sendMessage('playing', `${posX} ${posY}`) // strike position
   }
 
-  componentWillReceiveProps(nextProps){
+  UNSAFE_componentWillReceiveProps(nextProps){
     this.receiveMessage(nextProps)
   }
   receiveMessage = props => {

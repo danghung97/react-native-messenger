@@ -24,83 +24,96 @@ export const FETCH_POST = "FETCH_POST";
 export const FETCH_POST_SUCCESS = "FETCH_POST_SUCCESS";
 export const FETCH_POST_FAIL = "FETCH_POST_FAIL";
 
+export const UPLOAD_IMAGE = "UPLOAD_IMAGE";
+export const UPLOAD_SUCCESS = "UPLOAD_SUCCESS";
+export const UPLOAD_FAIL = "UPLOAD_FAIL";
+
+export const UPDATE_USER = "UPDATE_USER"
+
 export const login = (data) => {
-    return{
-        type: USER_LOGIN,
-        data,
-    }
+  return{
+    type: USER_LOGIN,
+    data,
+  }
 }
 
 export const logout = () => {
-    return {
-        type: USER_LOGOUT
-    }
+  return {
+    type: USER_LOGOUT
+  }
 }
 
 export const loginFail = (message) => {
-    return{
-        type: LOGIN_FAIL,
-        message
-    }
+  return{
+    type: LOGIN_FAIL,
+    message
+  }
 }
 
 export const sendEmail = (email) => {
-    return {
-        type: SEND_MAIL,
-        email
-    }
+  return {
+    type: SEND_MAIL,
+    email
+  }
 }
 
 export const signup = (data) => {
-    return {
-        type: SIGN_UP,
-        data
-    }
+  return {
+    type: SIGN_UP,
+    data
+  }
 }
 
 export const loadroom = (received) => {
-    return {
-        type: LOAD_ROOM,
-        received
-    }
+  return {
+    type: LOAD_ROOM,
+    received
+  }
 }
 
 export const messageSocket = (message) => {
-    return {
-        type: RECEIVE_MESSAGE,
-        message
-    }
+  return {
+    type: RECEIVE_MESSAGE,
+    message
+  }
 }
 
 export const checkLogin = () => {
-    return {
-        type: CHECK_LOGIN,
-    }
+  return {
+    type: CHECK_LOGIN,
+  }
 }
 
 export const savenotifi = (data) => {
-    return {
-        type: NOTIFICATION,
-        data
-    }
+  return {
+    type: NOTIFICATION,
+    data
+  }
 }
 
 export const removenotifi = () => {
-    return {
-        type: REMOVE_NOTIFICATION,
-    }
+  return {
+    type: REMOVE_NOTIFICATION,
+  }
 }
 
 export const AddPost = (data) => {
-    return {
-        type: ADD_POST,
-        data
-    }
+  return {
+    type: ADD_POST,
+    data
+  }
 }
 
 export const FetchPost = (offset) => {
   return {
     type: FETCH_POST,
     offset
+  }
+}
+
+export const UploadImage = (data) => {
+  return {
+    type: UPLOAD_IMAGE,
+    data
   }
 }

@@ -21,10 +21,12 @@ var UpdateAvatar = func(w http.ResponseWriter, r *http.Request) {
 	resp, status := Uploads(r)
 	if status == 200 {
 		models.GetDB().Model(&account).Update("avatar", resp["link"])
-		utils.Respond(w, 200, utils.Message(true, "Update avatar successfully!"))
+		delete(resp, "link")
+		resp["account"] = account
+		utils.Respond(w, 200, resp)
 		return
 	}
-	utils.Respond(w, 503, resp)
+	utils.Respond(w, status, resp)
 }
 
 func CreateNewPassword(r *http.Request, reason string) (map[string]interface{}, int) {

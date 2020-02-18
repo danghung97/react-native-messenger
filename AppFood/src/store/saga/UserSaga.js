@@ -1,10 +1,9 @@
 import AsyncStorage from '@react-native-community/async-storage';
-import { put, takeLatest, all } from 'redux-saga/effects';
+import { put, takeLatest } from 'redux-saga/effects';
 import {CHECK_LOGIN_SUCCESS, CHECK_LOGIN, USER_LOGIN, USER_LOGOUT, LOGIN_SUCESS, 
   LOGIN_FAIL, SIGN_UP_SUCCESS, SIGN_UP_FAIL, SIGN_UP, LOGOUT_SUCCESS } from '../actions/UseAction';
 import PATH from '../axios/Url';
 import ApiService from '../axios/AxiosInstance';
-import axios from 'axios';
 
 function* login(action){
   try{
@@ -21,16 +20,11 @@ function* login(action){
 
       ApiService.setHeader('Authorization', `Bearer ${response.data.account.token}`)
 
-      axios.post('https://serverappfood.herokuapp.com/api/phone-device/push', {
+      ApiService.post('/api/phone-device/push', {
         fcm_token: global.fcmToken
-      },{
-        headers: {
-          "Content-Type": 'application/json',
-          'Authorization': `Bearer ${response.data.account.token}`
-        },
       }).then(res => {
           if(res.data.status){
-              console.warn('success', res.data.message)
+            console.warn('success', res.data.message)
           }
       })
     }else {
