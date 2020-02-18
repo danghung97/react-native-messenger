@@ -137,7 +137,7 @@ class Mess extends Component {
                   style={{width: 50, height: 50, borderRadius: 25}}
                   source={{uri: item.avatar}}
                 />
-                <Text>{item.email}</Text>
+                <Text style={{ marginLeft: 10 }}>{item.email}</Text>
               </TouchableOpacity>
             );
           }}

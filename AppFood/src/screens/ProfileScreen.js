@@ -16,6 +16,7 @@ import Icons from 'react-native-vector-icons/AntDesign'
 import { AddPost, FetchPost } from '../store/actions/UseAction';
 import _ from 'lodash';
 import PopupPost from '../Component/PopupPost';
+import { formatTime } from '../common';
 
 class ProfileScreen extends Component{
   constructor(props){
@@ -36,11 +37,6 @@ class ProfileScreen extends Component{
 
   onRefresh = () => {
     this.setState({refreshing: true})
-    // axios.get("https://serverappfood.herokuapp.com/api/user/login",{
-    //     headers:{
-    //         Accept: 'application/json'
-    //     }
-    // }).then(res=>console.log(res))
   }
 
   ToPost = () => {
@@ -56,30 +52,30 @@ class ProfileScreen extends Component{
     this.refs['PopupPost'].show()
   }
 
-  renderPost = (post) => {
-    const { name, avatar } = this.props.user.user
-    return (
-      <View style={{ backgroundColor: '#FFFFFF', padding: 10 }}>
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <View style={styles.avatar}>
-              <Image style={{ width: 40, height: 40 }} source={{uri: avatar}} />
-            </View>
-            <View style={{ marginLeft: 10 }}>
-              <Text>{name}</Text>
-            </View>
-          </View>
-          <TouchableOpacity onPress={() => this.onMore()}>
-            <Icons name="ellipsis1" size={20} />
-          </TouchableOpacity>
-        </View>
-        <Text style={{ marginTop: 10 }}>{post.content_text}</Text>
-        {!!post.content_image &&
-          <Image style={{ width: '100%', height: 150, marginTop: 10 }} source={{uri: post.content_image}} />}
-          <View style={{ marginTop: 10, borderWidth: 0.5, borderColor: '#E0E0E0' }} />
-      </View>
-    )
-  }
+  // renderPost = (post) => {
+  //   const { name, avatar } = this.props.user.user
+  //   return (
+  //     <View style={{ backgroundColor: '#FFFFFF', padding: 10 }}>
+  //       <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+  //         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+  //           <View style={styles.avatar}>
+  //             <Image style={{ width: 40, height: 40 }} source={{uri: avatar}} />
+  //           </View>
+  //           <View style={{ marginLeft: 10 }}>
+  //             <Text>{name}</Text>
+  //           </View>
+  //         </View>
+  //         <TouchableOpacity onPress={() => this.onMore()}>
+  //           <Icons name="ellipsis1" size={20} />
+  //         </TouchableOpacity>
+  //       </View>
+  //       <Text style={{ marginTop: 10 }}>{post.content_text}</Text>
+  //       {!!post.content_image &&
+  //         <Image style={{ width: '100%', height: 150, marginTop: 10 }} source={{uri: post.content_image}} />}
+  //         <View style={{ marginTop: 10, borderWidth: 0.5, borderColor: '#E0E0E0' }} />
+  //     </View>
+  //   )
+  // }
 
   render(){
     // console.warn('123', this.props.posts.data)
@@ -150,7 +146,7 @@ class ProfileScreen extends Component{
               <Text style={[styles.Post, { marginTop: 10 }]}>To Post</Text>
             </TouchableOpacity>
           </View>
-          <FlatList
+          {/* <FlatList
             data={this.props.posts.data}
             style={styles.containerPost}
             keyExtractor={(item) => `${item.ID}`}
@@ -158,7 +154,32 @@ class ProfileScreen extends Component{
             ItemSeparatorComponent={() => (
               <View style={{ height: 10 }} />
             )}
-          />
+          /> */}
+          {this.props.posts.data.map(item => {
+            let time = formatTime(item.CreatedAt)
+            return (
+              <View key={item.ID} style={{ backgroundColor: '#FFFFFF', padding: 10, martinTop: 10 }}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <View style={styles.avatar}>
+                      <Image style={{ width: 40, height: 40 }} source={{uri: avatar}} />
+                    </View>
+                    <View style={{ marginLeft: 10 }}>
+                      <Text>{name}</Text>
+                      <Text>{`${time.hour} ${time.day}`}</Text>
+                    </View>
+                  </View>
+                  <TouchableOpacity onPress={() => this.onMore()}>
+                    <Icons name="ellipsis1" size={20} />
+                  </TouchableOpacity>
+                </View>
+                <Text style={{ marginTop: 10 }}>{item.content_text}</Text>
+                {!!item.content_image &&
+                  <Image style={{ width: '100%', height: 150, marginTop: 10 }} source={{uri: item.content_image}} />}
+                  <View style={{ marginTop: 10, borderWidth: 0.5, borderColor: '#E0E0E0' }} />
+              </View>
+            )
+          })}
         </ScrollView>
         <PopupPost
           onSetDefault={this._onSetDefault}

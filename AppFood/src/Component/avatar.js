@@ -8,10 +8,11 @@ import{
 import Icons from 'react-native-vector-icons/AntDesign';
 import BottomSheetDialog from './popUpPicker';
 import ImagePicker from 'react-native-image-crop-picker';
-import ApiService from '../store/axios/AxiosInstance';
-import PATH from '../store/axios/Url';
+import { UploadImage } from '../store/actions/UseAction';
+import { connect } from 'react-redux';
+import LoadingModal from './loading'
 
-export default class Avatar extends Component{
+class Avatar extends Component{
   constructor(props){
     super(props);
     this.state={
@@ -31,6 +32,16 @@ export default class Avatar extends Component{
     })
   }
 
+  UNSAFE_componentWillReceiveProps(nextProps) {
+    if (nextProps.upload.isLoading) this.refs['loading'].showModal()
+    else {
+      this.refs['loading'].hideModal()
+      if(!nextProps.upload.err) {
+        alert(nextProps.upload.err)
+      }
+    }
+  }
+
   openImage = () => {
     ImagePicker.openCamera({
       width: 350,
@@ -48,17 +59,7 @@ export default class Avatar extends Component{
           uri: image.path,
           name,
         })
-        ApiService.post(PATH.UPDATE_AVATAR, data, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        })
-          .then(res => {
-            if (res.data) alert(res.data.message);
-          })
-          .catch(err => {
-            console.warn(err);
-          });
+        this.props.UploadImage(data) // action update avatar
       } catch (error){
         console.warn(error)
       }
@@ -83,46 +84,39 @@ export default class Avatar extends Component{
         if(image.mime === "image/jpeg") name = "image.jpg"
         data.append('file', {type: image.mime, uri: image.path, name})
 
-        ApiService.post(PATH.UPDATE_AVATAR, data, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        }).then(res=>{
-            if (res.data) alert(res.data.message);
-        }).catch(err=> {
-          console.warn(err)
-        });
+        this.props.UploadImage(data)
       }catch (error) {
         console.warn(error)
       }
     })
     .catch(err => {
-      this.setState({ isVisible: false})
+      this.setState({ isVisible: false })
       alert('picker image error: ' + err)
     })
   }
 
   render(){
-    const { isVisible, link } = this.state;
-    const { style } = this.props
+    const { isVisible } = this.state;
     let uri = !this.props.uri ? require('../Assets/Image/avatar.jpg') : {uri: this.props.uri};
-    if(!!link) uri = {uri: link}
     return(
-      <View style={styles.container}>
-        <TouchableOpacity style={styles.avatar} onPress={()=>this.props.navigation.navigate("ImageZoomScreen", {
-          uri: uri
-        })}>
-          <Image style={{ width: 120, height: 120 }} source={uri} />
-        </TouchableOpacity>
-        <TouchableOpacity onPress={()=>this.openPicker()} style={styles.camera} >
-          <Icons name="camerao" size={30} />
-        </TouchableOpacity>
-        <BottomSheetDialog
-          isVisible={isVisible} 
-          closeModal={this.handleCloseModal}
-          openImage={this.openImage}
-          pickerImage={this.pickerImage}/>
-      </View>
+      <>
+        <View style={styles.container}>
+          <TouchableOpacity style={styles.avatar} onPress={()=>this.props.navigation.navigate("ImageZoomScreen", {
+            uri: uri
+          })}>
+            <Image style={{ width: 120, height: 120 }} source={uri} />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={()=>this.openPicker()} style={styles.camera} >
+            <Icons name="camerao" size={30} />
+          </TouchableOpacity>
+          <BottomSheetDialog
+            isVisible={isVisible} 
+            closeModal={this.handleCloseModal}
+            openImage={this.openImage}
+            pickerImage={this.pickerImage}/>
+        </View>
+        <LoadingModal ref="loading" />
+      </>
     )
   }
 }
@@ -143,5 +137,19 @@ const styles=StyleSheet.create({
     borderWidth: 1,
     borderColor: '#FFFFFF'
   },
-
 })
+
+const mapStateToProps = state => {
+  return {
+    upload: state.upload
+  }
+}
+
+const mapDispatchToProps = {
+  UploadImage: UploadImage 
+}
+
+export default connect(
+	mapStateToProps,
+	mapDispatchToProps
+)(Avatar)

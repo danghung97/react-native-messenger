@@ -18,12 +18,12 @@ class CustomTabBarItem extends React.PureComponent {
       const {name, focused, onPressItem, nameIcon} = this.props;
   
       return (
-        <TouchableOpacity style={{flex: 1, alignItems: 'center', backgroundColor: focused ? '#BBEBEB': '#fff'}}
+        <TouchableOpacity style={{flex: 1, alignItems: 'center', borderTopColor: focused ? '#0084ff' : '#fff', borderTopWidth: 1 }}
           onPress={()=>onPressItem(name)}>
-          {nameIcon ==='message1' ? <View style={{ marginBottom: 20, paddingHorizontal: 5, backgroundColor: '#FA0606', position: 'absolute' }}>
+          {/* {nameIcon ==='message1' ? <View style={{ marginBottom: 20, paddingHorizontal: 5, backgroundColor: '#FA0606', position: 'absolute' }}>
             <Text style={{color: '#fff'}}>11</Text>
-          </View> : <View />}
-          <Icons name={nameIcon} size={30} color="#333" />
+          </View> : <View />} */}
+          <Icons name={nameIcon} size={30} color={focused ? '#0084ff' : "#333"} />
           <Text >{name}</Text>
         </TouchableOpacity>
       );
@@ -72,20 +72,17 @@ class CustomTabBar extends React.Component {
     const listIcon = [{"name": "home"}, {"name": "profile"}, {"name": "message1"}]
 
     return (
-        <View>
-            <View style={{borderWidth: 1, borderColor: '#BBEBEB'}} />
-            <View style={styles.container}>
-                {routes.map((route, index) => {
-                    return (<CustomTabBarItem
-                        nameIcon={listIcon[index].name}
-                        key={index}
-                        name={route.routeName}
-                        onPressItem={this.navigationHandler}
-                        focused={navigation.state.index === index}
-                    />);
-                })}
-            </View>
-        </View>
+      <View style={styles.container}>
+        {routes.map((route, index) => {
+          return (<CustomTabBarItem
+              nameIcon={listIcon[index].name}
+              key={index}
+              name={route.routeName}
+              onPressItem={this.navigationHandler}
+              focused={navigation.state.index === index}
+          />);
+        })}
+      </View>
     );
   }
 }
@@ -93,7 +90,14 @@ class CustomTabBar extends React.Component {
 const styles = StyleSheet.create({
   container: {
     width: '100%',
-    flexDirection: 'row'
+    flexDirection: 'row',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
   }
 })
 
