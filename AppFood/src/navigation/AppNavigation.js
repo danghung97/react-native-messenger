@@ -1,4 +1,4 @@
-
+import 'react-native-gesture-handler';
 import Home from '../screens/HomeScreen';
 import Profile from '../screens/ProfileScreen';
 import Mess from '../screens/Messenger';
@@ -11,9 +11,9 @@ import { createBottomTabNavigator } from 'react-navigation-tabs';
 import { createDrawerNavigator } from 'react-navigation-drawer'
 import ImageZoom from '../Component/ImageZoom';
 import FooterTab from '../Component/Footertab';
+import CustomDrawer from '../Component/Drawer';
 import Caro from '../screens/Game/Caro';
 import ChessBoard from '../screens/Game/Chess/ChessBoard';
-
 
 const BottomNavigator = createBottomTabNavigator(
   {
@@ -32,18 +32,10 @@ const BottomNavigator = createBottomTabNavigator(
   }
 )
 
-const DrawerNavigator = createDrawerNavigator(
-  {
-    HomeScreen: Home,
-    ProfileScreen: Profile,
-  }
-)
-
 const stackNavigator = createStackNavigator(
   {
     bottomScreen: BottomNavigator,
     chatScreen: Chat,
-    drawer: DrawerNavigator,
     ImageZoomScreen: ImageZoom,
     VideoCallScreen: VideoCall,
     SoundPlayerScreen: SoundPlayer,
@@ -52,5 +44,17 @@ const stackNavigator = createStackNavigator(
   },
   { headerMode: 'none', navigationOptions: { headerVisible: false } }
 );
-const AppNavigation = createAppContainer(stackNavigator);
+
+const DrawerNavigator = createDrawerNavigator(
+  {
+    MainStack: stackNavigator
+  },
+  {
+    contentComponent: CustomDrawer,
+    drawerWidth: 200,
+    
+  }
+)
+
+const AppNavigation = createAppContainer(DrawerNavigator);
 export default AppNavigation;

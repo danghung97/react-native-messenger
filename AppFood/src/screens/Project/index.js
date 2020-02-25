@@ -10,7 +10,7 @@ class Project extends Component {
   }
 
   connectSocket = () => {
-    if (_.isUndefined(global.socketIO)) {
+    if (_.isUndefined(global.socket)) {
       global.socket = new WebSocket('ws://serverappfood.herokuapp.com/ws');
     }
     // let that = this
