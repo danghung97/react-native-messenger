@@ -9,7 +9,8 @@ import com.facebook.soloader.SoLoader;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 // import com.oney.WebRTCModule.WebRTCModulePackage;
-import com.facebook.react.ReactApplication; //<- Dòng này
+import com.facebook.react.ReactApplication;
+import com.rnfingerprint.FingerprintAuthPackage; //<- Dòng này
 import io.invertase.firebase.messaging.RNFirebaseMessagingPackage;//<- Dòng này
 import io.invertase.firebase.notifications.RNFirebaseNotificationsPackage;//<- Dòng này
 import org.devio.rn.splashscreen.SplashScreenReactPackage;
